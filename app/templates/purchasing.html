@@ -40,8 +40,8 @@
 <div class="row g-4 mb-4">
     <!-- Active Vendors Drilldown -->
     <div class="col-md-4">
-        <div class="card shadow-sm border-0 h-100 drilldown-value" data-metric="active_vendors"
-            data-title="Active Vendors Directory"
+        <div class="card shadow-sm border-0 h-100 global-drilldown"
+            data-drilldown-url="/api/v2/drilldown/active_vendors" data-title="Active Vendors Directory"
             style="background: linear-gradient(145deg, #1e1e1e, #181818); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
             onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='#aa8c66';"
             onmouseout="this.style.transform='none'; this.style.borderColor='transparent';">
@@ -58,8 +58,8 @@
 
     <!-- Open Purchase Orders Drilldown -->
     <div class="col-md-4">
-        <div class="card shadow-sm border-0 h-100 drilldown-value" data-metric="open_orders"
-            data-title="Open Purchase Orders"
+        <div class="card shadow-sm border-0 h-100 global-drilldown"
+            data-drilldown-url="/api/v2/drilldown/awaiting_receiving" data-title="Open Purchase Orders"
             style="background: linear-gradient(145deg, #1e1e1e, #181818); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
             onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='#aa8c66';"
             onmouseout="this.style.transform='none'; this.style.borderColor='transparent';">
@@ -76,8 +76,8 @@
 
     <!-- Expected Cost Drilldown -->
     <div class="col-md-4">
-        <div class="card shadow-sm border-0 h-100 drilldown-value" data-metric="expected_cost"
-            data-title="Expected Cost Detail"
+        <div class="card shadow-sm border-0 h-100 global-drilldown"
+            data-drilldown-url="/api/v2/drilldown/expected_cost_detail" data-title="Expected Cost Detail"
             style="background: linear-gradient(145deg, #1e1e1e, #181818); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
             onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='#dc3545';"
             onmouseout="this.style.transform='none'; this.style.borderColor='transparent';">
@@ -131,7 +131,7 @@
                                 </td>
                                 <td class="text-end pe-3">
                                     <button class="btn btn-sm btn-outline-light global-drilldown"
-                                        data-drilldown-url="/api/drilldown/po/{{ po.id }}"
+                                        data-drilldown-url="/api/v2/drilldown/po?id={{ po.id }}"
                                         data-title="PO Details">Details</button>
                                 </td>
                             </tr>
@@ -159,8 +159,9 @@
             <div class="card-body p-0">
                 <div class="list-group list-group-flush rounded-bottom border-0">
                     {% for vendor in vendors %}
-                    <a href="{{ url_for('purchasing.vendor_detail', id=vendor.id) }}"
-                        class="list-group-item list-group-item-action bg-dark border-secondary text-light p-3">
+                    <a href="#" data-drilldown-url="/api/v2/drilldown/vendor_po_history?id={{ vendor.id }}"
+                        data-title="{{ vendor.name }}'s Purchase Orders"
+                        class="list-group-item list-group-item-action bg-dark border-secondary text-light p-3 global-drilldown">
                         <div class="d-flex w-100 justify-content-between mb-1">
                             <h6 class="mb-0" style="color: #aa8c66;">{{ vendor.name }}</h6>
                             <small class="text-muted">{{ vendor.open_orders or 0 }} Open POs</small>

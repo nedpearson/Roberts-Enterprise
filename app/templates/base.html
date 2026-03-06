@@ -318,121 +318,225 @@
     {% include "_drilldown_modal.html" %}
 
     <script>
-        // Universal Drilldown Logic
-        let currentGlobalDrilldownData = null;
-        let currentGlobalDrilldownTitle = '';
+        // Universal Drilldown Engine UI Logic
+        let drilldownStack = []; // Array of {url, title, data}
+        const globalDrilldownModal = new bootstrap.Modal(document.getElementById('globalDrilldownModal'));
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const globalDrilldownTriggers = document.querySelectorAll('.global-drilldown');
-            const globalDrilldownModal = new bootstrap.Modal(document.getElementById('globalDrilldownModal'));
+        function resetDrilldownUI() {
+            document.getElementById('globalDrilldownLoader').classList.remove('d-none');
+            document.getElementById('globalDrilldownTableContainer').classList.add('d-none');
+            document.getElementById('globalDrilldownTableHead').innerHTML = '';
+            document.getElementById('globalDrilldownTableBody').innerHTML = '';
+            document.getElementById('globalDrilldownRecordCount').textContent = '';
+        }
 
-            // Use event delegation on the document body to catch dynamically rendered buttons
-            document.body.addEventListener('click', function (e) {
-                // Find the closest parent with the .global-drilldown class
-                const target = e.target.closest('.global-drilldown');
+        function renderBreadcrumbs() {
+            const container = document.getElementById('globalDrilldownBreadcrumbs');
+            if (drilldownStack.length <= 1) {
+                container.classList.add('d-none');
+                return;
+            }
+            container.classList.remove('d-none');
 
-                if (target) {
-                    const drilldownUrl = target.getAttribute('data-drilldown-url');
-                    const title = target.getAttribute('data-title') || 'Data Drilldown';
+            let html = '';
+            drilldownStack.forEach((level, index) => {
+                if (index < drilldownStack.length - 1) {
+                    html += `<a href="#" class="text-decoration-none theme-text" onclick="navigateDrilldownBack(${index}); return false;">${level.title}</a> <i class="bi bi-chevron-right mx-1" style="font-size:0.7rem;"></i> `;
+                } else {
+                    html += `<span class="text-light">${level.title}</span>`;
+                }
+            });
+            container.innerHTML = html;
+        }
 
-                    if (!drilldownUrl) {
-                        console.error('No data-drilldown-url provided for element:', target);
+        window.navigateDrilldownBack = function (targetIndex) {
+            // Remove everything after the target index
+            drilldownStack = drilldownStack.slice(0, targetIndex + 1);
+            const targetState = drilldownStack[drilldownStack.length - 1];
+            renderDrilldownData(targetState.data, targetState.title);
+            renderBreadcrumbs();
+        };
+
+        function fetchDrilldown(url, initialTitle, isNewStack = true) {
+            if (isNewStack) {
+                drilldownStack = [];
+                globalDrilldownModal.show();
+            }
+
+            resetDrilldownUI();
+            document.getElementById('globalDrilldownTitle').textContent = initialTitle;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        if (drilldownStack.length === 0) globalDrilldownModal.hide();
                         return;
                     }
 
-                    // Set UI to loading
-                    document.getElementById('globalDrilldownTitle').textContent = title;
-                    document.getElementById('globalDrilldownLoader').classList.remove('d-none');
-                    document.getElementById('globalDrilldownTableContainer').classList.add('d-none');
-                    document.getElementById('globalDrilldownTableHead').innerHTML = '';
-                    document.getElementById('globalDrilldownTableBody').innerHTML = '';
-                    document.getElementById('globalDrilldownRecordCount').textContent = '';
+                    // Push to stack
+                    const actualTitle = data.title || initialTitle;
+                    drilldownStack.push({ url: url, title: actualTitle, data: data });
 
-                    // Show modal
-                    globalDrilldownModal.show();
+                    renderDrilldownData(data, actualTitle);
+                    renderBreadcrumbs();
+                })
+                .catch(err => {
+                    console.error('Error fetching global drilldown data:', err);
+                    alert('Failed to load drilldown data.');
+                    if (drilldownStack.length === 0) globalDrilldownModal.hide();
+                });
+        }
 
-                    // Fetch data
-                    fetch(drilldownUrl)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.error) {
-                                alert(data.error);
-                                globalDrilldownModal.hide();
+        function renderDrilldownData(data, title) {
+            document.getElementById('globalDrilldownTitle').textContent = title;
+
+            const columns = data.columns || (data.data.length > 0 ? Object.keys(data.data[0]) : []);
+            const drillLinks = data.drill_links || {};
+
+            if (columns.length > 0) {
+                // Populate Table Header
+                const thead = document.getElementById('globalDrilldownTableHead');
+                const trHead = document.createElement('tr');
+                columns.forEach(col => {
+                    const th = document.createElement('th');
+                    th.className = "border-0 text-muted";
+                    th.textContent = col;
+                    trHead.appendChild(th);
+                });
+                thead.appendChild(trHead);
+
+                // Populate Table Body
+                const tbody = document.getElementById('globalDrilldownTableBody');
+                data.data.forEach(row => {
+                    const tr = document.createElement('tr');
+
+                    // Do we have a link for this row? 
+                    // We check if any of the keys in drill_links exist in this row's data
+                    let rowLinkUrl = null;
+                    let rowLinkTitle = 'Details';
+                    for (const [key, metricType] of Object.entries(drillLinks)) {
+                        if (row[key] !== undefined && row[key] !== null) {
+                            rowLinkUrl = `/api/v2/drilldown/${metricType}?id=${row[key]}`;
+                            rowLinkTitle = `${metricType} Details`;
+                            break; // just take the first matched drill path for now
+                        }
+                    }
+
+                    columns.forEach((col, index) => {
+                        const td = document.createElement('td');
+                        let cellVal = row[col];
+                        if (cellVal === null || cellVal === undefined) cellVal = '--';
+
+                        // Format status badge
+                        if (col.toLowerCase() === 'status') {
+                            if (cellVal === 'Scheduled' || cellVal === 'Submitted' || cellVal === 'Held' || cellVal === 'Draft') {
+                                cellVal = `<span class="badge bg-warning text-dark">${cellVal}</span>`;
+                            } else if (cellVal === 'Checked In' || cellVal === 'Ready' || cellVal === 'Active') {
+                                cellVal = `<span class="badge bg-info text-dark">${cellVal}</span>`;
+                            } else if (cellVal === 'Completed' || cellVal === 'Received' || cellVal === 'Fulfilled') {
+                                cellVal = `<span class="badge bg-success text-white">${cellVal}</span>`;
+                            } else {
+                                cellVal = `<span class="badge bg-secondary text-white">${cellVal}</span>`;
+                            }
+                        }
+
+                        // If this is the first column and we have a drill link, make it clickable
+                        if (index === 0 && rowLinkUrl) {
+                            td.innerHTML = `<a href="#" class="text-decoration-none theme-text fw-bold nested-drill-link" data-url="${rowLinkUrl}" data-title="${rowLinkTitle}">${cellVal}</a>`;
+                        } else {
+                            td.innerHTML = cellVal;
+                        }
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('globalDrilldownRecordCount').textContent = `Showing ${data.total_records || data.data.length || 0} records`;
+
+            // Swap UI
+            document.getElementById('globalDrilldownLoader').classList.add('d-none');
+            document.getElementById('globalDrilldownTableContainer').classList.remove('d-none');
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Use event delegation on the document body to catch standard AND nested triggers
+            document.body.addEventListener('click', function (e) {
+                // 1. Check for standard initial global-drilldown triggers
+                const standardTarget = e.target.closest('.global-drilldown');
+                if (standardTarget) {
+                    e.preventDefault();
+                    // Intercept and rewrite old V1 urls to V2 if necessary, or just use what's there
+                    let drilldownUrl = standardTarget.getAttribute('data-drilldown-url');
+
+                    // Quick migration map for old V1 paths to V2 if they are hardcoded in HTML
+                    if (drilldownUrl.includes('/api/dashboard/drilldown/')) {
+                        drilldownUrl = drilldownUrl.replace('/api/dashboard/drilldown/', '/api/v2/drilldown/');
+                    } else if (drilldownUrl.includes('/reports/api/drilldown/')) {
+                        drilldownUrl = drilldownUrl.replace('/reports/api/drilldown/', '/api/v2/drilldown/');
+                    }
+                    else if (drilldownUrl.includes('/api/drilldown/')) {
+                        // Convert /api/drilldown/appointment/1 -> /api/v2/drilldown/appointment?id=1
+                        const parts = drilldownUrl.split('/');
+                        if (parts.length >= 5) {
+                            drilldownUrl = `/api/v2/drilldown/${parts[3]}?id=${parts[4]}`;
+                        }
+                    }
+
+                    const title = standardTarget.getAttribute('data-title') || 'Data Drilldown';
+                    fetchDrilldown(drilldownUrl, title, true); // true = new stack
+                    return;
+                }
+
+                // 2. Check for nested drilldown links inside the modal table
+                const nestedTarget = e.target.closest('.nested-drill-link');
+                if (nestedTarget) {
+                    e.preventDefault();
+                    const url = nestedTarget.getAttribute('data-url');
+                    const title = nestedTarget.getAttribute('data-title') || 'Details';
+                    fetchDrilldown(url, title, false); // false = push to existing stack
+                    return;
+                }
+
+                // 3. Check for generic administrator/creation buttons for Demo Alert
+                const btnTarget = e.target.closest('button, .btn');
+                if (btnTarget) {
+                    // Skip if it's inside a form, explicitly toggles a modal, or is a real link
+                    if (!btnTarget.closest('form') && !btnTarget.hasAttribute('data-bs-toggle') && !btnTarget.hasAttribute('data-bs-dismiss')) {
+                        if (!(btnTarget.tagName === 'A' && btnTarget.getAttribute('href') && btnTarget.getAttribute('href') !== '#')) {
+                            const text = btnTarget.textContent.trim().toLowerCase();
+                            if (text.startsWith('add ') || text.includes(' add ') ||
+                                text.startsWith('new ') || text.includes(' new ') ||
+                                text.includes('submit ') || text.includes('schedule ') ||
+                                text.includes('book ')) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                alert(`Administrative Action Locked:\n\nThe '${btnTarget.textContent.trim()}' feature is disabled in this shared demonstration environment.`);
                                 return;
                             }
-
-                            currentGlobalDrilldownData = data;
-                            currentGlobalDrilldownTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-
-                            // Ensure columns exist, fallback if not explicitly provided
-                            const columns = data.columns || (data.data.length > 0 ? Object.keys(data.data[0]) : []);
-
-                            if (columns.length > 0) {
-                                // Populate Table Header
-                                const thead = document.getElementById('globalDrilldownTableHead');
-                                const trHead = document.createElement('tr');
-                                columns.forEach(col => {
-                                    const th = document.createElement('th');
-                                    th.className = "border-0 text-muted";
-                                    th.textContent = col;
-                                    trHead.appendChild(th);
-                                });
-                                thead.appendChild(trHead);
-
-                                // Populate Table Body
-                                const tbody = document.getElementById('globalDrilldownTableBody');
-                                data.data.forEach(row => {
-                                    const tr = document.createElement('tr');
-                                    columns.forEach(col => {
-                                        const td = document.createElement('td');
-                                        // Simple status badge rendering
-                                        let cellVal = row[col];
-                                        if (cellVal === null || cellVal === undefined) cellVal = '--';
-
-                                        if (col.toLowerCase() === 'status') {
-                                            if (cellVal === 'Scheduled' || cellVal === 'Submitted') {
-                                                cellVal = `<span class="badge bg-warning text-dark">${cellVal}</span>`;
-                                            } else if (cellVal === 'Checked In' || cellVal === 'Ready') {
-                                                cellVal = `<span class="badge bg-info text-dark">${cellVal}</span>`;
-                                            } else if (cellVal === 'Completed' || cellVal === 'Received' || cellVal === 'Paid') {
-                                                cellVal = `<span class="badge bg-success text-white">${cellVal}</span>`;
-                                            } else {
-                                                cellVal = `<span class="badge bg-secondary text-white">${cellVal}</span>`;
-                                            }
-                                        }
-                                        td.innerHTML = cellVal;
-                                        tr.appendChild(td);
-                                    });
-                                    tbody.appendChild(tr);
-                                });
-                            }
-
-                            document.getElementById('globalDrilldownRecordCount').textContent = `Showing ${data.total_records || data.data.length || 0} records`;
-
-                            // Swap UI
-                            document.getElementById('globalDrilldownLoader').classList.add('d-none');
-                            document.getElementById('globalDrilldownTableContainer').classList.remove('d-none');
-                        })
-                        .catch(err => {
-                            console.error('Error fetching global drilldown data:', err);
-                            alert('Failed to load drilldown data.');
-                            globalDrilldownModal.hide();
-                        });
+                        }
+                    }
                 }
             });
         });
 
         window.exportGlobalDrilldownCSV = function () {
-            if (!currentGlobalDrilldownData || !currentGlobalDrilldownData.data || currentGlobalDrilldownData.data.length === 0) {
+            if (drilldownStack.length === 0) {
                 alert("No data available to export.");
                 return;
             }
 
-            const columns = currentGlobalDrilldownData.columns || Object.keys(currentGlobalDrilldownData.data[0]);
+            const currentState = drilldownStack[drilldownStack.length - 1];
+            const dataObj = currentState.data;
+            if (!dataObj || !dataObj.data || dataObj.data.length === 0) return;
+
+            const columns = dataObj.columns || Object.keys(dataObj.data[0]);
             let csvContent = "data:text/csv;charset=utf-8,";
             csvContent += columns.join(",") + "\r\n";
 
-            currentGlobalDrilldownData.data.forEach(row => {
+            dataObj.data.forEach(row => {
                 const rowArr = columns.map(col => {
                     let cellData = String(row[col] || "");
                     // Clean HTML tags if any (like from badges)
@@ -451,11 +555,11 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Export_${currentGlobalDrilldownTitle}_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", `Export_${currentState.title.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        }
+        };
     </script>
 
     {% block extra_js %}{% endblock %}

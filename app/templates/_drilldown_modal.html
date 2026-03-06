@@ -3,13 +3,19 @@
     aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content bg-dark border-secondary">
-            <div class="modal-header border-bottom border-secondary">
-                <h5 class="modal-title text-light" id="globalDrilldownModalLabel">
-                    <i class="bi bi-search me-2 theme-text"></i>
-                    <span id="globalDrilldownTitle">Analyzing Data...</span>
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
+            <div class="modal-header border-bottom border-secondary flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    <h5 class="modal-title text-light" id="globalDrilldownModalLabel">
+                        <i class="bi bi-search me-2 theme-text"></i>
+                        <span id="globalDrilldownTitle">Analyzing Data...</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div id="globalDrilldownBreadcrumbs" class="w-100 mt-2 small text-muted d-none"
+                    style="font-size: 0.85rem;">
+                    <!-- Breadcrumbs injected here -->
+                </div>
             </div>
             <div class="modal-body p-0">
                 <!-- Loading State inside Modal -->

@@ -289,7 +289,29 @@ def dashboard_drilldown(metric):
         rows = [dict(row) for row in cursor.fetchall()]
         return {"total_records": len(rows), "data": rows, "columns": ["PO #", "Vendor", "Order Date", "Expected", "Status"]}
         
-    return {"error": "Invalid metric"}, 400
+@app.route('/api/v2/drilldown/<metric>')
+def universal_drilldown_v2(metric):
+    if 'user_id' not in session:
+        return {"error": "Unauthorized"}, 401
+        
+    from database import get_db
+    from drilldown_engine import DrilldownEngine
+    
+    conn = get_db()
+    engine = DrilldownEngine(conn)
+    
+    context = {
+        'company_id': session.get('company_id'),
+        'location_id': session.get('location_id'),
+        'user_id': session.get('user_id'),
+        'id': request.args.get('id')
+    }
+    
+    result = engine.execute(metric, context)
+    if "error" in result:
+        return result, 400
+        
+    return result
 
 @app.route('/api/drilldown/<type>/<int:id>')
 def universal_drilldown(type, id):

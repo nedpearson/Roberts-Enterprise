@@ -134,8 +134,12 @@
                         </div>
                         <div class="small text-muted" style="font-size: 0.8rem;">
                             Posted by {{ entry.staff_name }}<br>
+                            {% if entry.immutable_hash %}
                             <span class="font-monospace text-secondary opacity-50"
                                 title="{{ entry.immutable_hash }}">Hash: {{ entry.immutable_hash[:12] }}...</span>
+                            {% else %}
+                            <span class="font-monospace text-secondary opacity-50">Pending Hash</span>
+                            {% endif %}
                         </div>
                     </div>
                     {% else %}

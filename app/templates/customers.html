@@ -13,6 +13,26 @@
     </div>
 </div>
 
+<div class="row g-4 mb-4">
+    <!-- Customer Pipeline Metric -->
+    <div class="col-md-12">
+        <div class="card shadow-sm border-0 h-100 global-drilldown"
+            style="background: linear-gradient(145deg, #1e1e1e, #181818); cursor: pointer;"
+            data-drilldown-url="/api/v2/drilldown/customer_pipeline_totals" data-title="Customer Pipeline Overview">
+            <div class="card-body d-flex align-items-center">
+                <div class="bg-dark p-3 rounded text-center me-3 border border-secondary">
+                    <i class="bi bi-funnel-fill fs-3 text-info"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted mb-1">Customer Journey Pipeline</h6>
+                    <h3 class="mb-0 text-light"><i class="bi bi-search" style="font-size: 1rem; color: #aa8c66;"></i>
+                        View Stages</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card shadow-sm border-0">
     <div class="card-header bg-dark d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Customer Directory</h5>
@@ -53,17 +73,22 @@
                             <span class="text-muted">Not Set</span>
                             {% endif %}
                         </td>
-                        <td><a href="{{ url_for('customers.customer_detail', id=customer.id) }}#appointments"
-                                class="text-decoration-none"><span class="badge bg-secondary">{{ customer.appt_count
-                                    }}</span></a></td>
+                        <td>
+                            <a href="#" class="text-decoration-none global-drilldown"
+                                data-drilldown-url="/api/v2/drilldown/customer_appointments?id={{ customer.id }}"
+                                data-title="{{ customer.first_name }}'s Appointments">
+                                <span class="badge bg-secondary">{{ customer.appt_count }}</span>
+                            </a>
+                        </td>
                         <td>
                             {% if customer.total_spent %}
-                            <a href="{{ url_for('customers.customer_detail', id=customer.id) }}#orders"
-                                class="text-decoration-none fw-bold" style="color: #aa8c66;">
+                            <a href="#" class="text-decoration-none fw-bold global-drilldown" style="color: #aa8c66;"
+                                data-drilldown-url="/api/v2/drilldown/customer_orders?id={{ customer.id }}"
+                                data-title="{{ customer.first_name }}'s Orders">
                                 ${{ "{:,.2f}".format(customer.total_spent) }}
                             </a>
                             {% else %}
-                            $0.00
+                            <span class="text-muted">$0.00</span>
                             {% endif %}
                         </td>
                         <td class="text-end pe-3">

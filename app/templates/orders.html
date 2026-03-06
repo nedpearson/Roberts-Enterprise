@@ -15,7 +15,7 @@
 
 <div class="row g-4 mb-4">
     <!-- Active Orders Metric -->
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card shadow-sm border-0 h-100" style="background: linear-gradient(145deg, #1e1e1e, #181818);">
             <div class="card-body d-flex align-items-center">
                 <div class="bg-dark p-3 rounded text-center me-3 border border-secondary">
@@ -23,7 +23,8 @@
                 </div>
                 <div>
                     <h6 class="text-muted mb-1">Active Orders</h6>
-                    <a href="{{ url_for('orders.order_list') }}" class="text-decoration-none" style="color: inherit;">
+                    <a href="#" class="text-decoration-none global-drilldown" style="color: inherit;"
+                        data-drilldown-url="/api/v2/drilldown/active_orders" data-title="Active Orders">
                         <h3 class="mb-0" style="color: #aa8c66;">{{ orders|length }}</h3>
                     </a>
                 </div>
@@ -32,7 +33,7 @@
     </div>
 
     <!-- Total Outstanding Balances Metric -->
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card shadow-sm border-0 h-100" style="background: linear-gradient(145deg, #1e1e1e, #181818);">
             <div class="card-body d-flex align-items-center">
                 <div class="bg-dark p-3 rounded text-center me-3 border border-secondary">
@@ -40,9 +41,47 @@
                 </div>
                 <div>
                     <h6 class="text-muted mb-1">Total Outstanding</h6>
-                    <a href="{{ url_for('orders.order_list') }}" class="text-decoration-none" style="color: inherit;">
+                    <a href="#" class="text-decoration-none global-drilldown" style="color: inherit;"
+                        data-drilldown-url="/api/v2/drilldown/outstanding_balances"
+                        data-title="Total Outstanding Balances">
                         <h3 class="mb-0 text-light">${{ "{:,.2f}".format(orders|sum(attribute='balance_due')) }}</h3>
                     </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Sales by Month -->
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100 global-drilldown"
+            style="background: linear-gradient(145deg, #1e1e1e, #181818); cursor: pointer;"
+            data-drilldown-url="/api/v2/drilldown/total_orders" data-title="Total Sales by Month">
+            <div class="card-body d-flex align-items-center">
+                <div class="bg-dark p-3 rounded text-center me-3 border border-secondary">
+                    <i class="bi bi-graph-up-arrow fs-3 text-info"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted mb-1">Sales by Month</h6>
+                    <h3 class="mb-0 text-light"><i class="bi bi-search" style="font-size: 1rem; color: #aa8c66;"></i>
+                        View History</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposits Collected -->
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100 global-drilldown"
+            style="background: linear-gradient(145deg, #1e1e1e, #181818); cursor: pointer;"
+            data-drilldown-url="/api/v2/drilldown/deposits_collected" data-title="Deposits Collected">
+            <div class="card-body d-flex align-items-center">
+                <div class="bg-dark p-3 rounded text-center me-3 border border-secondary">
+                    <i class="bi bi-bank fs-3 text-success"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted mb-1">Deposits Collected</h6>
+                    <h3 class="mb-0 text-light"><i class="bi bi-search" style="font-size: 1rem; color: #aa8c66;"></i>
+                        View Ledger</h3>
                 </div>
             </div>
         </div>
