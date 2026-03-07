@@ -1,10 +1,12 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from database import get_db
 import json
+from utils.auth import requires_role
 
 bp = Blueprint('payroll', __name__, url_prefix='/payroll')
 
 @bp.route('/')
+@requires_role('Owner', 'Manager')
 def payroll_dashboard():
     if 'user_id' not in session: return redirect(url_for('login'))
     
@@ -17,10 +19,10 @@ def payroll_dashboard():
     cursor.execute('''
         SELECT u.*, 
             COALESCE(SUM(c.amount), 0) as pending_commissions,
-            (SELECT COUNT(*) FROM time_entries WHERE user_id = u.id AND approved = 0) as unapproved_timesheets
+            (SELECT COUNT(*) FROM time_entries WHERE user_id = u.id AND approved = FALSE) as unapproved_timesheets
         FROM users u
         LEFT JOIN commissions c ON u.id = c.user_id AND c.status = 'Pending'
-        WHERE u.active = 1 AND u.company_id = ? AND (u.location_id = ? OR ? = 0)
+        WHERE u.active = TRUE AND u.company_id = %s AND (u.location_id = %s OR %s = 0)
         GROUP BY u.id
         ORDER BY u.first_name ASC
     ''', (company_id, location_id, location_id))
@@ -32,7 +34,7 @@ def payroll_dashboard():
         FROM commissions c
         JOIN users u ON c.user_id = u.id
         LEFT JOIN orders o ON c.order_id = o.id
-        WHERE u.company_id = ? AND (u.location_id = ? OR ? = 0)
+        WHERE u.company_id = %s AND (u.location_id = %s OR %s = 0)
         ORDER BY c.earned_at DESC
         LIMIT 15
     ''', (company_id, location_id, location_id))
@@ -43,7 +45,7 @@ def payroll_dashboard():
         SELECT p.*, u.first_name, u.last_name 
         FROM paystubs p
         JOIN users u ON p.user_id = u.id
-        WHERE p.company_id = ?
+        WHERE p.company_id = %s
         ORDER BY p.created_at DESC
         LIMIT 20
     ''', (company_id,))
@@ -58,14 +60,14 @@ def view_timesheets(user_id):
     conn = get_db()
     cursor = conn.cursor()
     
-    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
+    cursor.execute('SELECT * FROM users WHERE id = %s', (user_id,))
     person = cursor.fetchone()
     
     if not person:
         flash("Staff member not found.", "error")
         return redirect(url_for('payroll.payroll_dashboard'))
         
-    cursor.execute('SELECT * FROM time_entries WHERE user_id = ? ORDER BY clock_in DESC', (user_id,))
+    cursor.execute('SELECT * FROM time_entries WHERE user_id = %s ORDER BY clock_in DESC', (user_id,))
     timesheets = cursor.fetchall()
     
     unapproved_count = sum(1 for t in timesheets if not t['approved'])
@@ -82,7 +84,7 @@ def approve_timesheets(user_id):
     cursor = conn.cursor()
     
     try:
-        cursor.execute('UPDATE time_entries SET approved = 1 WHERE user_id = ? AND approved = 0', (user_id,))
+        cursor.execute('UPDATE time_entries SET approved = TRUE WHERE user_id = %s AND approved = FALSE', (user_id,))
         conn.commit()
         flash("All pending timesheets approved.", "success")
     except Exception as e:
@@ -99,14 +101,25 @@ def clock_in():
     conn = get_db()
     cursor = conn.cursor()
     
+    # Optional PIN Verification for clock in/out security
+    entered_pin = request.form.get('pin')
+    cursor.execute("SELECT pin_hash FROM users WHERE id = %s", (session['user_id'],))
+    user_data = cursor.fetchone()
+    
+    if user_data and user_data['pin_hash']:
+        from werkzeug.security import check_password_hash
+        if not entered_pin or not check_password_hash(user_data['pin_hash'], entered_pin):
+            flash("Invalid or missing 4-digit PIN.", "error")
+            return redirect(request.referrer or url_for('dashboard'))
+            
     # Check if already clocked in
-    cursor.execute("SELECT id FROM time_entries WHERE user_id = ? AND clock_out IS NULL", (session['user_id'],))
+    cursor.execute("SELECT id FROM time_entries WHERE user_id = %s AND clock_out IS NULL", (session['user_id'],))
     if cursor.fetchone():
         flash("You are already clocked in.", "warning")
         return redirect(request.referrer or url_for('dashboard'))
         
     try:
-        cursor.execute("INSERT INTO time_entries (user_id, location_id, clock_in) VALUES (?, ?, CURRENT_TIMESTAMP)", 
+        cursor.execute("INSERT INTO time_entries (user_id, location_id, clock_in) VALUES (%s, %s, CURRENT_TIMESTAMP)", 
                        (session['user_id'], session.get('location_id', 0)))
         conn.commit()
         flash("Clocked in successfully.", "success")
@@ -122,7 +135,18 @@ def clock_out():
     conn = get_db()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT id, clock_in FROM time_entries WHERE user_id = ? AND clock_out IS NULL ORDER BY clock_in DESC LIMIT 1", (session['user_id'],))
+    # Optional PIN Verification
+    entered_pin = request.form.get('pin')
+    cursor.execute("SELECT pin_hash FROM users WHERE id = %s", (session['user_id'],))
+    user_data = cursor.fetchone()
+    
+    if user_data and user_data['pin_hash']:
+        from werkzeug.security import check_password_hash
+        if not entered_pin or not check_password_hash(user_data['pin_hash'], entered_pin):
+            flash("Invalid or missing 4-digit PIN.", "error")
+            return redirect(request.referrer or url_for('dashboard'))
+            
+    cursor.execute("SELECT id, clock_in FROM time_entries WHERE user_id = %s AND clock_out IS NULL ORDER BY clock_in DESC LIMIT 1", (session['user_id'],))
     entry = cursor.fetchone()
     
     if not entry:
@@ -133,8 +157,8 @@ def clock_out():
         cursor.execute('''
             UPDATE time_entries 
             SET clock_out = CURRENT_TIMESTAMP,
-                total_hours = (julianday(CURRENT_TIMESTAMP) - julianday(clock_in)) * 24
-            WHERE id = ?
+                total_hours = EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - clock_in)) / 3600.0
+            WHERE id = %s
         ''', (entry['id'],))
         conn.commit()
         flash("Clocked out successfully.", "success")
@@ -145,6 +169,7 @@ def clock_out():
     return redirect(request.referrer or url_for('dashboard'))
 
 @bp.route('/run_process', methods=['POST'])
+@requires_role('Owner', 'Manager')
 def run_process():
     if 'user_id' not in session or session.get('role') != 'Owner':
         flash("Unauthorized to run payroll.", "error")
@@ -163,7 +188,7 @@ def run_process():
     
     try:
         # Get active staff
-        cursor.execute("SELECT * FROM users WHERE active = 1 AND company_id = ?", (company_id,))
+        cursor.execute("SELECT * FROM users WHERE active = TRUE AND company_id = %s", (company_id,))
         staff_members = cursor.fetchall()
         
         paystubs_created = 0
@@ -177,8 +202,8 @@ def run_process():
             cursor.execute('''
                 SELECT SUM(total_hours) as thours
                 FROM time_entries 
-                WHERE user_id = ? AND status = 'Unpaid' AND approved = 1
-                AND DATE(clock_out) >= ? AND DATE(clock_out) <= ?
+                WHERE user_id = %s AND status = 'Unpaid' AND approved = TRUE
+                AND CAST(clock_out AS DATE) >= %s AND CAST(clock_out AS DATE) <= %s
             ''', (user_id, start_date, end_date))
             row = cursor.fetchone()
             total_hours = float(row['thours'] or 0.0)
@@ -188,8 +213,8 @@ def run_process():
             cursor.execute('''
                 SELECT SUM(amount) as tcomm 
                 FROM commissions 
-                WHERE user_id = ? AND status = 'Pending'
-                AND DATE(earned_at) >= ? AND DATE(earned_at) <= ?
+                WHERE user_id = %s AND status = 'Pending'
+                AND CAST(earned_at AS DATE) >= %s AND CAST(earned_at AS DATE) <= %s
             ''', (user_id, start_date, end_date))
             row2 = cursor.fetchone()
             commission_pay = float(row2['tcomm'] or 0.0)
@@ -204,20 +229,20 @@ def run_process():
             cursor.execute('''
                 INSERT INTO paystubs 
                 (company_id, user_id, period_start, period_end, total_hours, hourly_rate, base_pay, commission_pay, bonus_pay, total_pay, created_by)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (company_id, user_id, start_date, end_date, total_hours, hourly_wage, base_pay, commission_pay, target_bonus, total_pay, session['user_id']))
             
             # --- 4. Mark Time and Commissions as Paid ---
             cursor.execute('''
                 UPDATE time_entries SET status = 'Paid'
-                WHERE user_id = ? AND status = 'Unpaid' AND approved = 1
-                AND DATE(clock_out) >= ? AND DATE(clock_out) <= ?
+                WHERE user_id = %s AND status = 'Unpaid' AND approved = TRUE
+                AND CAST(clock_out AS DATE) >= %s AND CAST(clock_out AS DATE) <= %s
             ''', (user_id, start_date, end_date))
             
             cursor.execute('''
                 UPDATE commissions SET status = 'Paid'
-                WHERE user_id = ? AND status = 'Pending'
-                AND DATE(earned_at) >= ? AND DATE(earned_at) <= ?
+                WHERE user_id = %s AND status = 'Pending'
+                AND CAST(earned_at AS DATE) >= %s AND CAST(earned_at AS DATE) <= %s
             ''', (user_id, start_date, end_date))
             
             paystubs_created += 1
@@ -235,6 +260,7 @@ def run_process():
     return redirect(url_for('payroll.payroll_dashboard'))
 
 @bp.route('/distribute_pools', methods=['POST'])
+@requires_role('Owner', 'Manager')
 def distribute_pools():
     if 'user_id' not in session or session.get('role') != 'Owner':
         flash("Unauthorized to distribute pools.", "error")
@@ -255,48 +281,98 @@ def distribute_pools():
     company_id = session.get('company_id')
     
     try:
-        # Get all employees with commission_type = 'LOCATION'
-        cursor.execute("SELECT * FROM users WHERE active = 1 AND company_id = ? AND commission_type = 'LOCATION'", (company_id,))
+        # Get all employees that have a commission structure
+        cursor.execute("SELECT * FROM users WHERE active = TRUE AND company_id = %s AND commission_type != 'NONE' AND commission_type IS NOT NULL", (company_id,))
         staff_members = cursor.fetchall()
         
         total_payout = 0.0
         
         for person in staff_members:
-            if not person['commission_locations'] or not person['commission_rate']:
-                continue
-                
-            try:
-                locations = json.loads(person['commission_locations'])
-            except:
-                continue
-                
-            rate = float(person['commission_rate']) / 100.0
+            ctype = person['commission_type']
+            cut = 0.0
+            desc = ""
             
-            if not locations:
-                continue
+            # 1. Location Pool Logic
+            if ctype == 'LOCATION':
+                if not person['commission_locations'] or not person['commission_rate']:
+                    continue
+                try:
+                    locations = json.loads(person['commission_locations'])
+                except:
+                    continue
+                rate = float(person['commission_rate']) / 100.0
+                if not locations:
+                    continue
+                placeholders = ','.join('%s' for _ in locations)
+                query = f'''
+                    SELECT SUM(total) as pool_rev
+                    FROM orders 
+                    WHERE company_id = %s 
+                    AND location_id IN ({placeholders})
+                    AND status IN ('Active', 'Fulfilled')
+                    AND EXTRACT(MONTH FROM created_at) = %s 
+                    AND EXTRACT(YEAR FROM created_at) = %s
+                '''
+                params = [company_id] + [int(loc) for loc in locations] + [int(month), int(year)]
+                cursor.execute(query, tuple(params))
+                row = cursor.fetchone()
+                pool_rev = float(row['pool_rev'] or 0.0)
+                if pool_rev > 0:
+                    cut = round(pool_rev * rate, 2)
+                    desc = f"{month_str}/{year_str} Pool Payout"
+                    
+            # 2. Individual Sales Logic (Percentage, Flat, Tiered)
+            elif ctype in ['PERCENTAGE', 'FLAT_RATE', 'TIERED', 'TIERED_FLAT']:
+                # Get the person's total sales and count of orders for the month
+                cursor.execute('''
+                    SELECT COALESCE(SUM(total), 0.0) as my_sales, COUNT(id) as sale_count
+                    FROM orders
+                    WHERE company_id = %s AND sold_by_id = %s
+                    AND status IN ('Active', 'Fulfilled')
+                    AND EXTRACT(MONTH FROM created_at) = %s 
+                    AND EXTRACT(YEAR FROM created_at) = %s
+                ''', (company_id, person['id'], int(month), int(year)))
+                stats = cursor.fetchone()
+                my_sales = float(stats['my_sales'])
+                sale_count = int(stats['sale_count'])
                 
-            placeholders = ','.join('?' for _ in locations)
-            query = f'''
-                SELECT SUM(total) as pool_rev
-                FROM orders 
-                WHERE company_id = ? 
-                AND location_id IN ({placeholders})
-                AND status IN ('Active', 'Fulfilled')
-                AND CAST(strftime('%m', created_at) AS INTEGER) = ? 
-                AND CAST(strftime('%Y', created_at) AS INTEGER) = ?
-            '''
-            params = [company_id] + [int(loc) for loc in locations] + [int(month), int(year)]
-            cursor.execute(query, params)
-            row = cursor.fetchone()
-            pool_rev = float(row['pool_rev'] or 0.0)
-            
-            if pool_rev > 0:
-                cut = round(pool_rev * rate, 2)
-                desc = f"{month_str}/{year_str} Pool Payout"
-                
+                if my_sales > 0 or sale_count > 0:
+                    if ctype == 'PERCENTAGE':
+                        rate = float(person.get('commission_rate') or 0.0) / 100.0
+                        cut = round(my_sales * rate, 2)
+                        desc = f"{month_str}/{year_str} Sales Commission ({person.get('commission_rate')}%)"
+                        
+                    elif ctype == 'FLAT_RATE':
+                        rate = float(person.get('commission_rate') or 0.0)
+                        cut = round(sale_count * rate, 2)
+                        desc = f"{month_str}/{year_str} Flat Rate ({sale_count} Sales)"
+                        
+                    elif ctype in ['TIERED', 'TIERED_FLAT']:
+                        cursor.execute('SELECT * FROM commission_tiers WHERE user_id = %s ORDER BY revenue_threshold DESC', (person['id'],))
+                        tiers = cursor.fetchall()
+                        
+                        # Tiers are sorted highest threshold to lowest. First one we pass is our tier!
+                        achieved_tier = None
+                        for t in tiers:
+                            if my_sales >= float(t['revenue_threshold']):
+                                achieved_tier = t
+                                break
+                                
+                        if achieved_tier:
+                            rate = float(achieved_tier['commission_rate'])
+                            if ctype == 'TIERED':
+                                # Rate is a percentage
+                                cut = round(my_sales * (rate / 100.0), 2)
+                                desc = f"{month_str}/{year_str} Tier {achieved_tier['tier_level']} ({rate}%)"
+                            else:
+                                # Rate is a flat dollar bonus
+                                cut = round(rate, 2)
+                                desc = f"{month_str}/{year_str} Tier {achieved_tier['tier_level']} Flat Bonus"
+
+            if cut > 0:
                 cursor.execute('''
                     INSERT INTO commissions (user_id, description, amount, status)
-                    VALUES (?, ?, ?, 'Pending')
+                    VALUES (%s, %s, %s, 'Pending')
                 ''', (person['id'], desc, cut))
                 total_payout += cut
                 

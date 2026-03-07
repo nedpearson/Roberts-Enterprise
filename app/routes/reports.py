@@ -1,9 +1,11 @@
 from flask import Blueprint, render_template, redirect, url_for, session, jsonify
 from database import get_db
+from utils.auth import requires_role
 
 bp = Blueprint('reports', __name__, url_prefix='/reports')
 
 @bp.route('/')
+@requires_role('Owner', 'Manager')
 def overview():
     if 'user_id' not in session: return redirect(url_for('login'))
     
@@ -13,14 +15,14 @@ def overview():
     location_id = session.get('location_id', 0)
     
     # Calculate global metrics
-    cursor.execute("SELECT COUNT(*) as cnt FROM orders WHERE status = 'Active' AND company_id = ? AND (location_id = ? OR ? = 0)", (company_id, location_id, location_id))
+    cursor.execute("SELECT COUNT(*) as cnt FROM orders WHERE status = 'Active' AND company_id = %s AND (location_id = %s OR %s = 0)", (company_id, location_id, location_id))
     active_orders = cursor.fetchone()['cnt']
     
     cursor.execute('''
         SELECT SUM(amount) as collected 
         FROM payment_ledger pl
         JOIN orders o ON pl.order_id = o.id
-        WHERE type IN ('Deposit', 'Installment', 'Final') AND o.company_id = ? AND (o.location_id = ? OR ? = 0)
+        WHERE type IN ('Deposit', 'Installment', 'Final') AND o.company_id = %s AND (o.location_id = %s OR %s = 0)
     ''', (company_id, location_id, location_id))
     row = cursor.fetchone()
     total_collected = row['collected'] if row and row['collected'] else 0.0
@@ -29,7 +31,7 @@ def overview():
         SELECT SUM(o.total) as total_sales, 
                SUM( (SELECT COALESCE(SUM(amount), 0) FROM payment_ledger WHERE order_id = o.id AND type IN ('Deposit', 'Installment', 'Final')) ) as total_paid
         FROM orders o
-        WHERE o.company_id = ? AND (o.location_id = ? OR ? = 0)
+        WHERE o.company_id = %s AND (o.location_id = %s OR %s = 0)
     ''', (company_id, location_id, location_id))
     order_totals = cursor.fetchone()
     total_sales = order_totals['total_sales'] if order_totals and order_totals['total_sales'] else 0.0
@@ -42,6 +44,7 @@ def overview():
                           total_ar=total_ar)
 
 @bp.route('/api/drilldown/<metric>')
+@requires_role('Owner', 'Manager')
 def drilldown_api(metric):
     """
     Returns JSON tabular data for the requested metric, mimicking Forensic CPA's
@@ -64,7 +67,7 @@ def drilldown_api(metric):
             FROM payment_ledger pl
             JOIN customers c ON pl.customer_id = c.id
             JOIN orders o ON pl.order_id = o.id
-            WHERE pl.type IN ('Deposit', 'Installment', 'Final') AND o.company_id = ? AND (o.location_id = ? OR ? = 0)
+            WHERE pl.type IN ('Deposit', 'Installment', 'Final') AND o.company_id = %s AND (o.location_id = %s OR %s = 0)
             ORDER BY pl.occurred_at DESC
         ''', (company_id, location_id, location_id))
         for row in cursor.fetchall():
@@ -85,7 +88,7 @@ def drilldown_api(metric):
                 (SELECT COALESCE(SUM(amount), 0) FROM payment_ledger WHERE order_id = o.id AND type = 'Refund') as refunded
             FROM orders o
             JOIN customers c ON o.customer_id = c.id
-            WHERE o.status != 'Cancelled' AND o.company_id = ? AND (o.location_id = ? OR ? = 0)
+            WHERE o.status != 'Cancelled' AND o.company_id = %s AND (o.location_id = %s OR %s = 0)
         ''', (company_id, location_id, location_id))
         for row in cursor.fetchall():
             balance = row['total'] - (row['paid'] - row['refunded'])
@@ -104,7 +107,7 @@ def drilldown_api(metric):
             SELECT o.id, c.first_name, c.last_name, o.created_at, o.status
             FROM orders o
             JOIN customers c ON o.customer_id = c.id
-            WHERE o.status = 'Active' AND o.company_id = ? AND (o.location_id = ? OR ? = 0)
+            WHERE o.status = 'Active' AND o.company_id = %s AND (o.location_id = %s OR %s = 0)
             ORDER BY o.created_at DESC
         ''', (company_id, location_id, location_id))
         for row in cursor.fetchall():

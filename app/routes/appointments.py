@@ -17,19 +17,19 @@ def appointment_list():
         JOIN customers c ON a.customer_id = c.id
         JOIN services s ON a.service_id = s.id
         LEFT JOIN users u ON a.assigned_staff_id = u.id
-        WHERE c.company_id = ? AND (a.location_id = ? OR ? = 0)
+        WHERE c.company_id = %s AND (a.location_id = %s OR %s = 0)
         ORDER BY a.start_at ASC
     ''', (company_id, location_id, location_id))
     appointments = cursor.fetchall()
     
     # Fetch data for New Appointment modal
-    cursor.execute("SELECT id, first_name, last_name FROM customers WHERE company_id = ? ORDER BY first_name", (company_id,))
+    cursor.execute("SELECT id, first_name, last_name FROM customers WHERE company_id = %s ORDER BY first_name", (company_id,))
     customers = cursor.fetchall()
     
-    cursor.execute("SELECT id, name FROM services WHERE company_id = ? ORDER BY name", (company_id,))
+    cursor.execute("SELECT id, name FROM services WHERE company_id = %s ORDER BY name", (company_id,))
     services_list = cursor.fetchall()
     
-    cursor.execute("SELECT id, first_name, last_name, role FROM users WHERE company_id = ? ORDER BY first_name", (company_id,))
+    cursor.execute("SELECT id, first_name, last_name, role FROM users WHERE company_id = %s ORDER BY first_name", (company_id,))
     staff_list = cursor.fetchall()
     
     return render_template('appointments.html', 
@@ -58,7 +58,7 @@ def book_appointment():
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO appointments (location_id, customer_id, service_id, assigned_staff_id, start_at, end_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s)
     ''', (location_id, customer_id, service_id, assigned_staff_id, start_at, end_at))
     conn.commit()
     

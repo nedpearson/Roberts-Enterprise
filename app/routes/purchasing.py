@@ -19,7 +19,7 @@ def vendor_list():
             SUM(po.total_cost) as total_spent
         FROM vendors v
         LEFT JOIN purchase_orders po ON v.id = po.vendor_id AND po.status IN ('Draft', 'Submitted', 'Partially_Received')
-        WHERE v.company_id = ?
+        WHERE v.company_id = %s
         GROUP BY v.id
         ORDER BY v.name ASC
     ''', (company_id,))
@@ -30,7 +30,7 @@ def vendor_list():
         SELECT po.*, v.name as vendor_name 
         FROM purchase_orders po
         JOIN vendors v ON po.vendor_id = v.id
-        WHERE v.company_id = ?
+        WHERE v.company_id = %s
         ORDER BY po.order_date DESC
         LIMIT 10
     ''', (company_id,))
@@ -41,7 +41,7 @@ def vendor_list():
         SELECT COUNT(po.id) as count, SUM(po.total_cost) as expected_cost
         FROM purchase_orders po
         JOIN vendors v ON po.vendor_id = v.id
-        WHERE v.company_id = ? AND po.status != 'Received'
+        WHERE v.company_id = %s AND po.status != 'Received'
     ''', (company_id,))
     po_stats = cursor.fetchone()
     total_open_pos = po_stats['count'] if po_stats and po_stats['count'] else 0
@@ -66,7 +66,7 @@ def drilldown_api(metric):
     if metric == 'active_vendors':
         cursor.execute('''
             SELECT name as "Vendor Name", contact_name as "Contact", email as "Email", phone as "Phone"
-            FROM vendors WHERE company_id = ? ORDER BY name ASC
+            FROM vendors WHERE company_id = %s ORDER BY name ASC
         ''', (company_id,))
         rows = [dict(row) for row in cursor.fetchall()]
         return {"total_records": len(rows), "data": rows, "columns": ["Vendor Name", "Contact", "Email", "Phone"]}
@@ -76,7 +76,7 @@ def drilldown_api(metric):
             SELECT '#' || po.id as "PO #", v.name as "Vendor", po.order_date as "Order Date", po.expected_delivery as "Expected", po.status as "Status"
             FROM purchase_orders po
             JOIN vendors v ON po.vendor_id = v.id
-            WHERE v.company_id = ? AND po.status != 'Received'
+            WHERE v.company_id = %s AND po.status != 'Received'
             ORDER BY po.order_date DESC
         ''', (company_id,))
         rows = [dict(row) for row in cursor.fetchall()]
@@ -87,7 +87,7 @@ def drilldown_api(metric):
             SELECT '#' || po.id as "PO #", v.name as "Vendor", po.status as "Status", "$" || printf("%.2f", po.total_cost) as "Amount"
             FROM purchase_orders po
             JOIN vendors v ON po.vendor_id = v.id
-            WHERE v.company_id = ? AND po.status != 'Received'
+            WHERE v.company_id = %s AND po.status != 'Received'
             ORDER BY po.total_cost DESC
         ''', (company_id,))
         rows = [dict(row) for row in cursor.fetchall()]
@@ -103,7 +103,7 @@ def vendor_detail(id):
     cursor = conn.cursor()
     
     # Get vendor info securely
-    cursor.execute('SELECT * FROM vendors WHERE id = ? AND company_id = ?', (id, session.get('company_id')))
+    cursor.execute('SELECT * FROM vendors WHERE id = %s AND company_id = %s', (id, session.get('company_id')))
     vendor = cursor.fetchone()
     
     if not vendor:
@@ -113,7 +113,7 @@ def vendor_detail(id):
     # Get PO history for this vendor
     cursor.execute('''
         SELECT * FROM purchase_orders 
-        WHERE vendor_id = ? 
+        WHERE vendor_id = %s 
         ORDER BY order_date DESC
     ''', (id,))
     pos = cursor.fetchall()
@@ -133,7 +133,7 @@ def receive_po(id):
         SELECT po.id, po.vendor_id, v.company_id
         FROM purchase_orders po
         JOIN vendors v ON po.vendor_id = v.id
-        WHERE po.id = ? AND v.company_id = ?
+        WHERE po.id = %s AND v.company_id = %s
     ''', (id, company_id))
     
     if not cursor.fetchone():
@@ -141,7 +141,7 @@ def receive_po(id):
         return redirect(url_for('purchasing.vendor_list'))
         
     # Mark PO as Received
-    cursor.execute("UPDATE purchase_orders SET status = 'Received' WHERE id = ?", (id,))
+    cursor.execute("UPDATE purchase_orders SET status = 'Received' WHERE id = %s", (id,))
     
     # 1. Fetch all items on this PO
     cursor.execute('''
@@ -149,7 +149,7 @@ def receive_po(id):
         FROM purchase_order_items poi
         JOIN product_variants pv ON poi.product_variant_id = pv.id
         JOIN products p ON pv.product_id = p.id
-        WHERE poi.purchase_order_id = ?
+        WHERE poi.purchase_order_id = %s
     ''', (id,))
     po_items = cursor.fetchall()
     
@@ -158,7 +158,7 @@ def receive_po(id):
         cursor.execute('''
             SELECT customer_id 
             FROM reservations 
-            WHERE product_variant_id = ? AND status IN ('Held', 'Confirmed')
+            WHERE product_variant_id = %s AND status IN ('Held', 'Confirmed')
         ''', (item['product_variant_id'],))
         reservations = cursor.fetchall()
         
@@ -185,7 +185,7 @@ def add_vendor():
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO vendors (company_id, name, contact_name, email, phone, lead_time_days)
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s)
     ''', (company_id, name, contact_name, email, phone, lead_time_days))
     conn.commit()
     
@@ -208,16 +208,16 @@ def create_po():
     cursor = conn.cursor()
     
     # Verify vendor belongs to company
-    cursor.execute("SELECT id FROM vendors WHERE id = ? AND company_id = ?", (vendor_id, session.get('company_id')))
+    cursor.execute("SELECT id FROM vendors WHERE id = %s AND company_id = %s", (vendor_id, session.get('company_id')))
     if not cursor.fetchone():
         flash("Invalid vendor selected.", "error")
         return redirect(url_for('purchasing.vendor_list'))
         
     cursor.execute('''
         INSERT INTO purchase_orders (vendor_id, expected_delivery, notes, created_by, status)
-        VALUES (?, ?, ?, ?, 'Draft')
+        VALUES (%s, %s, %s, %s, 'Draft') RETURNING id
     ''', (vendor_id, expected_delivery, notes, user_id))
-    new_po_id = cursor.lastrowid
+    new_po_id = cursor.fetchone()['id']
     conn.commit()
     
     flash(f"Purchase Order Draft #{new_po_id:04d} created.", "success")

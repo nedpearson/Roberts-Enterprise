@@ -1,0 +1,13 @@
+.venv
+__pycache__
+*.pyc
+.git
+.env
+app/bridal_ai.db
+app/roberts_enterprise.db
+app.log
+tmp*
+cookies.txt
+*.log
+*.sqlite3
+*.db

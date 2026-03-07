@@ -18,7 +18,7 @@ def log_view():
                c.first_name || ' ' || c.last_name as customer_name, c.phone, c.email
         FROM communication_logs cl
         JOIN customers c ON cl.customer_id = c.id
-        WHERE cl.company_id = ?
+        WHERE cl.company_id = %s
         ORDER BY cl.created_at DESC
     ''', (company_id,))
     

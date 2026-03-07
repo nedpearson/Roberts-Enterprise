@@ -19,7 +19,7 @@ def customer_list():
                 (SELECT COUNT(*) FROM appointments WHERE customer_id = c.id) as appt_count,
                 (SELECT SUM(total) FROM orders WHERE customer_id = c.id) as total_spent
             FROM customers c
-            WHERE c.company_id = ? AND (c.location_id = ? OR ? = 0)
+            WHERE c.company_id = %s AND (c.location_id = %s OR %s = 0)
             ORDER BY c.created_at DESC
         ''', (company_id, location_id, location_id))
         customers = cursor.fetchall()
@@ -45,20 +45,20 @@ def customer_detail(id):
     
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM customers WHERE id = ? AND company_id = ?', (id, session.get('company_id')))
+    cursor.execute('SELECT * FROM customers WHERE id = %s AND company_id = %s', (id, session.get('company_id')))
     customer = cursor.fetchone()
     
     if not customer:
         flash("Customer not found or access denied.", "error")
         return redirect(url_for('customers.customer_list'))
         
-    cursor.execute('SELECT * FROM appointments WHERE customer_id = ? ORDER BY start_at DESC', (id,))
+    cursor.execute('SELECT * FROM appointments WHERE customer_id = %s ORDER BY start_at DESC', (id,))
     appointments = cursor.fetchall()
     
-    cursor.execute('SELECT * FROM orders WHERE customer_id = ? ORDER BY created_at DESC', (id,))
+    cursor.execute('SELECT * FROM orders WHERE customer_id = %s ORDER BY created_at DESC', (id,))
     orders = cursor.fetchall()
     
-    cursor.execute('SELECT * FROM customer_measurements WHERE customer_id = ?', (id,))
+    cursor.execute('SELECT * FROM customer_measurements WHERE customer_id = %s', (id,))
     measurements = cursor.fetchone()
     
     # Get vendors that have active size charts
@@ -66,7 +66,7 @@ def customer_detail(id):
         SELECT DISTINCT v.id, v.name 
         FROM vendors v 
         JOIN designer_size_charts d ON v.id = d.vendor_id 
-        WHERE v.company_id = ? 
+        WHERE v.company_id = %s 
         ORDER BY v.name
     ''', (session.get('company_id'),))
     designers = cursor.fetchall()
@@ -81,7 +81,7 @@ def save_measurements(id):
     cursor = conn.cursor()
     
     # Verify company_id
-    cursor.execute('SELECT id FROM customers WHERE id = ? AND company_id = ?', (id, session.get('company_id')))
+    cursor.execute('SELECT id FROM customers WHERE id = %s AND company_id = %s', (id, session.get('company_id')))
     if not cursor.fetchone():
         flash("Unauthorized", "error")
         return redirect(url_for('customers.customer_list'))
@@ -91,11 +91,11 @@ def save_measurements(id):
     hips = request.form.get('hips', 0.0)
     hollow_to_hem = request.form.get('hollow_to_hem', 0.0)
     
-    cursor.execute("SELECT id FROM customer_measurements WHERE customer_id = ?", (id,))
+    cursor.execute("SELECT id FROM customer_measurements WHERE customer_id = %s", (id,))
     if cursor.fetchone():
-        cursor.execute("UPDATE customer_measurements SET bust=?, waist=?, hips=?, hollow_to_hem=?, updated_at=CURRENT_TIMESTAMP WHERE customer_id=?", (bust, waist, hips, hollow_to_hem, id))
+        cursor.execute("UPDATE customer_measurements SET bust=%s, waist=%s, hips=%s, hollow_to_hem=%s, updated_at=CURRENT_TIMESTAMP WHERE customer_id=%s", (bust, waist, hips, hollow_to_hem, id))
     else:
-        cursor.execute("INSERT INTO customer_measurements (customer_id, bust, waist, hips, hollow_to_hem) VALUES (?, ?, ?, ?, ?)", (id, bust, waist, hips, hollow_to_hem))
+        cursor.execute("INSERT INTO customer_measurements (customer_id, bust, waist, hips, hollow_to_hem) VALUES (%s, %s, %s, %s, %s)", (id, bust, waist, hips, hollow_to_hem))
         
     conn.commit()
     flash("Measurements saved successfully.", "success")
@@ -109,14 +109,14 @@ def recommend_size(id):
     cursor = conn.cursor()
     
     # Verify company_id
-    cursor.execute('SELECT id FROM customers WHERE id = ? AND company_id = ?', (id, session.get('company_id')))
+    cursor.execute('SELECT id FROM customers WHERE id = %s AND company_id = %s', (id, session.get('company_id')))
     if not cursor.fetchone():
         return jsonify({"error": "Unauthorized"}), 403
         
     vendor_id = request.args.get('vendor_id')
     if not vendor_id: return jsonify({"error": "Missing vendor_id"}), 400
     
-    cursor.execute('SELECT * FROM customer_measurements WHERE customer_id = ?', (id,))
+    cursor.execute('SELECT * FROM customer_measurements WHERE customer_id = %s', (id,))
     meas = cursor.fetchone()
     
     if not meas or (meas['bust'] == 0 and meas['waist'] == 0 and meas['hips'] == 0):
@@ -126,7 +126,7 @@ def recommend_size(id):
     bride_waist = meas['waist']
     bride_hips = meas['hips']
     
-    cursor.execute('SELECT * FROM designer_size_charts WHERE vendor_id = ? ORDER BY bust ASC', (vendor_id,))
+    cursor.execute('SELECT * FROM designer_size_charts WHERE vendor_id = %s ORDER BY bust ASC', (vendor_id,))
     charts = cursor.fetchall()
     
     if not charts:
@@ -182,7 +182,7 @@ def add_customer():
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO customers (company_id, location_id, first_name, last_name, email, phone, wedding_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     ''', (company_id, location_id, first_name, last_name, email, phone, wedding_date))
     conn.commit()
     

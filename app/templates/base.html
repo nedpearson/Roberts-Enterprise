@@ -173,7 +173,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift-luxury" href="#">
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('settings') %}active{% endif %}"
+                                href="{{ url_for('settings.index') }}">
                                 <i class="bi bi-gear me-2"></i> Settings
                             </a>
                         </li>
@@ -181,34 +182,24 @@
 
                     <div class="mt-auto p-3 w-100 border-top mt-5">
 
-                        <!-- Time Clock Widget -->
-                        <div class="mb-3 px-1">
-                            {% if is_clocked_in %}
-                            <form action="{{ url_for('payroll.clock_out') }}" method="POST" class="d-grid">
-                                <button type="submit"
-                                    class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center border-opacity-50">
-                                    <i class="bi bi-stop-circle me-2"></i> Clock Out
-                                </button>
-                            </form>
-                            {% else %}
-                            <form action="{{ url_for('payroll.clock_in') }}" method="POST" class="d-grid">
-                                <button type="submit"
-                                    class="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center border-opacity-50">
-                                    <i class="bi bi-play-circle me-2"></i> Clock In
-                                </button>
-                            </form>
-                            {% endif %}
-                        </div>
-
                         <!-- User Profile -->
                         <div class="d-flex align-items-center">
                             <div class="ms-2">
                                 <strong class="d-block">{{ session.get('name') }}</strong>
                                 <span class="text-muted small">{{ session.get('role') }}</span>
                             </div>
+
+                            {% if session.get('is_demo') %}
+                            <a href="{{ url_for('logout') }}"
+                                class="btn btn-sm btn-outline-danger ms-auto fw-medium px-2" style="font-size: 0.75rem;"
+                                title="Log out of demo mode">
+                                Exit Demo
+                            </a>
+                            {% else %}
                             <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-secondary ms-auto">
                                 <i class="bi bi-box-arrow-right"></i>
                             </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -217,21 +208,133 @@
 
             <!-- Main Content Area -->
             <main
-                class="{% if session.get('user_id') %}col-md-9 ms-sm-auto col-lg-10{% else %}col-12{% endif %} content-area">
-                <!-- Flash Messages -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                {% for category, message in messages %}
-                <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show"
-                    role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
+                class="{% if session.get('user_id') %}col-md-9 ms-sm-auto col-lg-10{% else %}col-12{% endif %} content-area position-relative">
 
-                {% block content %}{% endblock %}
+                {% if session.get('user_id') %}
+                <!-- TOP HORIZONTAL ACTION BAR: TIME CLOCK -->
+                <div class="d-flex justify-content-end align-items-center p-3 mb-4 shadow-sm"
+                    style="background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1020; margin-left: -15px; margin-right: -15px;">
+
+                    {% if session.get('is_demo') %}
+                    <div class="me-auto d-flex align-items-center me-3">
+                        <a href="{{ url_for('logout') }}"
+                            class="badge rounded-pill bg-danger text-white text-decoration-none px-3 py-2 motion-hover-lift-luxury shadow-sm"
+                            style="letter-spacing: 0.05em;">
+                            <i class="bi bi-shield-lock-fill me-1"></i> DEMO MODE (Click to Exit)
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if missing_clock_in_alert %}
+                    <div class="me-auto d-flex align-items-center text-danger fw-bold motion-fade-in-soft opacity-75">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                        <span class="small d-none d-md-inline" style="letter-spacing: 0.03em;">ALERT: Appointment
+                            scheduled today but you are not clocked in.</span>
+                        <span class="small d-inline d-md-none" style="letter-spacing: 0.03em;">ALERT: Missing
+                            Clock-In!</span>
+                    </div>
+                    {% elif missing_clock_out_alert %}
+                    <div class="me-auto d-flex align-items-center text-warning fw-bold motion-fade-in-soft"
+                        style="color: #d39e00 !important;">
+                        <i class="bi bi-clock-history me-2 fs-5"></i>
+                        <span class="small d-none d-md-inline" style="letter-spacing: 0.03em;">ACTIVITY LAPSE: Clocked
+                            in for >12 hours. Did you forget to clock out?</span>
+                        <span class="small d-inline d-md-none" style="letter-spacing: 0.03em;">ALERT: Clocked in
+                            >12h!</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex align-items-center ms-auto">
+                        <span class="text-muted small fw-medium text-uppercase me-3 text-nowrap d-none d-md-inline">Time
+                            Clock:</span>
+                        {% if is_clocked_in %}
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#clockOutPinModal"
+                            class="btn btn-sm px-4 fw-bold shadow-sm motion-hover-lift-luxury d-flex align-items-center border-0"
+                            style="background-color: #dc3545; color: white; border-radius: 2rem; font-family: 'Assistant', sans-serif; letter-spacing: 0.05em; text-transform: uppercase;">
+                            <i class="bi bi-stop-circle-fill me-2"></i> Clock Out Now
+                        </button>
+                        {% else %}
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#clockInPinModal"
+                            class="btn btn-sm px-4 fw-bold shadow-sm motion-hover-lift-luxury d-flex align-items-center border-0"
+                            style="background-color: #198754; color: white; border-radius: 2rem; font-family: 'Assistant', sans-serif; letter-spacing: 0.05em; text-transform: uppercase;">
+                            <i class="bi bi-play-circle-fill me-2"></i> Start Work Shift
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="px-md-2">
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show"
+                        role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <!-- Clock In Modal -->
+                    <div class="modal fade" id="clockInPinModal" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered modal-sm">
+                            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                                <div class="modal-header border-0 bg-transparent pb-0">
+                                    <h5 class="modal-title fw-bold">Enter PIN to Clock In</h5>
+                                    <button type="button" class="btn-close shadow-none"
+                                        data-bs-dismiss="modal"></button>
+                                </div>
+                                <form action="{{ url_for('payroll.clock_in') }}" method="POST">
+                                    <div class="modal-body py-4">
+                                        <input type="password" name="pin"
+                                            class="form-control text-center fs-3 tracking-wider rounded-3 bg-light shadow-none border-0 py-3 font-monospace"
+                                            placeholder="••••" maxlength="4" pattern="[0-9]{4}" autofocus>
+                                        <div class="form-text text-center mt-3 text-muted" style="font-size: 0.8rem;">
+                                            Required if PIN is set in Settings.</div>
+                                    </div>
+                                    <div class="modal-footer border-0 pt-0 pb-4 justify-content-center">
+                                        <button type="submit"
+                                            class="btn btn-success rounded-pill px-5 shadow-sm fw-bold w-100 py-2">Clock
+                                            In</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clock Out Modal -->
+                    <div class="modal fade" id="clockOutPinModal" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered modal-sm">
+                            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                                <div class="modal-header border-0 bg-transparent pb-0">
+                                    <h5 class="modal-title fw-bold">Enter PIN to Clock Out</h5>
+                                    <button type="button" class="btn-close shadow-none"
+                                        data-bs-dismiss="modal"></button>
+                                </div>
+                                <form action="{{ url_for('payroll.clock_out') }}" method="POST">
+                                    <div class="modal-body py-4">
+                                        <input type="password" name="pin"
+                                            class="form-control text-center fs-3 tracking-wider rounded-3 bg-light shadow-none border-0 py-3 font-monospace"
+                                            placeholder="••••" maxlength="4" pattern="[0-9]{4}" autofocus>
+                                        <div class="form-text text-center mt-3 text-muted" style="font-size: 0.8rem;">
+                                            Required if PIN is set in Settings.</div>
+                                    </div>
+                                    <div class="modal-footer border-0 pt-0 pb-4 justify-content-center">
+                                        <button type="submit"
+                                            class="btn btn-danger rounded-pill px-5 shadow-sm fw-bold w-100 py-2">Clock
+                                            Out</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% block content %}{% endblock %}
+                </div>
             </main>
         </div>
     </div>

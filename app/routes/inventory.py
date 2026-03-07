@@ -15,12 +15,12 @@ def catalog():
             (SELECT SUM(on_hand_qty) FROM product_variants WHERE product_id = p.id) as total_qty
         FROM products p
         LEFT JOIN vendors v ON p.vendor_id = v.id
-        WHERE v.company_id = ?
+        WHERE v.company_id = %s
         ORDER BY p.name ASC
     ''', (company_id,))
     products = cursor.fetchall()
 
-    cursor.execute('SELECT * FROM vendors WHERE company_id = ? ORDER BY name ASC', (company_id,))
+    cursor.execute('SELECT * FROM vendors WHERE company_id = %s ORDER BY name ASC', (company_id,))
     vendors = cursor.fetchall()
     
     return render_template('inventory.html', products=products, vendors=vendors)
@@ -43,7 +43,7 @@ def reserve_product(id):
             FROM product_variants pv
             JOIN products p ON pv.product_id = p.id
             JOIN vendors v ON p.vendor_id = v.id
-            WHERE p.id = ? AND v.company_id = ?
+            WHERE p.id = %s AND v.company_id = %s
             LIMIT 1
         ''', (id, session.get('company_id')))
         variant = cursor.fetchone()
@@ -51,7 +51,7 @@ def reserve_product(id):
         if variant:
             cursor.execute('''
                 INSERT INTO reservations (product_variant_id, quantity, status)
-                VALUES (?, ?, 'Reserved')
+                VALUES (%s, %s, 'Reserved')
             ''', (variant['id'], qty))
             conn.commit()
             flash(f"Successfully reserved {qty} item(s).", "success")
@@ -82,23 +82,23 @@ def add_product():
     
     try:
         # Check for duplicate SKU globally (as it MUST be unique)
-        cursor.execute('SELECT id FROM products WHERE sku = ?', (sku,))
+        cursor.execute('SELECT id FROM products WHERE sku = %s', (sku,))
         if cursor.fetchone():
             flash("Error: That Product SKU already exists.", "error")
             return redirect(url_for('inventory.catalog'))
             
         cursor.execute('''
             INSERT INTO products (vendor_id, type, brand, name, sku, cost, price, active)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, TRUE) RETURNING id
         ''', (vendor_id, ptype, brand, name, sku, cost, price))
         
-        product_id = cursor.lastrowid
+        product_id = cursor.fetchone()['id']
         
         # Create a default variant so it actually has manageable inventory
         default_variant_sku = f"{sku}-BASE"
         cursor.execute('''
             INSERT INTO product_variants (product_id, size, color, sku_variant, on_hand_qty, track_inventory)
-            VALUES (?, 'O/S', 'Default', ?, 0, 1)
+            VALUES (%s, 'O/S', 'Default', %s, 0, 1)
         ''', (product_id, default_variant_sku))
         
         conn.commit()

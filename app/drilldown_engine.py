@@ -19,8 +19,8 @@ class DrilldownEngine:
                     JOIN customers c ON a.customer_id = c.id
                     JOIN services s ON a.service_id = s.id
                     LEFT JOIN users u ON a.assigned_staff_id = u.id
-                    WHERE date(a.start_at) = date('now', 'localtime')
-                    AND a.location_id IN (SELECT id FROM locations WHERE company_id = ?)
+                    WHERE date(a.start_at) = CURRENT_DATE
+                    AND a.location_id IN (SELECT id FROM locations WHERE company_id = %s)
                     ORDER BY a.start_at ASC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -35,7 +35,7 @@ class DrilldownEngine:
                     FROM pickups p
                     JOIN customers c ON p.customer_id = c.id
                     WHERE p.status IN ('Scheduled', 'Ready', 'Rescheduled')
-                    AND p.company_id = ?
+                    AND p.company_id = %s
                     ORDER BY p.scheduled_at ASC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -52,7 +52,7 @@ class DrilldownEngine:
                            o.status as "Status"
                     FROM orders o
                     JOIN customers c ON o.customer_id = c.id
-                    WHERE o.company_id = ? AND o.status != 'Cancelled'
+                    WHERE o.company_id = %s AND o.status != 'Cancelled'
                     AND (o.total - COALESCE((SELECT SUM(amount) FROM payment_ledger WHERE order_id = o.id AND type != 'Refund'), 0)) > 0
                     ORDER BY "Balance Due" DESC
                 ''',
@@ -67,7 +67,7 @@ class DrilldownEngine:
                            po.expected_delivery as "Expected", po.status as "Status"
                     FROM purchase_orders po
                     JOIN vendors v ON po.vendor_id = v.id
-                    WHERE po.status IN ('Submitted', 'Partially_Received') AND v.company_id = ?
+                    WHERE po.status IN ('Submitted', 'Partially_Received') AND v.company_id = %s
                     ORDER BY po.order_date DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -84,7 +84,7 @@ class DrilldownEngine:
                            o.created_at as "Date"
                     FROM orders o
                     JOIN customers c ON o.customer_id = c.id
-                    WHERE o.company_id = ? AND o.status = 'Active'
+                    WHERE o.company_id = %s AND o.status = 'Active'
                     ORDER BY o.created_at DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -100,7 +100,7 @@ class DrilldownEngine:
                     FROM payment_ledger pl
                     JOIN customers c ON pl.customer_id = c.id
                     JOIN orders o ON pl.order_id = o.id
-                    WHERE o.company_id = ? AND pl.type != 'Refund'
+                    WHERE o.company_id = %s AND pl.type != 'Refund'
                     ORDER BY pl.occurred_at DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -116,7 +116,7 @@ class DrilldownEngine:
                            o.status as "Status"
                     FROM orders o
                     JOIN customers c ON o.customer_id = c.id
-                    WHERE o.company_id = ? AND o.status != 'Cancelled'
+                    WHERE o.company_id = %s AND o.status != 'Cancelled'
                     AND (o.total - COALESCE((SELECT SUM(amount) FROM payment_ledger WHERE order_id = o.id AND type != 'Refund'), 0)) > 0
                     ORDER BY "Balance Due" DESC
                 ''',
@@ -135,7 +135,7 @@ class DrilldownEngine:
                     JOIN services s ON a.service_id = s.id
                     LEFT JOIN users u ON a.assigned_staff_id = u.id
                     JOIN locations l ON a.location_id = l.id
-                    WHERE a.customer_id = ? AND l.company_id = ?
+                    WHERE a.customer_id = %s AND l.company_id = %s
                     ORDER BY a.start_at DESC
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
@@ -150,7 +150,7 @@ class DrilldownEngine:
                            "$" || printf("%.2f", o.tax) as "Tax",
                            "$" || printf("%.2f", o.total) as "Total"
                     FROM orders o
-                    WHERE o.customer_id = ? AND o.company_id = ?
+                    WHERE o.customer_id = %s AND o.company_id = %s
                     ORDER BY o.created_at DESC
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
@@ -170,7 +170,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE pv.on_hand_qty > 0 AND v.company_id = ?
+                    WHERE pv.on_hand_qty > 0 AND v.company_id = %s
                     ORDER BY (pv.on_hand_qty * p.cost) DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -187,7 +187,7 @@ class DrilldownEngine:
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
                     WHERE pv.track_inventory = 1 AND pv.on_hand_qty <= 2 
-                    AND v.company_id = ?
+                    AND v.company_id = %s
                     ORDER BY pv.on_hand_qty ASC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -206,7 +206,7 @@ class DrilldownEngine:
                 'query': '''
                     SELECT date(start_at) as "Date", count(id) as "Total Appointments", date(start_at) as "_date"
                     FROM appointments
-                    WHERE location_id IN (SELECT id FROM locations WHERE company_id = ?)
+                    WHERE location_id IN (SELECT id FROM locations WHERE company_id = %s)
                     GROUP BY "Date" ORDER BY "Date" DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -218,10 +218,10 @@ class DrilldownEngine:
                 'query': '''
                     SELECT COALESCE(u.first_name || ' ' || u.last_name, 'Unassigned') as "Consultant", 
                            count(a.id) as "Appointments",
-                           ? || '|' || COALESCE(u.id, 0) as "_composite"
+                           %s || '|' || COALESCE(u.id, 0) as "_composite"
                     FROM appointments a LEFT JOIN users u ON a.assigned_staff_id = u.id
                     JOIN locations l ON a.location_id = l.id
-                    WHERE date(a.start_at) = ? AND l.company_id = ?
+                    WHERE date(a.start_at) = %s AND l.company_id = %s
                     GROUP BY "Consultant" ORDER BY "Appointments" DESC
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('id'), ctx.get('company_id')],
@@ -232,11 +232,11 @@ class DrilldownEngine:
                 'title': 'Appointments By Service Type',
                 'query': '''
                     SELECT s.name as "Service", count(a.id) as "Appointments",
-                           ? || '|' || s.id as "_composite"
+                           %s || '|' || s.id as "_composite"
                     FROM appointments a JOIN services s ON a.service_id = s.id
                     JOIN locations l ON a.location_id = l.id
-                    WHERE date(a.start_at) = ? AND COALESCE(a.assigned_staff_id, 0) = ?
-                    AND l.company_id = ?
+                    WHERE date(a.start_at) = %s AND COALESCE(a.assigned_staff_id, 0) = %s
+                    AND l.company_id = %s
                     GROUP BY "Service" ORDER BY "Appointments" DESC
                 ''',
                 'params': lambda ctx: [
@@ -255,10 +255,10 @@ class DrilldownEngine:
                     FROM appointments a
                     JOIN customers c ON a.customer_id = c.id
                     JOIN locations l ON a.location_id = l.id
-                    WHERE date(a.start_at) = ? 
-                      AND COALESCE(a.assigned_staff_id, 0) = ?
-                      AND a.service_id = ?
-                      AND l.company_id = ?
+                    WHERE date(a.start_at) = %s 
+                      AND COALESCE(a.assigned_staff_id, 0) = %s
+                      AND a.service_id = %s
+                      AND l.company_id = %s
                     ORDER BY a.start_at ASC
                 ''',
                 'params': lambda ctx: [
@@ -288,7 +288,7 @@ class DrilldownEngine:
                     FROM customers c
                     LEFT JOIN appointments a ON a.customer_id = c.id
                     LEFT JOIN orders o ON o.customer_id = c.id
-                    WHERE c.company_id = ?
+                    WHERE c.company_id = %s
                     GROUP BY "Stage" ORDER BY count(DISTINCT c.id) DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -303,12 +303,12 @@ class DrilldownEngine:
                     FROM customers c
                     LEFT JOIN appointments a ON a.customer_id = c.id
                     LEFT JOIN orders o ON o.customer_id = c.id
-                    WHERE c.company_id = ?
+                    WHERE c.company_id = %s
                     AND (
-                        (? = 'stage1' AND a.id IS NULL) OR
-                        (? = 'stage2' AND a.id IS NOT NULL AND o.id IS NULL) OR
-                        (? = 'stage3' AND o.id IS NOT NULL AND o.status != 'Fulfilled') OR
-                        (? = 'stage4' AND o.status = 'Fulfilled')
+                        (%s = 'stage1' AND a.id IS NULL) OR
+                        (%s = 'stage2' AND a.id IS NOT NULL AND o.id IS NULL) OR
+                        (%s = 'stage3' AND o.id IS NOT NULL AND o.status != 'Fulfilled') OR
+                        (%s = 'stage4' AND o.status = 'Fulfilled')
                     )
                     GROUP BY c.id ORDER BY c.first_name ASC
                 ''',
@@ -328,7 +328,7 @@ class DrilldownEngine:
                            "$" || printf("%.2f", SUM(total)) as "Revenue",
                            strftime('%Y-%m', created_at) as "_month"
                     FROM orders
-                    WHERE company_id = ?
+                    WHERE company_id = %s
                     GROUP BY "Month" ORDER BY "Month" DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -340,11 +340,11 @@ class DrilldownEngine:
                 'query': '''
                     SELECT COALESCE(u.first_name || ' ' || u.last_name, 'Online/System') as "Consultant",
                            count(o.id) as "Orders", "$" || printf("%.2f", SUM(o.total)) as "Revenue",
-                           ? || '|' || COALESCE(u.id, 0) as "_composite"
+                           %s || '|' || COALESCE(u.id, 0) as "_composite"
                     FROM orders o
                     LEFT JOIN customers c ON o.customer_id = c.id
                     LEFT JOIN users u ON c.created_by = u.id
-                    WHERE strftime('%Y-%m', o.created_at) = ? AND o.company_id = ?
+                    WHERE strftime('%Y-%m', o.created_at) = %s AND o.company_id = %s
                     GROUP BY "Consultant" ORDER BY SUM(o.total) DESC
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('id'), ctx.get('company_id')],
@@ -358,9 +358,9 @@ class DrilldownEngine:
                            "$" || printf("%.2f", o.total) as "Total", o.status as "Status"
                     FROM orders o
                     JOIN customers c ON o.customer_id = c.id
-                    WHERE strftime('%Y-%m', o.created_at) = ?
-                      AND COALESCE(c.created_by, 0) = ?
-                      AND o.company_id = ?
+                    WHERE strftime('%Y-%m', o.created_at) = %s
+                      AND COALESCE(c.created_by, 0) = %s
+                      AND o.company_id = %s
                     ORDER BY o.created_at DESC
                 ''',
                 'params': lambda ctx: [
@@ -381,7 +381,7 @@ class DrilldownEngine:
                            date(pl.occurred_at) as "_date"
                     FROM payment_ledger pl
                     JOIN orders o ON pl.order_id = o.id
-                    WHERE pl.type = 'Deposit' AND o.company_id = ?
+                    WHERE pl.type = 'Deposit' AND o.company_id = %s
                     GROUP BY "Date" ORDER BY "Date" DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -393,11 +393,11 @@ class DrilldownEngine:
                 'query': '''
                     SELECT COALESCE(u.first_name || ' ' || u.last_name, 'Unknown') as "Consultant", 
                            count(pl.id) as "Transactions", "$" || printf("%.2f", SUM(pl.amount)) as "Total",
-                           ? || '|' || COALESCE(u.id, 0) as "_composite"
+                           %s || '|' || COALESCE(u.id, 0) as "_composite"
                     FROM payment_ledger pl
                     LEFT JOIN users u ON pl.created_by = u.id
                     JOIN orders o ON pl.order_id = o.id
-                    WHERE date(pl.occurred_at) = ? AND pl.type = 'Deposit' AND o.company_id = ?
+                    WHERE date(pl.occurred_at) = %s AND pl.type = 'Deposit' AND o.company_id = %s
                     GROUP BY "Consultant" ORDER BY SUM(pl.amount) DESC
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('id'), ctx.get('company_id')],
@@ -412,8 +412,8 @@ class DrilldownEngine:
                     FROM payment_ledger pl
                     JOIN customers c ON pl.customer_id = c.id
                     JOIN orders o ON pl.order_id = o.id
-                    WHERE date(pl.occurred_at) = ? AND COALESCE(pl.created_by, 0) = ? 
-                      AND pl.type = 'Deposit' AND o.company_id = ?
+                    WHERE date(pl.occurred_at) = %s AND COALESCE(pl.created_by, 0) = %s 
+                      AND pl.type = 'Deposit' AND o.company_id = %s
                 ''',
                 'params': lambda ctx: [
                     (str(ctx.get('id','')) + '||').split('|')[0], 
@@ -436,7 +436,7 @@ class DrilldownEngine:
                     JOIN customers c ON pl.customer_id = c.id
                     JOIN orders o ON pl.order_id = o.id
                     LEFT JOIN users u ON pl.created_by = u.id
-                    WHERE pl.id = ? AND o.company_id = ?
+                    WHERE pl.id = %s AND o.company_id = %s
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Tx ID", "Type", "Method", "Amount", "Timestamp", "Customer", "Processed By", "Reference"],
@@ -448,7 +448,7 @@ class DrilldownEngine:
                 'title': 'Pickups Scheduled By Date',
                 'query': '''
                     SELECT date(scheduled_at) as "Date", count(id) as "Pickups", date(scheduled_at) as "_date"
-                    FROM pickups WHERE company_id = ? AND status IN ('Scheduled', 'Ready')
+                    FROM pickups WHERE company_id = %s AND status IN ('Scheduled', 'Ready')
                     GROUP BY "Date" ORDER BY "Date" ASC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -465,7 +465,7 @@ class DrilldownEngine:
                     FROM pickups p
                     JOIN customers c ON p.customer_id = c.id
                     JOIN orders o ON p.order_id = o.id
-                    WHERE date(p.scheduled_at) = ? AND p.company_id = ? AND p.status IN ('Scheduled', 'Ready')
+                    WHERE date(p.scheduled_at) = %s AND p.company_id = %s AND p.status IN ('Scheduled', 'Ready')
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Customer", "Order", "Status", "Balance Due"],
@@ -480,7 +480,7 @@ class DrilldownEngine:
                     FROM appointments a
                     JOIN services s ON a.service_id = s.id
                     JOIN locations l ON a.location_id = l.id
-                    WHERE s.name LIKE '%Fit%' AND l.company_id = ? AND a.status = 'Scheduled'
+                    WHERE s.name LIKE '%Fit%' AND l.company_id = %s AND a.status = 'Scheduled'
                     GROUP BY "Date" ORDER BY "Date" ASC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -497,7 +497,7 @@ class DrilldownEngine:
                            (SELECT count(*) FROM appointments a WHERE a.assigned_staff_id = u.id) as "Appts Handled",
                            u.role as "Role"
                     FROM users u
-                    WHERE u.company_id = ? AND u.active = 1
+                    WHERE u.company_id = %s AND u.active = TRUE
                     ORDER BY "Orders Closed" DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -518,7 +518,7 @@ class DrilldownEngine:
                            v.email as "Email", count(p.id) as "Products Supplied"
                     FROM vendors v
                     LEFT JOIN products p ON p.vendor_id = v.id
-                    WHERE v.company_id = ? AND v.active = 1
+                    WHERE v.company_id = %s AND v.active = TRUE
                     GROUP BY v.id ORDER BY v.name ASC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -531,7 +531,7 @@ class DrilldownEngine:
                     SELECT p.id as "_pid", p.sku as "Base SKU", p.name as "Product",
                            p.type as "Category", "$" || printf("%.2f", p.cost) as "Unit Cost"
                     FROM products p
-                    WHERE p.vendor_id = ? AND p.active = 1
+                    WHERE p.vendor_id = %s AND p.active = TRUE
                 ''',
                 'params': lambda ctx: [ctx.get('id')],
                 'columns': ["Base SKU", "Product", "Category", "Unit Cost"],
@@ -543,7 +543,7 @@ class DrilldownEngine:
                     SELECT pv.id as "_pvid", pv.sku_variant as "SKU", pv.size as "Size", 
                            pv.color as "Color", pv.on_hand_qty as "In Stock"
                     FROM product_variants pv
-                    WHERE pv.product_id = ?
+                    WHERE pv.product_id = %s
                 ''',
                 'params': lambda ctx: [ctx.get('id')],
                 'columns': ["SKU", "Size", "Color", "In Stock"],
@@ -559,7 +559,7 @@ class DrilldownEngine:
                            "$" || printf("%.2f", po.total_cost) as "Total Cost"
                     FROM purchase_orders po
                     JOIN vendors v ON po.vendor_id = v.id
-                    WHERE v.company_id = ? AND po.status IN ('Submitted', 'Partially_Received')
+                    WHERE v.company_id = %s AND po.status IN ('Submitted', 'Partially_Received')
                     ORDER BY po.total_cost DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -572,7 +572,7 @@ class DrilldownEngine:
                     SELECT po.id as "_poid", '#' || po.id as "PO #", po.order_date as "Date",
                            po.status as "Status", "$" || printf("%.2f", po.total_cost) as "Total"
                     FROM purchase_orders po
-                    WHERE po.vendor_id = ?
+                    WHERE po.vendor_id = %s
                     ORDER BY po.order_date DESC
                 ''',
                 'params': lambda ctx: [ctx.get('id')],
@@ -595,7 +595,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE v.company_id = ? AND pv.on_hand_qty > 0
+                    WHERE v.company_id = %s AND pv.on_hand_qty > 0
                     GROUP BY p.type
                     ORDER BY "Qty On Hand" DESC
                 ''',
@@ -613,7 +613,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE v.company_id = ? AND p.type = ? AND pv.on_hand_qty > 0
+                    WHERE v.company_id = %s AND p.type = %s AND pv.on_hand_qty > 0
                     GROUP BY v.id
                     ORDER BY "Qty On Hand" DESC
                 ''',
@@ -631,7 +631,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE v.company_id = ? AND pv.on_hand_qty > 0
+                    WHERE v.company_id = %s AND pv.on_hand_qty > 0
                     GROUP BY v.id
                     ORDER BY "Qty On Hand" DESC
                 ''',
@@ -649,7 +649,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE v.company_id = ? AND v.id = ? AND pv.on_hand_qty > 0
+                    WHERE v.company_id = %s AND v.id = %s AND pv.on_hand_qty > 0
                     GROUP BY p.id
                     ORDER BY "Total Qty" DESC
                 ''',
@@ -666,8 +666,8 @@ class DrilldownEngine:
                            (SELECT COUNT(*) FROM reservations r WHERE r.product_variant_id = pv.id AND r.status IN ('Held', 'Confirmed')) as "Committed / Reserved"
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
-                    WHERE p.vendor_id IN (SELECT id FROM vendors WHERE company_id = ?)
-                    AND p.id = ?
+                    WHERE p.vendor_id IN (SELECT id FROM vendors WHERE company_id = %s)
+                    AND p.id = %s
                     ORDER BY pv.sku_variant ASC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id'), ctx.get('id')], # ID is Product ID
@@ -681,7 +681,7 @@ class DrilldownEngine:
                            poi.qty_received as "Quantity Change", '#' || po.id as "Reference", po.id as "_po_id"
                     FROM purchase_order_items poi
                     JOIN purchase_orders po ON poi.purchase_order_id = po.id
-                    WHERE poi.product_variant_id = ? AND poi.qty_received > 0
+                    WHERE poi.product_variant_id = %s AND poi.qty_received > 0
                     
                     UNION ALL
                     
@@ -689,14 +689,14 @@ class DrilldownEngine:
                            -oi.qty as "Quantity Change", '#' || o.id as "Reference", o.id as "_order_id"
                     FROM order_items oi
                     JOIN orders o ON oi.order_id = o.id
-                    WHERE oi.product_variant_id = ?
+                    WHERE oi.product_variant_id = %s
                     
                     UNION ALL
                     
                     SELECT date(r.reserve_from) as "Date", 'Reserved/Committed' as "Event Type",
                            -1 as "Quantity Change", 'Appt/Res #' || COALESCE(r.appointment_id, r.id) as "Reference", r.customer_id as "_customer_id"
                     FROM reservations r
-                    WHERE r.product_variant_id = ? AND r.status IN ('Held', 'Confirmed')
+                    WHERE r.product_variant_id = %s AND r.status IN ('Held', 'Confirmed')
                     
                     ORDER BY "Date" DESC
                 ''',
@@ -715,7 +715,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE v.company_id = ? AND pv.on_hand_qty BETWEEN 1 AND 1
+                    WHERE v.company_id = %s AND pv.on_hand_qty BETWEEN 1 AND 1
                     GROUP BY p.type
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -731,7 +731,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE v.company_id = ? AND p.type = ? AND pv.on_hand_qty = 1
+                    WHERE v.company_id = %s AND p.type = %s AND pv.on_hand_qty = 1
                     GROUP BY v.id
                 ''',
                 'params': lambda ctx: [ctx.get('company_id'), ctx.get('id')],
@@ -747,7 +747,7 @@ class DrilldownEngine:
                            (SELECT SUM(qty_ordered - qty_received) FROM purchase_order_items WHERE product_variant_id = pv.id) as "Pending Inbound"
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
-                    WHERE p.vendor_id = ? AND pv.on_hand_qty = 1
+                    WHERE p.vendor_id = %s AND pv.on_hand_qty = 1
                     ORDER BY "Pending Inbound" ASC
                 ''',
                 'params': lambda ctx: [ctx.get('id')],
@@ -764,7 +764,7 @@ class DrilldownEngine:
                     FROM purchase_order_items poi
                     JOIN purchase_orders po ON poi.purchase_order_id = po.id
                     JOIN vendors v ON po.vendor_id = v.id
-                    WHERE poi.product_variant_id = ? AND po.status IN ('Submitted', 'Partially_Received')
+                    WHERE poi.product_variant_id = %s AND po.status IN ('Submitted', 'Partially_Received')
                 ''',
                 'params': lambda ctx: [ctx.get('id')],
                 'columns': ["PO Number", "Vendor", "Date Ordered", "Expected", "Ordered", "Received"],
@@ -780,7 +780,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE v.company_id = ? AND pv.on_hand_qty = 0
+                    WHERE v.company_id = %s AND pv.on_hand_qty = 0
                     ORDER BY "Pending Inbound" ASC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -799,7 +799,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE v.company_id = ?
+                    WHERE v.company_id = %s
                     GROUP BY p.type
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -816,7 +816,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE v.company_id = ? AND p.type = ?
+                    WHERE v.company_id = %s AND p.type = %s
                     ORDER BY "Available" DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id'), ctx.get('id')], # ID is type
@@ -833,7 +833,7 @@ class DrilldownEngine:
                            r.status as "Status"
                     FROM reservations r
                     JOIN customers c ON r.customer_id = c.id
-                    WHERE r.product_variant_id = ? AND r.status IN ('Held', 'Confirmed')
+                    WHERE r.product_variant_id = %s AND r.status IN ('Held', 'Confirmed')
                 ''',
                 'params': lambda ctx: [ctx.get('id')],
                 'columns': ["Customer", "Hold Type", "Hold Window", "Status"],
@@ -850,7 +850,7 @@ class DrilldownEngine:
                            po.status as "Status"
                     FROM purchase_orders po
                     JOIN vendors v ON po.vendor_id = v.id
-                    WHERE v.company_id = ? AND po.status IN ('Submitted', 'Partially_Received') 
+                    WHERE v.company_id = %s AND po.status IN ('Submitted', 'Partially_Received') 
                     AND po.expected_delivery < datetime('now', 'localtime')
                     ORDER BY "Days Overdue" DESC
                 ''',
@@ -868,7 +868,7 @@ class DrilldownEngine:
                     FROM purchase_order_items poi
                     JOIN product_variants pv ON poi.product_variant_id = pv.id
                     JOIN products p ON pv.product_id = p.id
-                    WHERE poi.purchase_order_id = ?
+                    WHERE poi.purchase_order_id = %s
                     ORDER BY "Outstanding" DESC
                 ''',
                 'params': lambda ctx: [ctx.get('id')],
@@ -883,7 +883,7 @@ class DrilldownEngine:
                            date(r.reserve_from) as "Required By", r.status as "Hold Status"
                     FROM reservations r
                     JOIN customers c ON r.customer_id = c.id
-                    WHERE r.product_variant_id = ? AND r.status IN ('Held', 'Confirmed')
+                    WHERE r.product_variant_id = %s AND r.status IN ('Held', 'Confirmed')
                 ''',
                 'params': lambda ctx: [ctx.get('id')],
                 'columns': ["Customer", "Context", "Required By", "Hold Status"],
@@ -901,7 +901,7 @@ class DrilldownEngine:
                     JOIN services s ON a.service_id = s.id
                     LEFT JOIN users u ON a.assigned_staff_id = u.id
                     JOIN locations l ON a.location_id = l.id
-                    WHERE a.id = ? AND l.company_id = ?
+                    WHERE a.id = %s AND l.company_id = %s
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Time", "End", "Service", "Stylist", "Status", "Notes"]
@@ -917,7 +917,7 @@ class DrilldownEngine:
                     JOIN product_variants pv ON oi.product_variant_id = pv.id
                     JOIN products p ON pv.product_id = p.id
                     JOIN orders o ON oi.order_id = o.id
-                    WHERE oi.order_id = ? AND o.company_id = ?
+                    WHERE oi.order_id = %s AND o.company_id = %s
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Item", "Size", "Color", "Qty", "Unit Price", "Total"],
@@ -931,7 +931,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE pv.product_id = ? AND v.company_id = ?
+                    WHERE pv.product_id = %s AND v.company_id = %s
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
                 'columns': ["SKU", "Size", "Color", "In Stock", "Tracked"]
@@ -949,7 +949,7 @@ class DrilldownEngine:
                     JOIN products p ON pv.product_id = p.id
                     JOIN purchase_orders po ON poi.purchase_order_id = po.id
                     JOIN vendors v ON po.vendor_id = v.id
-                    WHERE poi.purchase_order_id = ? AND v.company_id = ?
+                    WHERE poi.purchase_order_id = %s AND v.company_id = %s
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Product", "SKU", "Ordered", "Received", "Cost", "Total"],
@@ -961,7 +961,7 @@ class DrilldownEngine:
                     SELECT p.id, p.pickup_contact_name as "Contact", p.pickup_contact_phone as "Phone",
                            p.signed_at as "Signed At", p.signed_by as "Signed By", p.notes as "Notes"
                     FROM pickups p
-                    WHERE p.id = ? AND p.company_id = ?
+                    WHERE p.id = %s AND p.company_id = %s
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Contact", "Phone", "Signed At", "Signed By", "Notes"]

@@ -13,7 +13,7 @@ def dashboard():
     current_location = session.get('location_id', 0)
 
     # Fetch active locations for the dropdown
-    cursor.execute("SELECT id, name FROM locations WHERE company_id = ? AND active = 1", (company_id,))
+    cursor.execute("SELECT id, name FROM locations WHERE company_id = %s AND active = TRUE", (company_id,))
     locations = cursor.fetchall()
     
     # Fetch all transfers for the company to show history and transit
@@ -29,7 +29,7 @@ def dashboard():
         LEFT JOIN locations tl ON t.to_location_id = tl.id
         LEFT JOIN users u ON t.created_by = u.id
         LEFT JOIN users ru ON t.received_by = ru.id
-        WHERE t.company_id = ?
+        WHERE t.company_id = %s
         ORDER BY t.created_at DESC
     ''', (company_id,))
     
@@ -44,7 +44,7 @@ def dashboard():
         JOIN product_variants pv ON li.product_variant_id = pv.id
         JOIN products p ON pv.product_id = p.id
         LEFT JOIN vendors v ON p.vendor_id = v.id
-        WHERE p.active = 1 AND li.qty_on_hand > 0
+        WHERE p.active = TRUE AND li.qty_on_hand > 0
     ''')
     inventory_items = cursor.fetchall()
 
@@ -80,7 +80,7 @@ def new_transfer():
 
     try:
         # 1. Verify exact location inventory exists and is sufficient
-        cursor.execute("SELECT qty_on_hand FROM location_inventory WHERE location_id = ? AND product_variant_id = ?", (from_loc, variant_id))
+        cursor.execute("SELECT qty_on_hand FROM location_inventory WHERE location_id = %s AND product_variant_id = %s", (from_loc, variant_id))
         stock = cursor.fetchone()
         
         if not stock or stock['qty_on_hand'] < qty:
@@ -90,21 +90,21 @@ def new_transfer():
         # 2. Deduct from source ledger
         cursor.execute('''
             UPDATE location_inventory 
-            SET qty_on_hand = qty_on_hand - ? 
-            WHERE location_id = ? AND product_variant_id = ?
+            SET qty_on_hand = qty_on_hand - %s 
+            WHERE location_id = %s AND product_variant_id = %s
         ''', (qty, from_loc, variant_id))
 
         # 3. Create the Transfer Record
         cursor.execute('''
             INSERT INTO transfers (company_id, from_location_id, to_location_id, status, created_by, notes)
-            VALUES (?, ?, ?, 'In_Transit', ?, ?)
+            VALUES (%s, %s, %s, 'In_Transit', %s, %s) RETURNING id
         ''', (company_id, from_loc, to_loc, user_id, notes))
-        transfer_id = cursor.lastrowid
+        transfer_id = cursor.fetchone()['id']
 
         # 4. Attach the Items to the Transfer
         cursor.execute('''
             INSERT INTO transfer_items (transfer_id, product_variant_id, qty)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
         ''', (transfer_id, variant_id, qty))
 
         conn.commit()
@@ -127,7 +127,7 @@ def receive_transfer(id):
 
     try:
         # 1. Verify Transfer is In Transit and belongs to company
-        cursor.execute("SELECT * FROM transfers WHERE id = ? AND company_id = ? AND status = 'In_Transit'", (id, company_id))
+        cursor.execute("SELECT * FROM transfers WHERE id = %s AND company_id = %s AND status = 'In_Transit'", (id, company_id))
         transfer = cursor.fetchone()
         
         if not transfer:
@@ -135,7 +135,7 @@ def receive_transfer(id):
             return redirect(url_for('transfers.dashboard'))
 
         # 2. Get all Items belonging to Transfer
-        cursor.execute("SELECT product_variant_id, qty FROM transfer_items WHERE transfer_id = ?", (id,))
+        cursor.execute("SELECT product_variant_id, qty FROM transfer_items WHERE transfer_id = %s", (id,))
         items = cursor.fetchall()
 
         # 3. For each item, Add to Destination Location Ledger
@@ -143,16 +143,16 @@ def receive_transfer(id):
             # Upsert into location inventory
             cursor.execute('''
                 INSERT INTO location_inventory (location_id, product_variant_id, qty_on_hand)
-                VALUES (?, ?, ?)
+                VALUES (%s, %s, %s)
                 ON CONFLICT(location_id, product_variant_id) DO UPDATE SET
-                qty_on_hand = qty_on_hand + ?
+                qty_on_hand = qty_on_hand + %s
             ''', (transfer['to_location_id'], item['product_variant_id'], item['qty'], item['qty']))
 
         # 4. Mark Transfer as Received
         cursor.execute('''
             UPDATE transfers 
-            SET status = 'Received', received_at = CURRENT_TIMESTAMP, received_by = ?
-            WHERE id = ?
+            SET status = 'Received', received_at = CURRENT_TIMESTAMP, received_by = %s
+            WHERE id = %s
         ''', (user_id, id))
 
         conn.commit()

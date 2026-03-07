@@ -19,7 +19,7 @@ def pickup_list():
         FROM pickups p
         JOIN orders o ON p.order_id = o.id
         JOIN customers c ON p.customer_id = c.id
-        WHERE p.company_id = ? AND (p.location_id = ? OR ? = 0)
+        WHERE p.company_id = %s AND (p.location_id = %s OR %s = 0)
         ORDER BY p.scheduled_at ASC
     ''', (company_id, location_id, location_id))
     pickups = cursor.fetchall()
@@ -43,7 +43,7 @@ def complete_pickup(id):
             UPDATE pickups 
             SET status = 'Completed',
                 signature_data = 'digital_signature_mock_hash'
-            WHERE id = ? AND company_id = ? AND status != 'Completed'
+            WHERE id = %s AND company_id = %s AND status != 'Completed'
         ''', (id, session.get('company_id')))
         
         # In a real app, we might also update the parent Order status to 'Fulfilled' here

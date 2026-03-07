@@ -7,12 +7,12 @@
     style="border-color: #333 !important;">
     <h1 class="h2">Staff Payroll & Commissions</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
-        <button type="button" class="btn btn-sm btn-outline-light me-2">
+        <button type="button" class="btn btn-sm btn-outline-success me-2">
             <i class="bi bi-clock-history me-1"></i> Review Timesheets
         </button>
         <button type="button" class="btn btn-sm btn-outline-success me-2" data-bs-toggle="modal"
             data-bs-target="#distributePoolsModal">
-            <i class="bi bi-diagram-3 me-1"></i> Distribute Pools
+            <i class="bi bi-diagram-3 me-1"></i> Calc. Commissions
         </button>
         <button type="button" class="btn btn-sm btn-primary d-flex align-items-center" data-bs-toggle="modal"
             data-bs-target="#runPayrollModal">
@@ -70,7 +70,7 @@
                                 </td>
                                 <td class="text-end pe-3">
                                     <a href="{{ url_for('payroll.view_timesheets', user_id=person.id) }}"
-                                        class="btn btn-sm btn-outline-light">Ledger</a>
+                                        class="btn btn-sm btn-outline-success">Ledger</a>
                                 </td>
                             </tr>
                             {% else %}
@@ -190,13 +190,11 @@
                     </p>
                     <div class="mb-3">
                         <label class="form-label ">Cycle Start Date</label>
-                        <input type="date" name="start_date" class="form-control "
-                            required>
+                        <input type="date" name="start_date" class="form-control " required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label ">Cycle End Date</label>
-                        <input type="date" name="end_date" class="form-control "
-                            required>
+                        <input type="date" name="end_date" class="form-control " required>
                     </div>
                 </div>
                 <div class="modal-footer ">
@@ -214,14 +212,15 @@
         <div class="modal-content ">
             <form action="{{ url_for('payroll.distribute_pools') }}" method="POST">
                 <div class="modal-header ">
-                    <h5 class="modal-title">Distribute Location Pools</h5>
+                    <h5 class="modal-title">Distribute Monthly Commissions</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p class="text-muted small">
-                        This action will calculate location-based performance cuts for all eligible staff based on the
-                        finalized store revenue in the selected month/year.
+                        This action will calculate all individual sales commissions (Tiered, Percentage, Flat) AND
+                        location-based performance cuts for all eligible staff based on finalized store revenue in the
+                        selected month/year.
                     </p>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -243,8 +242,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label ">Year</label>
-                            <input type="number" name="year" class="form-control "
-                                value="2026" required>
+                            <input type="number" name="year" class="form-control " value="2026" required>
                         </div>
                     </div>
                 </div>

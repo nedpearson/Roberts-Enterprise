@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: supabase_dummy_password
+      POSTGRES_DB: roberts_enterprise
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    expose:
+      - "5005"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      # We override DATABASE_URL here so the Docker container can reach the db container
+      # instead of using localhost/127.0.0.1 from the host's .env file.
+      DATABASE_URL: postgresql://postgres:supabase_dummy_password@db:5432/roberts_enterprise
+    volumes:
+      - .:/app
+    restart: always
+
+  # Caddy Reverse Proxy & HTTPS
+  caddy:
+    image: caddy:2.7-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

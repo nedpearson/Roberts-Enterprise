@@ -1,10 +1,12 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from database import get_db
 import datetime
+from utils.auth import requires_role
 
 bp = Blueprint('staff', __name__, url_prefix='/staff')
 
 @bp.route('/')
+@requires_role('Owner', 'Manager')
 def staff_list():
     if 'user_id' not in session: return redirect(url_for('login'))
     
@@ -17,25 +19,21 @@ def staff_list():
         SELECT u.*, l.name as location_name 
         FROM users u
         LEFT JOIN locations l ON u.location_id = l.id
-        WHERE u.company_id = ? AND u.active = 1
+        WHERE u.company_id = %s AND u.active = TRUE
         ORDER BY u.first_name ASC
     ''', (company_id,))
     employees = cursor.fetchall()
     
     # We also need to send the locations for the "New Employee" dropdown
-    cursor.execute("SELECT id, name FROM locations WHERE company_id = ? AND active = 1 ORDER BY name ASC", (company_id,))
+    cursor.execute("SELECT id, name FROM locations WHERE company_id = %s AND active = TRUE ORDER BY name ASC", (company_id,))
     locations = cursor.fetchall()
     
     return render_template('staff.html', employees=employees, locations=locations)
 
 @bp.route('/add', methods=['POST'])
+@requires_role('Owner', 'Manager')
 def add_employee():
     if 'user_id' not in session: return redirect(url_for('login'))
-    
-    # Must be Owner or Manager to add staff (in a real app we'd have stricter decorator checks)
-    if session.get('role') not in ('Owner', 'Manager'):
-        flash("You do not have permission to add staff.", "error")
-        return redirect(url_for('staff.staff_list'))
         
     first_name = request.form.get('first_name')
     last_name = request.form.get('last_name')
@@ -68,7 +66,7 @@ def add_employee():
     try:
         cursor.execute('''
             INSERT INTO users (company_id, location_id, email, password_hash, role, first_name, last_name, commission_type, commission_rate, commission_locations, hourly_wage, bonus)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', (company_id, location_id, email, password_hash, role, first_name, last_name, commission_type, commission_rate, commission_locations, hourly_wage, bonus))
         conn.commit()
         flash(f"Successfully added {first_name} {last_name} to the team.", "success")
@@ -79,12 +77,9 @@ def add_employee():
     return redirect(url_for('staff.staff_list'))
 
 @bp.route('/edit/<int:user_id>', methods=['POST'])
+@requires_role('Owner', 'Manager')
 def edit_employee(user_id):
     if 'user_id' not in session: return redirect(url_for('login'))
-    
-    if session.get('role') not in ('Owner', 'Manager'):
-        flash("You do not have permission to edit staff.", "error")
-        return redirect(url_for('staff.staff_list'))
 
     first_name = request.form.get('first_name')
     last_name = request.form.get('last_name')
@@ -112,10 +107,10 @@ def edit_employee(user_id):
     try:
         cursor.execute('''
             UPDATE users SET
-                location_id = ?, email = ?, role = ?, first_name = ?, last_name = ?,
-                commission_type = ?, commission_rate = ?, commission_locations = ?,
-                hourly_wage = ?, bonus = ?
-            WHERE id = ? AND company_id = ?
+                location_id = %s, email = %s, role = %s, first_name = %s, last_name = %s,
+                commission_type = %s, commission_rate = %s, commission_locations = %s,
+                hourly_wage = %s, bonus = %s
+            WHERE id = %s AND company_id = %s
         ''', (location_id, email, role, first_name, last_name, commission_type, commission_rate, commission_locations, hourly_wage, bonus, user_id, company_id))
         conn.commit()
         flash(f"Successfully updated {first_name} {last_name}.", "success")
@@ -147,7 +142,7 @@ def schedule():
         end = start + datetime.timedelta(days=6)
         end_date = end.strftime('%Y-%m-%d')
         
-    cursor.execute("SELECT * FROM locations WHERE company_id = ?", (company_id,))
+    cursor.execute("SELECT * FROM locations WHERE company_id = %s", (company_id,))
     locations = cursor.fetchall()
     
     if not location_id and locations:
@@ -156,7 +151,7 @@ def schedule():
     # Get Active Staff
     cursor.execute('''
         SELECT * FROM users 
-        WHERE company_id = ? AND active = 1 AND (location_id = ? OR commission_locations LIKE ?)
+        WHERE company_id = %s AND active = TRUE AND (location_id = %s OR commission_locations LIKE %s)
         ORDER BY first_name ASC
     ''', (company_id, location_id, f'%"{location_id}"%'))
     staff_members = cursor.fetchall()
@@ -203,11 +198,9 @@ def schedule():
     )
 
 @bp.route('/schedule/add', methods=['POST'])
+@requires_role('Owner', 'Manager')
 def add_shift():
     if 'user_id' not in session: return redirect(url_for('login'))
-    if session.get('role') not in ('Owner', 'Manager'):
-        flash("Unauthorized.", "error")
-        return redirect(url_for('staff.schedule'))
         
     staff_id = request.form.get('staff_id')
     location_id = request.form.get('location_id')
@@ -232,7 +225,7 @@ def add_shift():
     try:
         cursor.execute('''
             INSERT INTO shifts (company_id, location_id, user_id, start_time, end_time, notes)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s)
         ''', (company_id, location_id, staff_id, full_start, full_end, notes))
         conn.commit()
         flash("Shift scheduled successfully.", "success")
@@ -243,18 +236,16 @@ def add_shift():
     return redirect(url_for('staff.schedule', location_id=location_id, start_date=start_date))
 
 @bp.route('/schedule/delete/<int:shift_id>', methods=['POST'])
+@requires_role('Owner', 'Manager')
 def delete_shift(shift_id):
     if 'user_id' not in session: return redirect(url_for('login'))
-    if session.get('role') not in ('Owner', 'Manager'):
-        flash("Unauthorized.", "error")
-        return redirect(url_for('staff.schedule'))
         
     conn = get_db()
     cursor = conn.cursor()
     company_id = session.get('company_id')
     
     try:
-        cursor.execute("DELETE FROM shifts WHERE id = ? AND company_id = ?", (shift_id, company_id))
+        cursor.execute("DELETE FROM shifts WHERE id = %s AND company_id = %s", (shift_id, company_id))
         conn.commit()
         flash("Shift removed.", "success")
     except Exception as e:

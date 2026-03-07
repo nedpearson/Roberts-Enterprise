@@ -1,5 +1,6 @@
 from flask import Flask, render_template, session, redirect, url_for, request, flash
 import os
+from werkzeug.security import check_password_hash
 from database import init_db
 
 app = Flask(__name__)
@@ -22,6 +23,7 @@ from routes.staff import bp as staff_bp
 from routes.transfers import bp as transfers_bp
 from routes.alterations import bp as alterations_bp
 from routes.communications import bp as communications_bp
+from routes.settings import bp as settings_bp
 
 app.register_blueprint(customers_bp)
 app.register_blueprint(appointments_bp)
@@ -35,6 +37,7 @@ app.register_blueprint(staff_bp)
 app.register_blueprint(transfers_bp)
 app.register_blueprint(alterations_bp)
 app.register_blueprint(communications_bp)
+app.register_blueprint(settings_bp)
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -63,22 +66,49 @@ def inject_company_context():
     all_companies = cursor.fetchall()
     
     if 'company_id' in session:
-        cursor.execute("SELECT * FROM companies WHERE id = ?", (session['company_id'],))
+        cursor.execute("SELECT * FROM companies WHERE id = %s", (session['company_id'],))
         company = cursor.fetchone()
         
         # Check if the active user is clocked in
+        is_clocked_in = False
+        missing_clock_out_alert = False
+        missing_clock_in_alert = False
+        
         if 'user_id' in session:
-            cursor.execute("SELECT id FROM time_entries WHERE user_id = ? AND clock_out IS NULL LIMIT 1", (session['user_id'],))
-            is_clocked_in = cursor.fetchone() is not None
+            # Check clock out status (including > 12 hours check)
+            cursor.execute('''
+                SELECT id, clock_in, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - clock_in)) as elapsed 
+                FROM time_entries 
+                WHERE user_id = %s AND clock_out IS NULL 
+                LIMIT 1
+            ''', (session['user_id'],))
+            active_shift = cursor.fetchone()
+            
+            if active_shift:
+                is_clocked_in = True
+                if active_shift['elapsed'] > 43200: # 12 hours in seconds
+                    missing_clock_out_alert = True
+            
+            # Check missing clock in (scheduled today but not clocked in)
+            if not is_clocked_in:
+                cursor.execute('''
+                    SELECT id FROM appointments 
+                    WHERE assigned_staff_id = %s 
+                    AND CAST(start_at AS DATE) = CURRENT_DATE 
+                    AND status NOT IN ('Cancelled', 'Completed') 
+                    LIMIT 1
+                ''', (session['user_id'],))
+                if cursor.fetchone():
+                    missing_clock_in_alert = True
         
         # Load locations for this company
-        cursor.execute("SELECT * FROM locations WHERE company_id = ? AND active = 1 ORDER BY name ASC", (session['company_id'],))
+        cursor.execute("SELECT * FROM locations WHERE company_id = %s AND active = TRUE ORDER BY name ASC", (session['company_id'],))
         locations = cursor.fetchall()
         
         # Load active location if set, otherwise 0 means "All Locations"
         loc_id = session.get('location_id', 0)
         if loc_id != 0:
-            cursor.execute("SELECT * FROM locations WHERE id = ?", (loc_id,))
+            cursor.execute("SELECT * FROM locations WHERE id = %s", (loc_id,))
             active_location = cursor.fetchone()
     
     # Fallback to an elegant light theme if no company is selected (e.g. Demo Bypass)
@@ -177,7 +207,9 @@ def inject_company_context():
         theme_color=primary,
         theme_bg=theme_bg_type,
         dynamic_css=dynamic_css,
-        is_clocked_in=locals().get('is_clocked_in', False)
+        is_clocked_in=locals().get('is_clocked_in', False),
+        missing_clock_out_alert=locals().get('missing_clock_out_alert', False),
+        missing_clock_in_alert=locals().get('missing_clock_in_alert', False)
     )
 
 @app.route('/')
@@ -189,15 +221,63 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Default to company ID 1 ('Roberts Enterprise') and "All Locations" (0)
-        session['user_id'] = 1
-        session['company_id'] = 1
-        session['location_id'] = 0
-        session['role'] = 'Owner'
-        session['name'] = 'Demo Admin'
-        return redirect(url_for('dashboard'))
+        email = request.form.get('email')
+        password = request.form.get('password')
         
+        from database import get_db
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT * FROM users WHERE email = %s AND active = TRUE", (email,))
+        user = cursor.fetchone()
+        
+        if user:
+            is_valid_password = check_password_hash(user['password_hash'], password)
+            is_valid_pin = False
+            # If they entered a 4-digit pin in the password field, check the pin hash
+            if user.get('pin_hash') and password.isdigit() and len(password) == 4:
+                is_valid_pin = check_password_hash(user['pin_hash'], password)
+                
+            if is_valid_password or is_valid_pin:
+                session['user_id'] = user['id']
+                session['company_id'] = user['company_id']
+                session['location_id'] = user['location_id']
+                session['role'] = user['role']
+                session['name'] = f"{user['first_name']} {user['last_name']}"
+                
+                flash("Successfully logged in.", "success")
+                return redirect(url_for('dashboard'))
+            else:
+                flash("Invalid email or password/PIN.", "error")
+        else:
+            flash("Invalid email or password.", "error")
+            
     return render_template('login.html')
+
+@app.route('/demo_login', methods=['POST'])
+def demo_login():
+    """Allows 1-click bypass for demo presentations by logging into the primary Owner account."""
+    from database import get_db
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Select the first active Owner. In a real demo environment, this would be a specific seeded Demo user.
+    cursor.execute("SELECT * FROM users WHERE active = TRUE AND role = 'Owner' ORDER BY id ASC LIMIT 1")
+    demo_user = cursor.fetchone()
+    
+    if demo_user:
+        session['user_id'] = demo_user['id']
+        session['company_id'] = demo_user['company_id']
+        session['location_id'] = demo_user['location_id']
+        session['role'] = demo_user['role']
+        session['name'] = f"{demo_user['first_name']} {demo_user['last_name']} (Demo)"
+        session['is_demo'] = True
+        
+        flash("Entered Demo Mode. You are currently viewing simulated data.", "success")
+        return redirect(url_for('dashboard'))
+    else:
+        flash("Demo account not configured.", "error")
+        return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
@@ -213,7 +293,7 @@ def switch_company(company_id):
     conn = get_db()
     cursor = conn.cursor()
     # Verify the company exists
-    cursor.execute("SELECT id FROM companies WHERE id = ?", (company_id,))
+    cursor.execute("SELECT id FROM companies WHERE id = %s", (company_id,))
     if cursor.fetchone():
         session['company_id'] = company_id
         session['location_id'] = 0 # Reset location to "All" on company switch
@@ -237,7 +317,7 @@ def switch_location(location_id):
     conn = get_db()
     cursor = conn.cursor()
     # Verify the location exists and belongs to the active company
-    cursor.execute("SELECT id FROM locations WHERE id = ? AND company_id = ?", (location_id, session.get('company_id')))
+    cursor.execute("SELECT id FROM locations WHERE id = %s AND company_id = %s", (location_id, session.get('company_id')))
     if cursor.fetchone():
         session['location_id'] = location_id
         flash("Location switched successfully.", "success")
@@ -261,23 +341,37 @@ def dashboard():
     cursor.execute('''
         SELECT COUNT(a.id) as cnt FROM appointments a
         JOIN customers c ON a.customer_id = c.id
-        WHERE DATE(a.start_at) = DATE('now') AND c.company_id = ? AND (a.location_id = ? OR ? = 0)
+        WHERE DATE(a.start_at) = CURRENT_DATE AND c.company_id = %s AND (a.location_id = %s OR %s = 0)
     ''', (company_id, location_id, location_id))
     today_appts = cursor.fetchone()['cnt']
     
     cursor.execute('''
         SELECT COUNT(p.id) as cnt FROM pickups p
         JOIN orders o ON p.order_id = o.id
-        WHERE p.status IN ('Scheduled', 'Ready') AND o.company_id = ? AND (p.location_id = ? OR ? = 0)
+        WHERE p.status IN ('Scheduled', 'Ready') AND o.company_id = %s AND (p.location_id = %s OR %s = 0)
     ''', (company_id, location_id, location_id))
     pickups_due = cursor.fetchone()['cnt']
     
     cursor.execute('''
-        SELECT SUM(o.total) - 
-               COALESCE((SELECT SUM(amount) FROM payment_ledger WHERE order_id = o.id AND type IN ('Deposit', 'Installment', 'Final')), 0) +
-               COALESCE((SELECT SUM(amount) FROM payment_ledger WHERE order_id = o.id AND type = 'Refund'), 0) as balance
+        SELECT SUM(
+            o.total - 
+            COALESCE(paid.amount, 0) + 
+            COALESCE(refunded.amount, 0)
+        ) as balance
         FROM orders o
-        WHERE o.status != 'Cancelled' AND o.company_id = ? AND (o.location_id = ? OR ? = 0)
+        LEFT JOIN (
+            SELECT order_id, SUM(amount) as amount 
+            FROM payment_ledger 
+            WHERE type IN ('Deposit', 'Installment', 'Final')
+            GROUP BY order_id
+        ) paid ON o.id = paid.order_id
+        LEFT JOIN (
+            SELECT order_id, SUM(amount) as amount 
+            FROM payment_ledger 
+            WHERE type = 'Refund'
+            GROUP BY order_id
+        ) refunded ON o.id = refunded.order_id
+        WHERE o.status != 'Cancelled' AND o.company_id = %s AND (o.location_id = %s OR %s = 0)
     ''', (company_id, location_id, location_id))
     row = cursor.fetchone()
     outstanding = row['balance'] if row and row['balance'] else 0.0
@@ -285,7 +379,7 @@ def dashboard():
     cursor.execute('''
         SELECT COUNT(po.id) as cnt FROM purchase_orders po
         JOIN vendors v ON po.vendor_id = v.id
-        WHERE po.status IN ('Submitted', 'Partially_Received') AND v.company_id = ?
+        WHERE po.status IN ('Submitted', 'Partially_Received') AND v.company_id = %s
     ''', (company_id,))
     po_count = cursor.fetchone()['cnt']
     
@@ -297,19 +391,19 @@ def dashboard():
         JOIN customers c ON a.customer_id = c.id
         JOIN services s ON a.service_id = s.id
         LEFT JOIN users u ON a.assigned_staff_id = u.id
-        WHERE DATE(a.start_at) = DATE('now') AND c.company_id = ? AND (a.location_id = ? OR ? = 0)
+        WHERE DATE(a.start_at) = CURRENT_DATE AND c.company_id = %s AND (a.location_id = %s OR %s = 0)
         ORDER BY a.start_at ASC
     ''', (company_id, location_id, location_id))
     schedule = cursor.fetchall()
         
     # Fetch data for New Appointment modal
-    cursor.execute("SELECT id, first_name, last_name FROM customers WHERE company_id = ? ORDER BY first_name", (company_id,))
+    cursor.execute("SELECT id, first_name, last_name FROM customers WHERE company_id = %s ORDER BY first_name", (company_id,))
     customers = cursor.fetchall()
     
-    cursor.execute("SELECT id, name FROM services WHERE company_id = ? ORDER BY name", (company_id,))
+    cursor.execute("SELECT id, name FROM services WHERE company_id = %s ORDER BY name", (company_id,))
     services_list = cursor.fetchall()
     
-    cursor.execute("SELECT id, first_name, last_name, role FROM users WHERE company_id = ? ORDER BY first_name", (company_id,))
+    cursor.execute("SELECT id, first_name, last_name, role FROM users WHERE company_id = %s ORDER BY first_name", (company_id,))
     staff_list = cursor.fetchall()
         
     return render_template('dashboard.html',
@@ -327,7 +421,7 @@ def dashboard_schedule_view():
     if 'user_id' not in session:
         return {"error": "Unauthorized"}, 401
         
-    range_val = request.args.get('range', 'day')
+    period = request.args.get('range', 'day')
     
     from database import get_db
     conn = get_db()
@@ -335,12 +429,12 @@ def dashboard_schedule_view():
     company_id = session.get('company_id')
     location_id = session.get('location_id', 0)
     
-    if range_val == 'week':
-        date_filter = "DATE(a.start_at) BETWEEN DATE('now') AND DATE('now', '+6 days')"
-    elif range_val == 'month':
-        date_filter = "DATE(a.start_at) BETWEEN DATE('now') AND DATE('now', '+30 days')"
-    else: # day
-        date_filter = "DATE(a.start_at) = DATE('now')"
+    if period == 'week':
+        date_filter = "DATE(a.start_at) BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '6 days'"
+    elif period == 'month':
+        date_filter = "DATE(a.start_at) BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'"
+    else: # day or default
+        date_filter = "DATE(a.start_at) = CURRENT_DATE"
         
     query = f'''
         SELECT a.start_at, c.first_name || ' ' || c.last_name as customer_name, 
@@ -378,7 +472,7 @@ def dashboard_drilldown(metric):
             JOIN customers c ON a.customer_id = c.id
             JOIN services s ON a.service_id = s.id
             LEFT JOIN users u ON a.assigned_staff_id = u.id
-            WHERE DATE(a.start_at) = DATE('now') AND c.company_id = ? AND (a.location_id = ? OR ? = 0)
+            WHERE DATE(a.start_at) = CURRENT_DATE AND c.company_id = %s AND (a.location_id = %s OR %s = 0)
             ORDER BY a.start_at ASC
         ''', (company_id, location_id, location_id))
         rows = [dict(row) for row in cursor.fetchall()]
@@ -391,7 +485,7 @@ def dashboard_drilldown(metric):
             FROM pickups p
             JOIN orders o ON p.order_id = o.id
             JOIN customers c ON o.customer_id = c.id
-            WHERE p.status IN ('Scheduled', 'Ready') AND o.company_id = ? AND (p.location_id = ? OR ? = 0)
+            WHERE p.status IN ('Scheduled', 'Ready') AND o.company_id = %s AND (p.location_id = %s OR %s = 0)
             ORDER BY p.scheduled_at ASC
         ''', (company_id, location_id, location_id))
         rows = [dict(row) for row in cursor.fetchall()]
@@ -408,7 +502,7 @@ def dashboard_drilldown(metric):
                        COALESCE((SELECT SUM(amount) FROM payment_ledger WHERE order_id = o.id AND type = 'Refund'), 0) as balance
                 FROM orders o
                 JOIN customers c ON o.customer_id = c.id
-                WHERE o.status != 'Cancelled' AND o.company_id = ? AND (o.location_id = ? OR ? = 0)
+                WHERE o.status != 'Cancelled' AND o.company_id = %s AND (o.location_id = %s OR %s = 0)
             )
             WHERE balance > 0
             ORDER BY balance DESC
@@ -422,7 +516,7 @@ def dashboard_drilldown(metric):
                    po.expected_delivery as "Expected", po.status as "Status"
             FROM purchase_orders po
             JOIN vendors v ON po.vendor_id = v.id
-            WHERE po.status IN ('Submitted', 'Partially_Received') AND v.company_id = ?
+            WHERE po.status IN ('Submitted', 'Partially_Received') AND v.company_id = %s
             ORDER BY po.order_date DESC
         ''', (company_id,))
         rows = [dict(row) for row in cursor.fetchall()]
@@ -470,7 +564,7 @@ def universal_drilldown(type, id):
             JOIN services s ON a.service_id = s.id
             JOIN customers c ON a.customer_id = c.id
             LEFT JOIN users u ON a.assigned_staff_id = u.id
-            WHERE a.id = ? AND c.company_id = ?
+            WHERE a.id = %s AND c.company_id = %s
         ''', (id, session.get('company_id')))
         rows = [dict(row) for row in cursor.fetchall()]
         if not rows:
@@ -487,14 +581,14 @@ def universal_drilldown(type, id):
             JOIN orders o ON oi.order_id = o.id
             JOIN product_variants pv ON oi.product_variant_id = pv.id
             JOIN products p ON pv.product_id = p.id
-            WHERE oi.order_id = ? AND o.company_id = ?
+            WHERE oi.order_id = %s AND o.company_id = %s
         ''', (id, session.get('company_id')))
         items = [dict(row) for row in cursor.fetchall()]
         
         # We enforce company_id check so empty items array prevents leakage
         if not items:
              # Just query the order to verify ownership if there are no items
-             cursor.execute("SELECT id FROM orders WHERE id = ? AND company_id = ?", (id, session.get('company_id')))
+             cursor.execute("SELECT id FROM orders WHERE id = %s AND company_id = %s", (id, session.get('company_id')))
              if not cursor.fetchone():
                  return {"error": "Order not found"}, 404
                  
@@ -507,7 +601,7 @@ def universal_drilldown(type, id):
             FROM product_variants pv
             JOIN products p ON pv.product_id = p.id
             JOIN vendors v ON p.vendor_id = v.id
-            WHERE pv.product_id = ? AND v.company_id = ?
+            WHERE pv.product_id = %s AND v.company_id = %s
         ''', (id, session.get('company_id')))
         rows = [dict(row) for row in cursor.fetchall()]
         return {"total_records": len(rows), "data": rows, "columns": ["SKU", "Size", "Color", "In Stock", "Tracked"]}
@@ -523,7 +617,7 @@ def universal_drilldown(type, id):
             JOIN vendors v ON po.vendor_id = v.id
             JOIN product_variants pv ON poi.product_variant_id = pv.id
             JOIN products p ON pv.product_id = p.id
-            WHERE poi.purchase_order_id = ? AND v.company_id = ?
+            WHERE poi.purchase_order_id = %s AND v.company_id = %s
         ''', (id, session.get('company_id')))
         rows = [dict(row) for row in cursor.fetchall()]
         return {"total_records": len(rows), "data": rows, "columns": ["Product", "SKU", "Ordered", "Received", "Cost", "Total"]}
@@ -533,7 +627,7 @@ def universal_drilldown(type, id):
             SELECT p.pickup_contact_name as "Contact", p.pickup_contact_phone as "Phone",
                    p.signed_at as "Signed At", p.signed_by as "Signed By", p.notes as "Notes"
             FROM pickups p
-            WHERE p.id = ? AND p.company_id = ?
+            WHERE p.id = %s AND p.company_id = %s
          ''', (id, session.get('company_id')))
          rows = [dict(row) for row in cursor.fetchall()]
          return {"total_records": len(rows), "data": rows, "columns": ["Contact", "Phone", "Signed At", "Signed By", "Notes"]}

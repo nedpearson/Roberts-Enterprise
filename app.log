@@ -1,0 +1,438 @@
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5005
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 14:24:06] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 14:24:06] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:24:06] "GET /dashboard HTTP/1.1" 200 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\drilldown_engine.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 14:27:16] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 14:27:16] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:27:16] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:29:47] "GET / HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 14:29:47] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:29:47] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:30:18] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 14:30:19] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:30:19] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:30:27] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:30:27] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:30:34] "GET /appointments/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:30:35] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:30:38] "GET /orders/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:30:38] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:35:13] "GET /orders/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:35:13] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:35:16] "GET /appointments/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:35:16] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:35:18] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:35:18] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:35:20] "GET /api/v2/drilldown/pickups_due HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:35:24] "GET /orders/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:35:24] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:35:25] "GET /inventory/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:35:25] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:35:29] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:35:29] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:43:14] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:43:14] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:43:15] "GET /orders/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:43:15] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:43:16] "GET /orders/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:43:17] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:43:18] "GET /customers/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:43:18] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:43:19] "GET /alterations HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:43:20] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:43:21] "GET /inventory/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:43:21] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:43:21] "GET /transfers/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:43:22] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 14:44:35] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:44:35] "GET /dashboard HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 14:44:35] "GET /login HTTP/1.1" 200 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\payroll.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\staff.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\reports.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 14:46:04] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 14:46:04] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:46:04] "GET /dashboard HTTP/1.1" 200 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 14:46:27] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 14:46:27] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:46:27] "GET /dashboard HTTP/1.1" 200 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 14:46:50] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 14:46:50] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:46:50] "GET /dashboard HTTP/1.1" 200 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 14:47:08] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 14:47:09] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:47:09] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:48:28] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 14:48:29] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:48:29] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:49:52] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:49:52] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:49:55] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:49:55] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:49:56] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 14:49:56] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:49:56] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:50:24] "GET /orders/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:50:24] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:50:26] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:50:26] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:50:27] "GET /appointments/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:50:27] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\services\\communications.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\services\\communications.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\alterations.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 14:59:09] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:59:10] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:59:11] "GET /orders/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:59:11] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:59:12] "GET /inventory/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:59:12] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:59:14] "GET /pickups/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:59:14] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:59:15] "GET /api/v2/drilldown/pickups_scheduled_by_date HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:59:21] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:59:21] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:59:27] "GET /appointments/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:59:27] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:59:30] "GET /alterations HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:59:31] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:59:47] "GET /inventory/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 14:59:47] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 14:59:55] "GET /api/v2/drilldown/inventory_on_hand_by_category HTTP/1.1" 400 -
+127.0.0.1 - - [07/Mar/2026 15:00:02] "GET /staff/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:00:03] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:00:10] "GET /pickups/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:00:10] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:00:11] "GET /transfers/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:00:11] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:00:13] "GET /purchasing/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:00:13] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:00:21] "GET /communications/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:00:21] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:00:32] "GET /reports/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:00:32] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 15:05:17] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:05:17] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:05:20] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:05:20] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:05:20] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:05:20] "GET /settings HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 15:05:20] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:05:20] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\settings.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 15:10:23] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:10:23] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:10:26] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:10:26] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:10:26] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:10:27] "GET /settings HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 15:10:27] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:10:27] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\settings.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 15:14:08] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:14:08] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:14:09] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:14:09] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:14:09] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:14:09] "GET /settings HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 15:14:09] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:14:09] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\settings.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 15:16:23] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:16:23] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:16:24] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:16:24] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:16:24] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:16:24] "GET /settings HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 15:16:24] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:16:24] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:17:14] "GET /reports/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:17:14] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:17:18] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:17:18] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:17:46] "GET /payroll/ HTTP/1.1" 500 -
+127.0.0.1 - - [07/Mar/2026 15:17:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [07/Mar/2026 15:18:04] "GET /payroll/ HTTP/1.1" 500 -
+127.0.0.1 - - [07/Mar/2026 15:19:11] "HEAD /payroll/ HTTP/1.1" 302 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\payroll.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 15:21:16] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:21:16] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:21:17] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:21:17] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:21:17] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:21:17] "GET /payroll/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:21:17] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:21:55] "GET /payroll/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:21:55] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:21:56] "GET /appointments/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:21:57] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:21:58] "GET /appointments/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:21:58] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:21:59] "GET /alterations HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:21:59] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:22:01] "GET /customers/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:22:01] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:22:05] "GET /orders/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:22:05] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:22:08] "GET /transfers/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:22:08] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:22:10] "GET /staff/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:22:10] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 15:25:39] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:25:39] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:25:40] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:25:40] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:25:40] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:27:14] "GET /staff/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:27:14] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:27:18] "POST /payroll/clock_in HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:27:19] "GET /staff/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:27:19] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:27:49] "GET /api/v2/drilldown/staff_performance HTTP/1.1" 200 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 15:30:41] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:30:41] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:30:42] "POST /demo_login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:30:42] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:30:42] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:30:42] "GET /logout HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:30:42] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:30:42] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\database.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\settings.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\settings.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 15:33:28] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:33:28] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:34:40] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:34:40] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:34:40] "POST /demo_login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:34:40] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:34:40] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:34:41] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:34:41] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:34:41] "POST /settings/gateways/update HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:34:41] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:34:41] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\orders.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\orders.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 15:36:26] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:36:26] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:36:26] "POST /demo_login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:36:26] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:36:26] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:36:27] "GET /orders/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:36:27] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:37:25] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:37:25] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:37:25] "POST /demo_login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:37:25] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:37:25] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:37:25] "GET /orders/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:37:25] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:39:23] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:39:23] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\settings.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\settings.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 15:40:51] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:40:52] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:40:52] "POST /demo_login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:40:52] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:40:52] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:40:52] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:40:52] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:40:53] "POST /settings/employee/4/update HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:40:53] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:40:53] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\settings.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\payroll.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 15:46:17] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:46:17] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:46:17] "POST /demo_login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 15:46:17] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:46:17] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:46:17] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:46:17] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:46:52] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:46:52] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:46:53] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:46:53] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:47:10] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:47:10] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:47:10] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:47:10] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 15:47:29] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:47:29] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:47:29] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 15:47:29] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 16:23:53] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:23:53] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:24:12] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 16:24:12] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:24:12] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 16:24:14] "POST /payroll/clock_in HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 16:24:14] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:24:14] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 16:24:15] "POST /payroll/clock_out HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 16:24:15] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:24:15] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\settings.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 16:44:17] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:44:17] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:44:20] "POST /demo_login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 16:44:20] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:44:20] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 16:44:21] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:44:21] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 16:45:09] "GET /reports/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:45:09] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 200 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\database.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\orders.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\payroll.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 16:50:10] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 16:50:10] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:50:10] "POST /payroll/distribute_pools HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 16:50:10] "GET /payroll/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:50:10] "GET /payroll/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:51:06] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:51:06] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 16:51:32] "POST /switch_company/2 HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 16:51:32] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:51:32] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 16:56:22] "GET /payroll/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:56:22] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 16:59:43] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 16:59:43] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:59:43] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:59:43] "GET /payroll HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 16:59:44] "GET /payroll/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 16:59:44] "GET /settings HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 16:59:44] "GET /settings/ HTTP/1.1" 200 -

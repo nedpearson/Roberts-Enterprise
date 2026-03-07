@@ -22,7 +22,7 @@ def alterations_board():
         FROM alterations a
         JOIN customers c ON a.customer_id = c.id
         LEFT JOIN users u ON a.assigned_seamstress_id = u.id
-        WHERE a.company_id = ? AND (a.location_id = ? OR ? = 0)
+        WHERE a.company_id = %s AND (a.location_id = %s OR %s = 0)
         ORDER BY a.due_date ASC
     ''', (company_id, location_id, location_id))
     
@@ -45,11 +45,11 @@ def alterations_board():
             kanban['Awaiting 1st Fitting'].append(t)
             
     # Fetch seamstresses for potential reassignment logic
-    cursor.execute("SELECT id, first_name || ' ' || last_name as name FROM users WHERE company_id = ? AND role IN ('Owner', 'Manager', 'Alterations')", (company_id,))
+    cursor.execute("SELECT id, first_name || ' ' || last_name as name FROM users WHERE company_id = %s AND role IN ('Owner', 'Manager', 'Alterations')", (company_id,))
     staff = cursor.fetchall()
     
     # Fetch customers for modal
-    cursor.execute("SELECT id, first_name, last_name FROM customers WHERE company_id = ? ORDER BY first_name", (company_id,))
+    cursor.execute("SELECT id, first_name, last_name FROM customers WHERE company_id = %s ORDER BY first_name", (company_id,))
     customers = cursor.fetchall()
 
     return render_template('alterations.html', kanban=kanban, staff=staff, customers=customers)
@@ -73,12 +73,17 @@ def update_alteration_status():
     cursor = conn.cursor()
     
     # Verify ownership before updating
-    cursor.execute("SELECT id FROM alterations WHERE id = ? AND company_id = ?", (ticket_id, company_id))
-    if not cursor.fetchone():
+    cursor.execute("SELECT id, customer_id, item_description FROM alterations WHERE id = %s AND company_id = %s", (ticket_id, company_id))
+    ticket = cursor.fetchone()
+    if not ticket:
         return jsonify({"error": "Ticket not found or unauthorized"}), 403
         
-    cursor.execute("UPDATE alterations SET status = ? WHERE id = ?", (new_status, ticket_id))
+    cursor.execute("UPDATE alterations SET status = %s WHERE id = %s", (new_status, ticket_id))
     conn.commit()
+    
+    if new_status == 'Ready for Pickup':
+        from services.communications import send_ready_for_pickup
+        send_ready_for_pickup(company_id, ticket['customer_id'], ticket['item_description'])
     
     return jsonify({"success": True})
 
@@ -99,7 +104,7 @@ def add_ticket():
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO alterations (company_id, location_id, customer_id, item_description, due_date, assigned_seamstress_id, notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     ''', (company_id, location_id, customer_id, item_description, due_date, assigned_seamstress_id, notes))
     conn.commit()
     

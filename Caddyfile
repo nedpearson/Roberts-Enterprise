@@ -1,0 +1,22 @@
+# Caddyfile for Roberts Enterprise
+
+# --- PRODUCTION INSTRUCTIONS ---
+# When you deploy this to a VPS with a real domain name
+# (like pos.robertsenterprise.com), change the ":80" below
+# to your domain name. Caddy will AUTOMATICALLY fetch and 
+# maintain a free Let's Encrypt SSL/TLS Certificate for you 
+# and redirect all HTTP traffic to HTTPS!
+# -------------------------------
+
+:80 {
+    # Send all incoming traffic directly to our Gunicorn WSGI Python container
+    reverse_proxy web:5005 {
+        # Optional headers to pass to Gunicorn
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # As you scale, you can also set up static file offloading right here
+    # by mounting the /app/static directory to the caddy container.
+}

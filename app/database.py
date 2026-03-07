@@ -1,13 +1,18 @@
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 from flask import g
+from dotenv import load_dotenv
 
-DATABASE = 'roberts_enterprise.db'
+env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(env_path)
+
+DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://postgres:supabase_dummy_password@localhost:5434/roberts_enterprise')
 
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-        db.row_factory = sqlite3.Row
+        db = g._database = psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
     return db
 
 def init_db():
@@ -16,40 +21,47 @@ def init_db():
 
     # Create tables if they do not exist (data persists across restarts)
     # Re-enable foreign keys if disabled
-    cursor.execute('PRAGMA foreign_keys = ON;')
+    
         
     # ==========================================
     # CORE ENTITIES
     # ==========================================
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS companies (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             name TEXT UNIQUE NOT NULL,
             domain TEXT,
             logo_url TEXT,
             primary_color TEXT DEFAULT '#aa8c66',
             theme_bg TEXT DEFAULT 'dark',
-            active BOOLEAN DEFAULT 1,
+            active BOOLEAN DEFAULT TRUE,
+            stripe_secret_key TEXT,
+            stripe_publishable_key TEXT,
+            qb_client_id TEXT,
+            qb_client_secret TEXT,
+            qb_access_token TEXT,
+            qb_refresh_token TEXT,
+            qb_realm_id TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS locations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER NOT NULL,
             name TEXT NOT NULL,
             address TEXT,
             phone TEXT,
             email TEXT,
-            active BOOLEAN DEFAULT 1,
+            active BOOLEAN DEFAULT TRUE,
             FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE
         )
     ''')
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER,
             location_id INTEGER,
             email TEXT UNIQUE NOT NULL,
@@ -57,7 +69,7 @@ def init_db():
             role TEXT NOT NULL DEFAULT 'Viewer', -- Owner, Manager, Stylist, Alterations, Cashier, Viewer
             first_name TEXT NOT NULL,
             last_name TEXT NOT NULL,
-            active BOOLEAN DEFAULT 1,
+            active BOOLEAN DEFAULT TRUE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             commission_type TEXT DEFAULT 'NONE',
             commission_rate REAL DEFAULT 0.0,
@@ -71,7 +83,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS customers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER,
             location_id INTEGER,
             first_name TEXT NOT NULL,
@@ -92,20 +104,20 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS services (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER,
             name TEXT NOT NULL, -- e.g., Consultation, Fitting, Alterations, Pickup
             duration_minutes INTEGER NOT NULL,
             default_price REAL DEFAULT 0.0,
             buffer_minutes INTEGER DEFAULT 0,
-            active BOOLEAN DEFAULT 1,
+            active BOOLEAN DEFAULT TRUE,
             FOREIGN KEY(company_id) REFERENCES companies(id)
         )
     ''')
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS alterations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER,
             location_id INTEGER,
             customer_id INTEGER NOT NULL,
@@ -124,7 +136,7 @@ def init_db():
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS customer_measurements (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             customer_id INTEGER UNIQUE NOT NULL,
             bust REAL DEFAULT 0.0,
             waist REAL DEFAULT 0.0,
@@ -135,24 +147,12 @@ def init_db():
         )
     ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS designer_size_charts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            vendor_id INTEGER NOT NULL,
-            size_label TEXT NOT NULL,
-            bust REAL NOT NULL,
-            waist REAL NOT NULL,
-            hips REAL NOT NULL,
-            FOREIGN KEY(vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
-        )
-    ''')
-    
     # ==========================================
     # COMMUNICATIONS & NOTIFICATIONS
     # ==========================================
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS communication_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER NOT NULL,
             customer_id INTEGER NOT NULL,
             type TEXT NOT NULL, -- SMS, Email
@@ -170,7 +170,7 @@ def init_db():
     # ==========================================
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS appointments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             location_id INTEGER,
             customer_id INTEGER NOT NULL,
             service_id INTEGER NOT NULL,
@@ -191,7 +191,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS appointment_participants (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             appointment_id INTEGER NOT NULL,
             name TEXT NOT NULL,
             relation TEXT, -- e.g., Mother of Bride, Bridesmaid
@@ -203,7 +203,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS appointment_checklists (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             appointment_id INTEGER NOT NULL,
             type TEXT NOT NULL, -- e.g., Fitting, Pickup
             items_json TEXT NOT NULL, -- JSON array of checklist items
@@ -219,7 +219,7 @@ def init_db():
     # ==========================================
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS vendors (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER,
             name TEXT NOT NULL,
             contact_name TEXT,
@@ -227,15 +227,27 @@ def init_db():
             phone TEXT,
             portal_url TEXT,
             notes TEXT,
-            active BOOLEAN DEFAULT 1,
+            active BOOLEAN DEFAULT TRUE,
             lead_time_weeks INTEGER DEFAULT 16,
             FOREIGN KEY(company_id) REFERENCES companies(id)
         )
     ''')
 
     cursor.execute('''
+        CREATE TABLE IF NOT EXISTS designer_size_charts (
+            id SERIAL PRIMARY KEY,
+            vendor_id INTEGER NOT NULL,
+            size_label TEXT NOT NULL,
+            bust REAL NOT NULL,
+            waist REAL NOT NULL,
+            hips REAL NOT NULL,
+            FOREIGN KEY(vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
+        )
+    ''')
+
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             vendor_id INTEGER,
             type TEXT NOT NULL, -- Dress, Accessory, Veil, Shoes
             brand TEXT,
@@ -243,27 +255,27 @@ def init_db():
             sku TEXT UNIQUE NOT NULL,
             cost REAL NOT NULL DEFAULT 0.0,
             price REAL NOT NULL DEFAULT 0.0,
-            active BOOLEAN DEFAULT 1,
+            active BOOLEAN DEFAULT TRUE,
             FOREIGN KEY(vendor_id) REFERENCES vendors(id)
         )
     ''')
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS product_variants (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             product_id INTEGER NOT NULL,
             size TEXT,
             color TEXT,
             sku_variant TEXT UNIQUE NOT NULL,
             on_hand_qty INTEGER DEFAULT 0,
-            track_inventory BOOLEAN DEFAULT 1,
+            track_inventory BOOLEAN DEFAULT TRUE,
             FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE
         )
     ''')
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS reservations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             product_variant_id INTEGER NOT NULL,
             customer_id INTEGER NOT NULL,
             appointment_id INTEGER,
@@ -279,7 +291,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS purchase_orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             vendor_id INTEGER NOT NULL,
             order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             expected_delivery TIMESTAMP,
@@ -294,7 +306,7 @@ def init_db():
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS purchase_order_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             purchase_order_id INTEGER NOT NULL,
             product_variant_id INTEGER NOT NULL,
             qty_ordered INTEGER NOT NULL,
@@ -310,7 +322,7 @@ def init_db():
     # ==========================================
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS location_inventory (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             location_id INTEGER NOT NULL,
             product_variant_id INTEGER NOT NULL,
             qty_on_hand INTEGER DEFAULT 0,
@@ -322,7 +334,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS transfers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER NOT NULL,
             from_location_id INTEGER NOT NULL,
             to_location_id INTEGER NOT NULL,
@@ -342,7 +354,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS transfer_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             transfer_id INTEGER NOT NULL,
             product_variant_id INTEGER NOT NULL,
             qty INTEGER NOT NULL,
@@ -356,7 +368,7 @@ def init_db():
     # ==========================================
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER,
             location_id INTEGER,
             customer_id INTEGER NOT NULL,
@@ -366,16 +378,18 @@ def init_db():
             total REAL DEFAULT 0.0,
             wedding_date_snapshot TIMESTAMP,
             notes TEXT,
+            sold_by_id INTEGER,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(company_id) REFERENCES companies(id),
             FOREIGN KEY(location_id) REFERENCES locations(id),
-            FOREIGN KEY(customer_id) REFERENCES customers(id)
+            FOREIGN KEY(customer_id) REFERENCES customers(id),
+            FOREIGN KEY(sold_by_id) REFERENCES users(id)
         )
     ''')
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS order_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             order_id INTEGER NOT NULL,
             product_variant_id INTEGER,
             service_id INTEGER,
@@ -391,7 +405,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS payment_plans (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             order_id INTEGER NOT NULL UNIQUE,
             terms TEXT, -- e.g., "50% Deposit, 50% on Pickup", "Net 30"
             installment_count INTEGER DEFAULT 1,
@@ -403,7 +417,7 @@ def init_db():
     # AUDITABLE LEDGER - APPEND ONLY
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS payment_ledger (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             order_id INTEGER NOT NULL,
             customer_id INTEGER NOT NULL,
             type TEXT NOT NULL, -- Deposit, Final, Installment, Refund, Fee
@@ -425,13 +439,13 @@ def init_db():
     # ==========================================
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS time_entries (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
             location_id INTEGER,
             clock_in TIMESTAMP NOT NULL,
             clock_out TIMESTAMP,
             total_hours REAL,
-            approved BOOLEAN DEFAULT 0,
+            approved BOOLEAN DEFAULT FALSE,
             status TEXT DEFAULT 'Unpaid', -- Unpaid, Paid
             notes TEXT,
             FOREIGN KEY(user_id) REFERENCES users(id),
@@ -441,7 +455,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS commissions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
             order_id INTEGER,
             description TEXT,
@@ -455,7 +469,7 @@ def init_db():
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS paystubs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER,
             user_id INTEGER NOT NULL,
             period_start DATE,
@@ -479,7 +493,7 @@ def init_db():
     # ==========================================
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS pickups (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER,
             location_id INTEGER,
             order_id INTEGER NOT NULL,
@@ -500,10 +514,10 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS pickup_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             pickup_id INTEGER NOT NULL,
             order_item_id INTEGER NOT NULL,
-            checklist_status BOOLEAN DEFAULT 0,
+            checklist_status BOOLEAN DEFAULT FALSE,
             FOREIGN KEY(pickup_id) REFERENCES pickups(id) ON DELETE CASCADE,
             FOREIGN KEY(order_item_id) REFERENCES order_items(id)
         )
@@ -514,7 +528,7 @@ def init_db():
     # ==========================================
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS shifts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             company_id INTEGER NOT NULL,
             location_id INTEGER NOT NULL,
             user_id INTEGER NOT NULL,
@@ -532,12 +546,12 @@ def init_db():
     # ==========================================
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS notification_preferences (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             customer_id INTEGER UNIQUE,
             user_id INTEGER UNIQUE,
-            email_opt_in BOOLEAN DEFAULT 1,
-            sms_opt_in BOOLEAN DEFAULT 1,
-            in_app_opt_in BOOLEAN DEFAULT 1,
+            email_opt_in BOOLEAN DEFAULT TRUE,
+            sms_opt_in BOOLEAN DEFAULT TRUE,
+            in_app_opt_in BOOLEAN DEFAULT TRUE,
             FOREIGN KEY(customer_id) REFERENCES customers(id),
             FOREIGN KEY(user_id) REFERENCES users(id)
         )
@@ -545,7 +559,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS reminders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             type TEXT NOT NULL, -- Appointment, Balance_Due, Pickup, Alterations_Due
             reference_id INTEGER NOT NULL, -- ID of appointment, order, or pickup
             trigger_at TIMESTAMP NOT NULL,
@@ -555,7 +569,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS notification_jobs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             reminder_id INTEGER,
             channel TEXT NOT NULL, -- Email, SMS, In-App
             recipient TEXT NOT NULL,

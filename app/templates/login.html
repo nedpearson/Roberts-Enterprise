@@ -12,6 +12,13 @@
 
         <div class="card shadow-lg border-0">
             <div class="card-body p-5">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} mb-4">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
                 <form method="POST" action="{{ url_for('login') }}">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address</label>
@@ -19,13 +26,17 @@
                             autocomplete="username">
                     </div>
                     <div class="mb-4">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required
-                            autocomplete="current-password">
+                        <label for="password" class="form-label">Password or 4-Digit PIN</label>
+                        <input type="password" class="form-control" id="password" name="password"
+                            placeholder="Passcode or 1234" required autocomplete="current-password">
                     </div>
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">Log In (Demo Bypass)</button>
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold mb-2">Log In</button>
                     </div>
+                </form>
+
+                <form method="POST" action="{{ url_for('demo_login') }}" class="d-grid gap-2 mt-1">
+                    <button type="submit" class="btn btn-outline-secondary">Log In (Demo Bypass)</button>
                 </form>
             </div>
         </div>
