@@ -90,15 +90,18 @@ def inject_company_context():
         t_bg, s_bg, c_bg, ch_bg = '#121212', '#1e1e1e', '#1e1e1e', '#252525'
         t_col, s_txt, s_hvr, b_col = '#e0e0e0', '#aaaaaa', '#2d2d2d', '#333333'
         k_bg, muted = 'linear-gradient(145deg, #2a2a2a, #1e1e1e)', 'inherit'
+        inp_bg, inp_br, inp_border = 'var(--card-bg)', '0.375rem', '1px solid var(--border-color)'
         
         if theme_bg_type == 'custom_proper':
             t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#000000', '#ffffff', '#f8f9fa'
             t_col, s_txt, s_hvr, b_col = '#333333', '#ffffff', '#222222', '#e0e0e0'
             k_bg, muted = '#f8f9fa', '#888888'
+            inp_bg, inp_br, inp_border = '#f5f5f5', '2rem', 'none'
         elif theme_bg_type == 'custom_idc':
             t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#666666', '#ffffff', '#f8f9fa'
             t_col, s_txt, s_hvr, b_col = '#333333', '#ffffff', 'rgba(255,255,255,0.1)', '#e0e0e0'
             k_bg, muted = '#f8f9fa', '#888888'
+            inp_bg, inp_br, inp_border = '#f5f5f5', '2rem', 'none'
         elif theme_bg_type != 'dark':
             t_bg, s_bg, c_bg, ch_bg = '#f8f9fa', '#ffffff', '#ffffff', '#f8f9fa'
             t_col, s_txt, s_hvr, b_col = '#212529', '#444444', '#f0f0f0', '#dee2e6'
@@ -116,14 +119,15 @@ def inject_company_context():
             --border-color: {b_col};
             --kpi-bg: {k_bg};
         }}
-        body {{ background-color: var(--theme-bg); color: var(--text-color); }}
-        .sidebar {{ background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); }}
-        .card {{ background-color: var(--card-bg); border-color: var(--border-color); }}
-        .card-header {{ background-color: var(--card-header-bg); border-bottom-color: var(--border-color); }}
+        body {{ background-color: var(--theme-bg); color: var(--text-color); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 0.95rem; }}
+        .sidebar {{ background-color: var(--sidebar-bg); border-right: none; box-shadow: 2px 0 12px rgba(0,0,0,0.05); }}
+        .card {{ background-color: var(--card-bg); border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 1.5rem; }}
+        .card-header {{ background-color: var(--card-header-bg); border-bottom: none; border-radius: 16px 16px 0 0 !important; font-weight: 600; padding: 1.25rem 1.5rem; }}
+        .card-body {{ padding: 1.5rem; }}
         .table {{ color: var(--text-color); }}
         .table-dark {{ --bs-table-bg: var(--card-bg) !important; --bs-table-color: var(--text-color) !important; --bs-table-border-color: var(--border-color) !important; }}
-        .nav-link {{ color: var(--sidebar-text); }}
-        .nav-link:hover, .nav-link.active {{ background-color: var(--sidebar-hover-bg); color: #ffffff; }}
+        .nav-link {{ color: var(--sidebar-text); border-radius: 8px; margin: 4px 12px; font-weight: 500; transition: all 0.2s ease; }}
+        .nav-link:hover, .nav-link.active {{ background-color: var(--sidebar-hover-bg); color: #ffffff; transform: translateX(2px); }}
         .text-muted {{ color: {muted} !important; }}
         .border-bottom {{ border-color: var(--border-color) !important; }}
         
@@ -133,12 +137,24 @@ def inject_company_context():
         .border-secondary {{ border-color: var(--border-color) !important; }}
         .modal-content, .offcanvas {{ background-color: var(--card-bg) !important; color: var(--text-color) !important; border-color: var(--border-color) !important; }}
         .form-control, .form-select, .form-control:focus, .form-select:focus {{
-            background-color: var(--card-bg) !important;
+            background-color: {inp_bg} !important;
             color: var(--text-color) !important;
-            border-color: var(--border-color) !important;
+            border: {inp_border} !important;
+            border-radius: {inp_br} !important;
+            box-shadow: none !important;
+            padding: 0.75rem 1.25rem;
         }}
-        .btn-outline-light {{ color: var(--text-color) !important; border-color: var(--border-color) !important; }}
+        .btn-outline-light {{ color: var(--text-color) !important; border-color: var(--border-color) !important; border-radius: {inp_br} !important; }}
         .btn-outline-light:hover {{ background-color: var(--sidebar-hover-bg) !important; color: var(--text-color) !important; }}
+        .btn-primary {{ 
+            background-color: var(--theme-color) !important; 
+            border-color: var(--theme-color) !important; 
+            color: #ffffff !important; 
+            border-radius: {inp_br} !important; 
+            padding: 0.6rem 2rem;
+            font-weight: 600;
+        }}
+        .btn-primary:hover {{ filter: brightness(0.9); border-color: var(--theme-color) !important; color: #ffffff !important; }}
         """
 
         return dict(
