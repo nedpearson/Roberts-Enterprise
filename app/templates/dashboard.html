@@ -5,13 +5,14 @@
 {% block content %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom"
     style="border-color: #333 !important;">
-    <h1 class="h2">Dashboard</h1>
+    <h1 class="h2 motion-section-reveal-editorial">Dashboard</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <div class="btn-group me-2">
             <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
             <button type="button" class="btn btn-sm btn-outline-secondary">Filter</button>
         </div>
-        <button type="button" class="btn btn-sm btn-primary d-flex align-items-center motion-hover-lift">
+        <button type="button"
+            class="btn btn-sm btn-primary d-flex align-items-center motion-hover-lift-luxury motion-focus-glow-gentle">
             <i class="bi bi-plus-lg me-1"></i> New Appointment
         </button>
     </div>
@@ -20,7 +21,7 @@
 <!-- Key Metrics Row (Animated via Motion Preview) -->
 <div class="row g-4 mb-4 motion-rise-in-subtle motion-delay-1">
     <div class="col-md-3">
-        <div class="card h-100 shadow-sm border-0 global-drilldown motion-hover-lift"
+        <div class="card h-100 shadow-sm border-0 global-drilldown motion-hover-lift-luxury"
             data-drilldown-url="/api/dashboard/drilldown/appointments_today" data-title="Appointments Today"
             style="background: var(--kpi-bg, linear-gradient(145deg, #2a2a2a, #1e1e1e)); cursor: pointer; border: 1px solid transparent;">
             <div class="card-body">
@@ -31,7 +32,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card h-100 shadow-sm border-0 global-drilldown motion-hover-lift"
+        <div class="card h-100 shadow-sm border-0 global-drilldown motion-hover-lift-luxury"
             data-drilldown-url="/api/dashboard/drilldown/pickups_due" data-title="Pickups Due"
             style="background: var(--kpi-bg, linear-gradient(145deg, #2a2a2a, #1e1e1e)); cursor: pointer; border: 1px solid transparent;">
             <div class="card-body">
@@ -42,7 +43,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card h-100 shadow-sm border-0 global-drilldown motion-hover-lift"
+        <div class="card h-100 shadow-sm border-0 global-drilldown motion-hover-lift-luxury"
             data-drilldown-url="/api/dashboard/drilldown/outstanding_balances" data-title="Outstanding Balances"
             style="background: var(--kpi-bg, linear-gradient(145deg, #2a2a2a, #1e1e1e)); cursor: pointer; border: 1px solid transparent;">
             <div class="card-body">
@@ -53,7 +54,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card h-100 shadow-sm border-0 global-drilldown motion-hover-lift"
+        <div class="card h-100 shadow-sm border-0 global-drilldown motion-hover-lift-luxury"
             data-drilldown-url="/api/dashboard/drilldown/awaiting_receiving" data-title="Awaiting Receiving"
             style="background: var(--kpi-bg, linear-gradient(145deg, #2a2a2a, #1e1e1e)); cursor: pointer; border: 1px solid transparent;">
             <div class="card-body">
@@ -73,7 +74,7 @@
                 <h5 class="mb-0" id="scheduleCardTitle">Today's Schedule</h5>
                 <div>
                     <div class="btn-group btn-group-sm me-2" role="group" id="scheduleViewSelector">
-                        <button type="button" class="btn btn-primary theme-btn active motion-hover-lift"
+                        <button type="button" class="btn btn-primary theme-btn active motion-hover-lift-luxury"
                             data-view="day">Day</button>
                         <button type="button" class="btn btn-outline-secondary" data-view="week">Week</button>
                         <button type="button" class="btn btn-outline-secondary" data-view="month">Month</button>
@@ -97,7 +98,8 @@
                         <tbody>
                             {% if schedule %}
                             {% for item in schedule %}
-                            <tr>
+                            <tr class="motion-fade-in-soft motion-delay-3"
+                                style="transition: background-color var(--motion-swift) ease;">
                                 <td class="ps-3">{{ item.start_at.split(' ')[1][:5] if item.start_at else '' }}</td>
                                 <td><strong>{{ item.customer_name }}</strong><br><small class="text-muted">Wedding: {{
                                         item.wedding_date.split(' ')[0] if item.wedding_date else 'N/A' }}</small></td>
@@ -118,7 +120,8 @@
                             {% endfor %}
                             {% else %}
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">No appointments scheduled for today.
+                                <td colspan="5" class="text-center text-muted py-4 motion-shimmer-soft"
+                                    style="border-radius: 4px;">No appointments scheduled for today.
                                 </td>
                             </tr>
                             {% endif %}

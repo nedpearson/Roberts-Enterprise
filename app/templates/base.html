@@ -24,80 +24,14 @@
     </style>
     {% endif %}
 
-    <!-- Motion Preview Architecture (EMBEDDED TO BYPASS CACHE) -->
-    <style>
-        :root {
-            --motion-swift: 300ms;
-            --motion-gentle: 500ms;
-            --motion-slow: 800ms;
-            --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
-            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .motion-preview-enabled .motion-fade-in-soft {
-            animation: fadeInSoft var(--motion-slow) var(--ease-luxury) forwards;
-            opacity: 0;
-        }
-
-        .motion-preview-enabled .motion-rise-in-subtle {
-            animation: riseInSubtle var(--motion-slow) var(--ease-luxury) forwards;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .motion-preview-enabled .motion-delay-1 {
-            animation-delay: 150ms;
-        }
-
-        .motion-preview-enabled .motion-delay-2 {
-            animation-delay: 300ms;
-        }
-
-        .motion-preview-enabled .motion-delay-3 {
-            animation-delay: 450ms;
-        }
-
-        .motion-preview-enabled .motion-delay-4 {
-            animation-delay: 600ms;
-        }
-
-        .motion-preview-enabled .motion-hover-lift {
-            transition: transform var(--motion-swift) var(--ease-luxury), box-shadow var(--motion-swift) var(--ease-luxury), background-color var(--motion-swift) ease;
-        }
-
-        .motion-preview-enabled .motion-hover-lift:hover {
-            transform: translateY(-8px) scale(1.03);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
-            z-index: 10;
-        }
-
-        @keyframes fadeInSoft {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes riseInSubtle {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    <!-- Motion Preview Architecture (Phase E) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/motion-preview.css', v=6) }}">
 
     {% block extra_css %}{% endblock %}
 </head>
 
-<body class="motion-preview-enabled">
+<body
+    class="{% if request.args.get('motion') == 'true' or request.cookies.get('motion_preview') == 'true' %}motion-preview-enabled{% endif %}">
 
     <div class="container-fluid">
         <div class="row">
@@ -157,49 +91,49 @@
 
                     <ul class="nav flex-column motion-delay-1 motion-fade-in-soft">
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint == 'dashboard' %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint == 'dashboard' %}active{% endif %}"
                                 href="{{ url_for('dashboard') }}">
                                 <i class="bi bi-speedometer2 me-2"></i> Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('appointments') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('appointments') %}active{% endif %}"
                                 href="{{ url_for('appointments.appointment_list') }}">
                                 <i class="bi bi-calendar-event me-2"></i> Appointments
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('alterations') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('alterations') %}active{% endif %}"
                                 href="{{ url_for('alterations.alterations_board') }}">
                                 <i class="bi bi-scissors me-2"></i> Alterations
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('customers') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('customers') %}active{% endif %}"
                                 href="{{ url_for('customers.customer_list') }}">
                                 <i class="bi bi-people me-2"></i> Customers
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('orders') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('orders') %}active{% endif %}"
                                 href="{{ url_for('orders.order_list') }}">
                                 <i class="bi bi-receipt me-2"></i> Orders & Payments
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('pickups') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('pickups') %}active{% endif %}"
                                 href="{{ url_for('pickups.pickup_list') }}">
                                 <i class="bi bi-bag-check me-2"></i> Pickups
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('inventory') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('inventory') %}active{% endif %}"
                                 href="{{ url_for('inventory.catalog') }}">
                                 <i class="bi bi-box me-2"></i> Inventory & Products
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('transfers') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('transfers') %}active{% endif %}"
                                 href="{{ url_for('transfers.dashboard') }}">
                                 <i class="bi bi-truck me-2"></i> Transfers
                             </a>
@@ -212,37 +146,37 @@
                     </h6>
                     <ul class="nav flex-column mb-2 motion-fade-in-soft motion-delay-2">
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('purchasing') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('purchasing') %}active{% endif %}"
                                 href="{{ url_for('purchasing.vendor_list') }}">
                                 <i class="bi bi-cart me-2"></i> Purchasing / Portal
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('payroll') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('payroll') %}active{% endif %}"
                                 href="{{ url_for('payroll.payroll_dashboard') }}">
                                 <i class="bi bi-cash me-2"></i> Payroll & Comm.
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('staff') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('staff') %}active{% endif %}"
                                 href="{{ url_for('staff.staff_list') }}">
                                 <i class="bi bi-person-badge me-2"></i> Staff & Locations
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('communications') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('communications') %}active{% endif %}"
                                 href="{{ url_for('communications.log_view') }}">
                                 <i class="bi bi-megaphone me-2"></i> Communications
                             </a>
                         </li>
                         <li class="nav-item mt-3">
-                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('reports') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift-luxury {% if request.endpoint and request.endpoint.startswith('reports') %}active{% endif %}"
                                 href="{{ url_for('reports.overview') }}">
                                 <i class="bi bi-graph-up me-2"></i> Reports & KPIs
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link motion-hover-lift" href="#">
+                            <a class="nav-link motion-hover-lift-luxury" href="#">
                                 <i class="bi bi-gear me-2"></i> Settings
                             </a>
                         </li>
