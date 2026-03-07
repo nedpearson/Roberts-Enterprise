@@ -85,10 +85,13 @@
     </style>
     {% endif %}
 
+    <!-- Motion Preview Architecture -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/motion-preview.css') }}">
+
     {% block extra_css %}{% endblock %}
 </head>
 
-<body>
+<body class="motion-preview-enabled">
 
     <div class="container-fluid">
         <div class="row">
@@ -146,51 +149,51 @@
                     </div>
                     {% endif %}
 
-                    <ul class="nav flex-column">
+                    <ul class="nav flex-column motion-delay-1 motion-fade-in-soft">
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint == 'dashboard' %}active{% endif %}"
                                 href="{{ url_for('dashboard') }}">
                                 <i class="bi bi-speedometer2 me-2"></i> Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('appointments') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('appointments') %}active{% endif %}"
                                 href="{{ url_for('appointments.appointment_list') }}">
                                 <i class="bi bi-calendar-event me-2"></i> Appointments
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('alterations') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('alterations') %}active{% endif %}"
                                 href="{{ url_for('alterations.alterations_board') }}">
                                 <i class="bi bi-scissors me-2"></i> Alterations
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('customers') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('customers') %}active{% endif %}"
                                 href="{{ url_for('customers.customer_list') }}">
                                 <i class="bi bi-people me-2"></i> Customers
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('orders') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('orders') %}active{% endif %}"
                                 href="{{ url_for('orders.order_list') }}">
                                 <i class="bi bi-receipt me-2"></i> Orders & Payments
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('pickups') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('pickups') %}active{% endif %}"
                                 href="{{ url_for('pickups.pickup_list') }}">
                                 <i class="bi bi-bag-check me-2"></i> Pickups
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('inventory') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('inventory') %}active{% endif %}"
                                 href="{{ url_for('inventory.catalog') }}">
                                 <i class="bi bi-box me-2"></i> Inventory & Products
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('transfers') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('transfers') %}active{% endif %}"
                                 href="{{ url_for('transfers.dashboard') }}">
                                 <i class="bi bi-truck me-2"></i> Transfers
                             </a>
@@ -198,42 +201,42 @@
                     </ul>
 
                     <h6
-                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase motion-fade-in-soft motion-delay-2">
                         <span>Vendor & Staff</span>
                     </h6>
-                    <ul class="nav flex-column mb-2">
+                    <ul class="nav flex-column mb-2 motion-fade-in-soft motion-delay-2">
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('purchasing') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('purchasing') %}active{% endif %}"
                                 href="{{ url_for('purchasing.vendor_list') }}">
                                 <i class="bi bi-cart me-2"></i> Purchasing / Portal
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('payroll') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('payroll') %}active{% endif %}"
                                 href="{{ url_for('payroll.payroll_dashboard') }}">
                                 <i class="bi bi-cash me-2"></i> Payroll & Comm.
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('staff') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('staff') %}active{% endif %}"
                                 href="{{ url_for('staff.staff_list') }}">
                                 <i class="bi bi-person-badge me-2"></i> Staff & Locations
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('communications') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('communications') %}active{% endif %}"
                                 href="{{ url_for('communications.log_view') }}">
                                 <i class="bi bi-megaphone me-2"></i> Communications
                             </a>
                         </li>
                         <li class="nav-item mt-3">
-                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('reports') %}active{% endif %}"
+                            <a class="nav-link motion-hover-lift {% if request.endpoint and request.endpoint.startswith('reports') %}active{% endif %}"
                                 href="{{ url_for('reports.overview') }}">
                                 <i class="bi bi-graph-up me-2"></i> Reports & KPIs
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link motion-hover-lift" href="#">
                                 <i class="bi bi-gear me-2"></i> Settings
                             </a>
                         </li>
