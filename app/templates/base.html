@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Roberts Enterprise{% endblock %}</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -15,15 +16,10 @@
     <!-- Removed hardcoded styles here, relying on app.py dynamic token injection -->
 
     <!-- Dynamic Theme Injection -->
-    {% if active_company and dynamic_css %}
-    <style>
-        {
-                {
-                dynamic_css | safe
-            }
-        }
-    </style>
+    {% if dynamic_css %}
+    {{ dynamic_css | safe }}
     {% endif %}
+
 
     <!-- Motion Preview Architecture (Phase E) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/motion-preview.css', v=6) }}">
@@ -58,7 +54,7 @@
                         <span class="text-muted small fw-bold text-uppercase d-block mb-1 px-1">Organization</span>
                         <form action="{{ url_for('switch_company', company_id=0) }}" method="POST"
                             id="companySwitcherForm">
-                            <select class="form-select form-select-sm bg-dark text-light border-secondary"
+                            <select class="form-select form-select-sm "
                                 onchange="this.form.action='/switch_company/' + this.value; this.form.submit();">
                                 {% for comp in all_companies %}
                                 <option value="{{ comp.id }}" {% if active_company and active_company.id==comp.id
@@ -76,7 +72,7 @@
                         <span class="text-muted small fw-bold text-uppercase d-block mb-1 px-1">Workspace</span>
                         <form action="{{ url_for('switch_location', location_id=0) }}" method="POST"
                             id="locationSwitcherForm">
-                            <select class="form-select form-select-sm bg-dark text-light border-secondary"
+                            <select class="form-select form-select-sm "
                                 onchange="this.form.action='/switch_location/' + this.value; this.form.submit();">
                                 <option value="0" {% if not active_location %}selected{% endif %}>All Locations</option>
                                 {% for loc in locations %}
@@ -183,8 +179,7 @@
                         </li>
                     </ul>
 
-                    <div class="mt-auto p-3 position-absolute bottom-0 w-100 border-top mt-5"
-                        style="border-color: #333 !important;">
+                    <div class="mt-auto p-3 w-100 border-top mt-5">
 
                         <!-- Time Clock Widget -->
                         <div class="mb-3 px-1">
@@ -241,6 +236,9 @@
         </div>
     </div>
 
+    <!-- Modals Escape Block (Prevents z-index/transform trapping) -->
+    {% block modals %}{% endblock %}
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -273,7 +271,7 @@
                 if (index < drilldownStack.length - 1) {
                     html += `<a href="#" class="text-decoration-none theme-text" onclick="navigateDrilldownBack(${index}); return false;">${level.title}</a> <i class="bi bi-chevron-right mx-1" style="font-size:0.7rem;"></i> `;
                 } else {
-                    html += `<span class="text-light">${level.title}</span>`;
+                    html += `<span class=" ">${level.title}</span>`;
                 }
             });
             container.innerHTML = html;
@@ -412,6 +410,11 @@
                     e.preventDefault();
                     // Intercept and rewrite old V1 urls to V2 if necessary, or just use what's there
                     let drilldownUrl = standardTarget.getAttribute('data-drilldown-url');
+
+                    if (!drilldownUrl) {
+                        console.warn("Element has .global-drilldown but no data-drilldown-url:", standardTarget);
+                        return;
+                    }
 
                     // Quick migration map for old V1 paths to V2 if they are hardcoded in HTML
                     if (drilldownUrl.includes('/api/dashboard/drilldown/')) {

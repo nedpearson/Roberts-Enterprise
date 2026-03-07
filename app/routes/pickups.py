@@ -43,8 +43,8 @@ def complete_pickup(id):
             UPDATE pickups 
             SET status = 'Completed',
                 signature_data = 'digital_signature_mock_hash'
-            WHERE id = ? AND status != 'Completed'
-        ''', (id,))
+            WHERE id = ? AND company_id = ? AND status != 'Completed'
+        ''', (id, session.get('company_id')))
         
         # In a real app, we might also update the parent Order status to 'Fulfilled' here
         # depending on if all child pickups are complete

@@ -33,7 +33,11 @@ def order_list():
         order_dict['balance_due'] = max(0, balance_due)
         processed_orders.append(order_dict)
         
-    return render_template('orders.html', orders=processed_orders)
+    # Get active customers for modal
+    cursor.execute("SELECT id, first_name, last_name FROM customers WHERE company_id = ? ORDER BY first_name ASC", (company_id,))
+    customers = cursor.fetchall()
+        
+    return render_template('orders.html', orders=processed_orders, customers=customers)
 
 @bp.route('/<int:id>')
 def order_detail(id):
@@ -47,8 +51,8 @@ def order_detail(id):
         SELECT o.*, c.first_name, c.last_name, c.email, c.phone, c.wedding_date
         FROM orders o
         JOIN customers c ON o.customer_id = c.id
-        WHERE o.id = ?
-    ''', (id,))
+        WHERE o.id = ? AND o.company_id = ?
+    ''', (id, session.get('company_id')))
     order = cursor.fetchone()
     
     if not order:
@@ -130,7 +134,7 @@ def post_payment(id):
     cursor = conn.cursor()
     
     # Verify order exists
-    cursor.execute('SELECT customer_id FROM orders WHERE id = ?', (id,))
+    cursor.execute('SELECT customer_id FROM orders WHERE id = ? AND company_id = ?', (id, session.get('company_id')))
     order = cursor.fetchone()
     if not order:
         flash("Order not found.", "error")
@@ -157,3 +161,34 @@ def post_payment(id):
         pass
         
     return redirect(url_for('orders.order_detail', id=id))
+
+@bp.route('/add', methods=['POST'])
+def add_order():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    
+    customer_id = request.form.get('customer_id')
+    notes = request.form.get('notes')
+    company_id = session.get('company_id')
+    location_id = session.get('location_id', 0)
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # We fetch wedding_date to snapshot it according to schema
+    cursor.execute("SELECT wedding_date FROM customers WHERE id = ? AND company_id = ?", (customer_id, company_id))
+    cust = cursor.fetchone()
+    if not cust:
+        flash("Invalid customer configuration.", "error")
+        return redirect(url_for('orders.order_list'))
+        
+    wedding_date_snapshot = cust['wedding_date']
+    
+    cursor.execute('''
+        INSERT INTO orders (company_id, location_id, customer_id, status, notes, wedding_date_snapshot)
+        VALUES (?, ?, ?, 'Draft', ?, ?)
+    ''', (company_id, location_id, customer_id, notes, wedding_date_snapshot))
+    new_order_id = cursor.lastrowid
+    conn.commit()
+    
+    flash(f"Order #{new_order_id:04d} Draft Created Successfully.", "success")
+    return redirect(url_for('orders.order_detail', id=new_order_id))

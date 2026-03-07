@@ -25,12 +25,12 @@
     <!-- Active Staff Summary -->
     <div class="col-lg-7">
         <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Staff Member Balances</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover table-dark mb-0 align-middle">
+                    <table class="table table-hover mb-0 align-middle">
                         <thead>
                             <tr>
                                 <th class="ps-3 border-0">Name</th>
@@ -43,7 +43,7 @@
                         <tbody>
                             {% for person in staff %}
                             <tr>
-                                <td class="ps-3 text-light"><strong>{{ person.first_name }} {{ person.last_name
+                                <td class="ps-3 "><strong>{{ person.first_name }} {{ person.last_name
                                         }}</strong></td>
                                 <td>{{ person.role }}</td>
                                 <td>
@@ -88,13 +88,13 @@
     <!-- Recent Commission Entries -->
     <div class="col-lg-5">
         <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-dark">
+            <div class="card-header ">
                 <h5 class="mb-0">Recent Commissions</h5>
             </div>
             <div class="card-body p-0">
                 <div class="list-group list-group-flush rounded-bottom border-0">
                     {% for comm in commissions %}
-                    <div class="list-group-item bg-dark border-secondary text-light p-3">
+                    <div class="list-group-item p-3">
                         <div class="d-flex w-100 justify-content-between align-items-center mb-1">
                             <h6 class="mb-0">{{ comm.first_name }} {{ comm.last_name }}</h6>
                             {% if comm.order_ref %}
@@ -133,12 +133,12 @@
 <div class="row mt-4 mb-4">
     <div class="col-12">
         <div class="card shadow-sm border-0">
-            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Paystubs Ledger</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover table-dark mb-0 align-middle">
+                    <table class="table table-hover mb-0 align-middle">
                         <thead>
                             <tr>
                                 <th class="ps-3 border-0">Generated On</th>
@@ -175,9 +175,9 @@
 <!-- Run Payroll Modal -->
 <div class="modal fade" id="runPayrollModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark text-light border-secondary">
+        <div class="modal-content ">
             <form action="{{ url_for('payroll.run_process') }}" method="POST">
-                <div class="modal-header border-secondary">
+                <div class="modal-header ">
                     <h5 class="modal-title">Run Payroll Cycle</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -189,17 +189,17 @@
                         generate finalized paystubs.
                     </p>
                     <div class="mb-3">
-                        <label class="form-label text-light">Cycle Start Date</label>
-                        <input type="date" name="start_date" class="form-control bg-dark text-light border-secondary"
+                        <label class="form-label ">Cycle Start Date</label>
+                        <input type="date" name="start_date" class="form-control "
                             required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-light">Cycle End Date</label>
-                        <input type="date" name="end_date" class="form-control bg-dark text-light border-secondary"
+                        <label class="form-label ">Cycle End Date</label>
+                        <input type="date" name="end_date" class="form-control "
                             required>
                     </div>
                 </div>
-                <div class="modal-footer border-secondary">
+                <div class="modal-footer ">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Generate Paystubs</button>
                 </div>
@@ -211,9 +211,9 @@
 <!-- Distribute Pools Modal -->
 <div class="modal fade" id="distributePoolsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark text-light border-secondary">
+        <div class="modal-content ">
             <form action="{{ url_for('payroll.distribute_pools') }}" method="POST">
-                <div class="modal-header border-secondary">
+                <div class="modal-header ">
                     <h5 class="modal-title">Distribute Location Pools</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -225,8 +225,8 @@
                     </p>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-light">Month</label>
-                            <select name="month" class="form-select bg-dark text-light border-secondary" required>
+                            <label class="form-label ">Month</label>
+                            <select name="month" class="form-select " required>
                                 <option value="1">January</option>
                                 <option value="2">February</option>
                                 <option value="3">March</option>
@@ -242,13 +242,13 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-light">Year</label>
-                            <input type="number" name="year" class="form-control bg-dark text-light border-secondary"
+                            <label class="form-label ">Year</label>
+                            <input type="number" name="year" class="form-control "
                                 value="2026" required>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-secondary">
+                <div class="modal-footer ">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-success">Distribute</button>
                 </div>

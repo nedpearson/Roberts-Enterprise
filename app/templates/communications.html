@@ -3,18 +3,18 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="h4 mb-1 text-light">Communications Hub</h2>
+        <h2 class="h4 mb-1 ">Communications Hub</h2>
         <p class="text-muted mb-0">Audit log of all automated texts and emails sent to brides.</p>
     </div>
 </div>
 
 <div class="card border-0 shadow-sm">
     <div class="card-header border-bottom-0 py-3">
-        <h5 class="card-title mb-0 text-light"><i class="bi bi-envelope-paper me-2 theme-text"></i> Outreach Ledger</h5>
+        <h5 class="card-title mb-0 "><i class="bi bi-envelope-paper me-2 theme-text"></i> Outreach Ledger</h5>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 table-dark">
+            <table class="table table-hover align-middle mb-0 ">
                 <thead>
                     <tr>
                         <th class="ps-4">Timestamp</th>
@@ -40,10 +40,10 @@
                             {% endif %}
                         </td>
                         <td>
-                            <div class="fw-medium text-light">{{ log.customer_name }}</div>
+                            <div class="fw-medium ">{{ log.customer_name }}</div>
                             <div class="text-muted small">{{ log.phone if log.type == 'SMS' else log.email }}</div>
                         </td>
-                        <td><span class="text-light">{{ log.subject }}</span></td>
+                        <td><span class=" ">{{ log.subject }}</span></td>
                         <td><span class="text-muted small text-truncate d-inline-block" style="max-width: 300px;"
                                 title="{{ log.message_body }}">{{ log.message_body }}</span></td>
                         <td>

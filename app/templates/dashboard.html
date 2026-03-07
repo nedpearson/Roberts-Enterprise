@@ -11,7 +11,8 @@
             <button type="button" class="btn btn-sm btn-outline-secondary">Filter</button>
         </div>
         <button type="button"
-            class="btn btn-sm btn-primary d-flex align-items-center motion-hover-lift-luxury motion-focus-glow-gentle">
+            class="btn btn-sm btn-primary d-flex align-items-center motion-hover-lift-luxury motion-focus-glow-gentle"
+            data-bs-toggle="modal" data-bs-target="#newAppointmentModal">
             <i class="bi bi-plus-lg me-1"></i> New Appointment
         </button>
     </div>
@@ -84,7 +85,7 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover table-dark mb-0 align-middle">
+                    <table class="table table-hover mb-0 align-middle">
                         <thead>
                             <tr>
                                 <th class="ps-3 border-0">Time</th>
@@ -249,4 +250,8 @@
     });
 </script>
 
+{% endblock %}
+
+{% block modals %}
+{% include "_new_appointment_modal.html" %}
 {% endblock %}

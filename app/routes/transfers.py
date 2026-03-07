@@ -123,10 +123,11 @@ def receive_transfer(id):
     conn = get_db()
     cursor = conn.cursor()
     user_id = session.get('user_id')
+    company_id = session.get('company_id')
 
     try:
-        # 1. Verify Transfer is In Transit
-        cursor.execute("SELECT * FROM transfers WHERE id = ? AND status = 'In_Transit'", (id,))
+        # 1. Verify Transfer is In Transit and belongs to company
+        cursor.execute("SELECT * FROM transfers WHERE id = ? AND company_id = ? AND status = 'In_Transit'", (id, company_id))
         transfer = cursor.fetchone()
         
         if not transfer:

@@ -81,113 +81,103 @@ def inject_company_context():
             cursor.execute("SELECT * FROM locations WHERE id = ?", (loc_id,))
             active_location = cursor.fetchone()
     
-    if company:
-        # Pre-compile the dynamic CSS explicitly in Python to protect Jinja from aggressive IDE auto-formatters breaking the templates
-        theme_bg_type = company['theme_bg'] if company['theme_bg'] else 'dark'
-        primary = company['primary_color'] if company['primary_color'] else '#aa8c66'
-        
-        # Default Dark configuration
+    # Fallback to an elegant light theme if no company is selected (e.g. Demo Bypass)
+    theme_bg_type = company['theme_bg'] if company and company['theme_bg'] else 'light'
+    primary = company['primary_color'] if company and company['primary_color'] else '#aa8c66'
+    
+    if theme_bg_type == 'custom_proper':
+        t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#000000', '#ffffff', '#ffffff'
+        t_col, s_txt, s_hvr, b_col = '#2b3035', '#f8f9fa', '#222222', '#eaeaea'
+        k_bg, muted = '#f8f9fa', '#6c757d'
+        inp_bg, inp_br, inp_border = '#f1f3f5', '2rem', 'none'
+        btn_bg, btn_hvr, btn_txt = '#000000', '#333333', '#ffffff'
+    elif theme_bg_type == 'custom_idc':
+        t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#6d6d6d', '#ffffff', '#ffffff'
+        t_col, s_txt, s_hvr, b_col = '#2b3035', '#ffffff', '#3a3a3a', '#eaeaea'
+        k_bg, muted = '#f8f9fa', '#6c757d'
+        inp_bg, inp_br, inp_border = '#f1f3f5', '2rem', 'none'
+        btn_bg, btn_hvr, btn_txt = '#6d6d6d', '#3a3a3a', '#ffffff'
+    elif theme_bg_type == 'dark':
         t_bg, s_bg, c_bg, ch_bg = '#121212', '#1e1e1e', '#1e1e1e', '#252525'
         t_col, s_txt, s_hvr, b_col = '#e0e0e0', '#aaaaaa', '#2d2d2d', '#333333'
         k_bg, muted = 'linear-gradient(145deg, #2a2a2a, #1e1e1e)', 'inherit'
         inp_bg, inp_br, inp_border = 'var(--card-bg)', '0.375rem', '1px solid var(--border-color)'
-        
-        if theme_bg_type == 'custom_proper':
-            t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#000000', '#ffffff', '#f8f9fa'
-            t_col, s_txt, s_hvr, b_col = '#1d1d1d', '#ffffff', '#222222', '#000000'
-            k_bg, muted = '#f8f9fa', '#888888'
-            inp_bg, inp_br, inp_border = '#f5f5f5', '0', '1px solid #000000'
-            btn_bg, btn_hvr, btn_txt = '#000000', '#333333', '#ffffff'
-        elif theme_bg_type == 'custom_idc':
-            t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#6d6d6d', '#ffffff', '#f8f9fa'
-            t_col, s_txt, s_hvr, b_col = '#1d1d1d', '#ffffff', '#3a3a3a', '#d4d4d4'
-            k_bg, muted = '#f8f9fa', '#888888'
-            inp_bg, inp_br, inp_border = '#f5f5f5', '0', '1px solid #d4d4d4'
-            btn_bg, btn_hvr, btn_txt = '#6d6d6d', '#3a3a3a', '#ffffff'
-        elif theme_bg_type != 'dark':
-            t_bg, s_bg, c_bg, ch_bg = '#f8f9fa', '#ffffff', '#ffffff', '#f8f9fa'
-            t_col, s_txt, s_hvr, b_col = '#212529', '#444444', '#f0f0f0', '#dee2e6'
-            btn_bg, btn_hvr, btn_txt = primary, primary, '#ffffff'
-        else:
-            btn_bg, btn_hvr, btn_txt = primary, primary, '#ffffff'
+        btn_bg, btn_hvr, btn_txt = primary, primary, '#ffffff'
+    else:
+        # Elegant default
+        t_bg, s_bg, c_bg, ch_bg = '#f8f9fa', '#ffffff', '#ffffff', '#ffffff'
+        t_col, s_txt, s_hvr, b_col = '#2b3035', '#444444', '#f0f0f0', '#eaeaea'
+        k_bg, muted = '#f8f9fa', '#6c757d'
+        inp_bg, inp_br, inp_border = '#f1f3f5', '2rem', 'none'
+        btn_bg, btn_hvr, btn_txt = primary, primary, '#ffffff'
 
-        dynamic_css = f"""
-        :root {{
-            --theme-color: {primary};
-            --theme-bg: {t_bg};
-            --sidebar-bg: {s_bg};
-            --card-bg: {c_bg};
-            --card-header-bg: {ch_bg};
-            --text-color: {t_col};
-            --sidebar-text: {s_txt};
-            --sidebar-hover-bg: {s_hvr};
-            --border-color: {b_col};
-            --kpi-bg: {k_bg};
-            --btn-bg: {btn_bg};
-            --btn-hvr: {btn_hvr};
-            --btn-txt: {btn_txt};
-        }}
-        body {{ background-color: var(--theme-bg); color: var(--text-color); font-family: 'Assistant', system-ui, -apple-system, sans-serif; font-size: 18px; }}
-        h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .logo-text {{ font-family: 'Halant', serif; font-weight: 600; letter-spacing: -0.025em; }}
-        .sidebar {{ background-color: var(--sidebar-bg); border-right: none; box-shadow: 2px 0 12px rgba(0,0,0,0.05); }}
-        .card {{ background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 0px; box-shadow: none; margin-bottom: 1.5rem; }}
-        .card-header {{ background-color: var(--card-header-bg); border-bottom: 1px solid var(--border-color); border-radius: 0 !important; font-weight: 600; padding: 1.25rem 1.5rem; }}
-        .card-body {{ padding: 1.5rem; }}
-        .table {{ color: var(--text-color); font-family: 'Assistant', sans-serif; }}
-        .table-dark {{ --bs-table-bg: var(--card-bg) !important; --bs-table-color: var(--text-color) !important; --bs-table-border-color: var(--border-color) !important; }}
-        .nav-link {{ color: var(--sidebar-text); border-radius: 0px; margin: 4px 12px; font-weight: 500; transition: all 0.2s ease; font-family: 'Assistant', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }}
-        .nav-link:hover, .nav-link.active {{ background-color: var(--sidebar-hover-bg); color: var(--text-color); transform: translateX(2px); }}
-        .text-muted {{ color: {muted} !important; }}
-        .border-bottom {{ border-color: var(--border-color) !important; }}
-        .btn-primary {{ background-color: var(--btn-bg); border-color: var(--btn-bg); color: var(--btn-txt); border-radius: 0; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; font-family: 'Assistant', sans-serif; transition: background-color 0.3s ease, border-color 0.3s ease; }}
-        .btn-primary:hover, .btn-primary:focus, .btn-primary:active {{ background-color: var(--btn-hvr) !important; border-color: var(--btn-hvr) !important; color: var(--btn-txt) !important; }}
-        
-        /* Overrides to map hardcoded dark classes */
-        .text-light, .text-white {{ color: var(--text-color) !important; }}
-        .bg-dark, .bg-secondary {{ background-color: var(--card-bg) !important; }}
-        .border-secondary {{ border-color: var(--border-color) !important; }}
-        .modal-content, .offcanvas {{ background-color: var(--card-bg) !important; color: var(--text-color) !important; border-color: var(--border-color) !important; border-radius: 0; }}
-        .form-control, .form-select, .form-control:focus, .form-select:focus {{
-            background-color: {inp_bg} !important;
-            color: var(--text-color) !important;
-            border: {inp_border} !important;
-            border-radius: {inp_br} !important;
-            box-shadow: none !important;
-            padding: 0.75rem 1.25rem;
-        }}
-        .btn-outline-light {{ color: var(--text-color) !important; border-color: var(--border-color) !important; border-radius: {inp_br} !important; }}
-        .btn-outline-light:hover {{ background-color: var(--sidebar-hover-bg) !important; color: var(--text-color) !important; }}
-        .btn-primary {{ 
-            background-color: var(--theme-color) !important; 
-            border-color: var(--theme-color) !important; 
-            color: #ffffff !important; 
-            border-radius: {inp_br} !important; 
-            padding: 0.6rem 2rem;
-            font-weight: 600;
-        }}
-        .btn-primary:hover {{ filter: brightness(0.9); border-color: var(--theme-color) !important; color: #ffffff !important; }}
-        """
+    dynamic_css = f"""
+    <style>
+    :root {{
+        --theme-color: {primary};
+        --theme-bg: {t_bg};
+        --sidebar-bg: {s_bg};
+        --card-bg: {c_bg};
+        --card-header-bg: {ch_bg};
+        --text-color: {t_col};
+        --sidebar-text: {s_txt};
+        --sidebar-hover-bg: {s_hvr};
+        --border-color: {b_col};
+        --kpi-bg: {k_bg};
+        --btn-bg: {btn_bg};
+        --btn-hvr: {btn_hvr};
+        --btn-txt: {btn_txt};
+    }}
+    body {{ background-color: var(--theme-bg); color: var(--text-color); font-family: 'Assistant', system-ui, -apple-system, sans-serif; font-size: 18px; line-height: 1.6; }}
+    h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .logo-text {{ font-family: 'Halant', serif; font-weight: 600; letter-spacing: -0.025em; color: var(--text-color); }}
+    .sidebar {{ background-color: var(--sidebar-bg); border-right: none; box-shadow: 2px 0 12px rgba(0,0,0,0.05); }}
+    .card {{ background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 2rem; }}
+    .card-header {{ background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); border-radius: 12px 12px 0 0 !important; font-weight: 600; padding: 1.25rem 1.5rem; }}
+    .card-body {{ padding: 1.5rem; }}
+    .table {{ color: var(--text-color); font-family: 'Assistant', sans-serif; }}
+    .table-dark {{ --bs-table-bg: var(--card-bg) !important; --bs-table-color: var(--text-color) !important; --bs-table-border-color: var(--border-color) !important; }}
+    .nav-link {{ color: var(--sidebar-text); border-radius: 0px; margin: 4px 12px; font-weight: 500; transition: all 0.2s ease; font-family: 'Assistant', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }}
+    .nav-link:hover, .nav-link.active {{ background-color: var(--sidebar-hover-bg); color: var(--sidebar-text); transform: translateX(2px); border-radius: 6px; }}
+    .text-muted {{ color: {muted} !important; }}
+    .border-bottom {{ border-color: var(--border-color) !important; }}
+    .btn-primary {{ background-color: var(--btn-bg); border-color: var(--btn-bg); color: var(--btn-txt); border-radius: 2rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; font-family: 'Assistant', sans-serif; transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease; padding: 0.6rem 1.75rem; }}
+    .btn-primary:hover, .btn-primary:focus, .btn-primary:active {{ background-color: var(--btn-hvr) !important; border-color: var(--btn-hvr) !important; color: var(--btn-txt) !important; transform: translateY(-1px); }}
+    
+    /* Overrides to map hardcoded dark classes */
+    .text-light, .text-white {{ color: var(--text-color) !important; }}
+    .bg-dark, .bg-secondary {{ background-color: var(--card-bg) !important; }}
+    .border-secondary {{ border-color: var(--border-color) !important; }}
+    .modal-content, .offcanvas {{ background-color: var(--card-bg) !important; color: var(--text-color) !important; border-color: var(--border-color) !important; border-radius: 12px; }}
+    .form-control, .form-control:focus {{
+        background-color: {inp_bg} !important;
+        color: var(--text-color) !important;
+        border: {inp_border} !important;
+        border-radius: {inp_br} !important;
+        box-shadow: none !important;
+        padding: 0.75rem 1.25rem;
+    }}
+    .form-select, .form-select:focus {{
+        background-color: {inp_bg} !important;
+        color: var(--text-color) !important;
+        border: {inp_border} !important;
+        border-radius: {inp_br} !important;
+        box-shadow: none !important;
+    }}
+    .btn-outline-light {{ color: var(--text-color) !important; border-color: var(--border-color) !important; border-radius: {inp_br} !important; }}
+    .btn-outline-light:hover {{ background-color: var(--sidebar-hover-bg) !important; color: var(--text-color) !important; }}
+    </style>
+    """
 
-        return dict(
-            active_company=company,
-            all_companies=all_companies,
-            companies=all_companies, # Provide fallback naming
-            locations=locations,
-            active_location=active_location,
-            theme_color=primary,
-            theme_bg=theme_bg_type,
-            dynamic_css=dynamic_css,
-            is_clocked_in=locals().get('is_clocked_in', False)
-        )
     return dict(
-        active_company=None,
+        active_company=company,
         all_companies=all_companies,
-        companies=all_companies,
+        companies=all_companies, # Provide fallback naming
         locations=locations,
-        active_location=None,
-        theme_color="#aa8c66", 
-        theme_bg="dark",
-        is_clocked_in=False
+        active_location=active_location,
+        theme_color=primary,
+        theme_bg=theme_bg_type,
+        dynamic_css=dynamic_css,
+        is_clocked_in=locals().get('is_clocked_in', False)
     )
 
 @app.route('/')
@@ -312,12 +302,25 @@ def dashboard():
     ''', (company_id, location_id, location_id))
     schedule = cursor.fetchall()
         
+    # Fetch data for New Appointment modal
+    cursor.execute("SELECT id, first_name, last_name FROM customers WHERE company_id = ? ORDER BY first_name", (company_id,))
+    customers = cursor.fetchall()
+    
+    cursor.execute("SELECT id, name FROM services WHERE company_id = ? ORDER BY name", (company_id,))
+    services_list = cursor.fetchall()
+    
+    cursor.execute("SELECT id, first_name, last_name, role FROM users WHERE company_id = ? ORDER BY first_name", (company_id,))
+    staff_list = cursor.fetchall()
+        
     return render_template('dashboard.html',
                           today_appts=today_appts,
                           pickups_due=pickups_due,
                           outstanding=outstanding,
                           po_count=po_count,
-                          schedule=schedule)
+                          schedule=schedule,
+                          customers=customers,
+                          services_list=services_list,
+                          staff_list=staff_list)
 
 @app.route('/api/dashboard/schedule_view')
 def dashboard_schedule_view():
@@ -465,40 +468,36 @@ def universal_drilldown(type, id):
                    a.notes as "Notes"
             FROM appointments a
             JOIN services s ON a.service_id = s.id
+            JOIN customers c ON a.customer_id = c.id
             LEFT JOIN users u ON a.assigned_staff_id = u.id
-            WHERE a.id = ?
-        ''', (id,))
+            WHERE a.id = ? AND c.company_id = ?
+        ''', (id, session.get('company_id')))
         rows = [dict(row) for row in cursor.fetchall()]
         if not rows:
              return {"error": "Appointment not found"}, 404
         return {"total_records": len(rows), "data": rows, "columns": ["Time", "End", "Service", "Stylist", "Status", "Notes"]}
         
     elif type == 'order':
-        # Retrieve Order items
+        # Retrieve Order items securely bounded to company
         cursor.execute('''
             SELECT p.name as "Item", pv.size as "Size", pv.color as "Color", 
                    oi.quantity as "Qty", "$" || printf("%.2f", oi.unit_price) as "Unit Price", 
                    "$" || printf("%.2f", oi.quantity * oi.unit_price) as "Total"
             FROM order_items oi
+            JOIN orders o ON oi.order_id = o.id
             JOIN product_variants pv ON oi.product_variant_id = pv.id
             JOIN products p ON pv.product_id = p.id
-            WHERE oi.order_id = ?
-        ''', (id,))
+            WHERE oi.order_id = ? AND o.company_id = ?
+        ''', (id, session.get('company_id')))
         items = [dict(row) for row in cursor.fetchall()]
         
-        # Retrieve payment ledger
-        cursor.execute('''
-            SELECT date as "Date", type as "Type", method as "Method", 
-                   "$" || printf("%.2f", amount) as "Amount", notes as "Notes"
-            FROM payment_ledger
-            WHERE order_id = ?
-            ORDER BY date ASC
-        ''', (id,))
-        [dict(row) for row in cursor.fetchall()]
-        
-        # Combine them intelligently or just return items. For simplicity and because we only support one table format easily:
-        # We will return items here, but a dedicated modal could display both. 
-        # To adapt to the universal modal, we will return items.
+        # We enforce company_id check so empty items array prevents leakage
+        if not items:
+             # Just query the order to verify ownership if there are no items
+             cursor.execute("SELECT id FROM orders WHERE id = ? AND company_id = ?", (id, session.get('company_id')))
+             if not cursor.fetchone():
+                 return {"error": "Order not found"}, 404
+                 
         return {"total_records": len(items), "data": items, "columns": ["Item", "Size", "Color", "Qty", "Unit Price", "Total"]}
         
     elif type == 'product':
@@ -506,8 +505,10 @@ def universal_drilldown(type, id):
             SELECT pv.sku_variant as "SKU", pv.size as "Size", pv.color as "Color", 
                    pv.on_hand_qty as "In Stock", CASE WHEN pv.track_inventory THEN 'Yes' ELSE 'No' END as "Tracked"
             FROM product_variants pv
-            WHERE pv.product_id = ?
-        ''', (id,))
+            JOIN products p ON pv.product_id = p.id
+            JOIN vendors v ON p.vendor_id = v.id
+            WHERE pv.product_id = ? AND v.company_id = ?
+        ''', (id, session.get('company_id')))
         rows = [dict(row) for row in cursor.fetchall()]
         return {"total_records": len(rows), "data": rows, "columns": ["SKU", "Size", "Color", "In Stock", "Tracked"]}
         
@@ -518,10 +519,12 @@ def universal_drilldown(type, id):
                    "$" || printf("%.2f", poi.unit_cost) as "Cost",
                    "$" || printf("%.2f", poi.qty_ordered * poi.unit_cost) as "Total"
             FROM purchase_order_items poi
+            JOIN purchase_orders po ON poi.purchase_order_id = po.id
+            JOIN vendors v ON po.vendor_id = v.id
             JOIN product_variants pv ON poi.product_variant_id = pv.id
             JOIN products p ON pv.product_id = p.id
-            WHERE poi.purchase_order_id = ?
-        ''', (id,))
+            WHERE poi.purchase_order_id = ? AND v.company_id = ?
+        ''', (id, session.get('company_id')))
         rows = [dict(row) for row in cursor.fetchall()]
         return {"total_records": len(rows), "data": rows, "columns": ["Product", "SKU", "Ordered", "Received", "Cost", "Total"]}
         
@@ -530,12 +533,23 @@ def universal_drilldown(type, id):
             SELECT p.pickup_contact_name as "Contact", p.pickup_contact_phone as "Phone",
                    p.signed_at as "Signed At", p.signed_by as "Signed By", p.notes as "Notes"
             FROM pickups p
-            WHERE p.id = ?
-         ''', (id,))
+            WHERE p.id = ? AND p.company_id = ?
+         ''', (id, session.get('company_id')))
          rows = [dict(row) for row in cursor.fetchall()]
          return {"total_records": len(rows), "data": rows, "columns": ["Contact", "Phone", "Signed At", "Signed By", "Notes"]}
 
     return {"error": "Invalid drilldown type"}, 400
 
+import traceback
+from werkzeug.exceptions import HTTPException
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    if isinstance(e, HTTPException):
+        return e
+    with open('error_traceback.log', 'w', encoding='utf-8') as f:
+        f.write(traceback.format_exc())
+    return "Error captured to disk", 500
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5005)

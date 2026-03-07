@@ -11,17 +11,33 @@ def customer_list():
     cursor = conn.cursor()
     company_id = session.get('company_id')
     location_id = session.get('location_id', 0)
-    cursor.execute('''
-        SELECT c.*, 
-            (SELECT COUNT(*) FROM appointments WHERE customer_id = c.id) as appt_count,
-            (SELECT SUM(total) FROM orders WHERE customer_id = c.id) as total_spent
-        FROM customers c
-        WHERE c.company_id = ? AND (c.location_id = ? OR ? = 0)
-        ORDER BY c.created_at DESC
-    ''', (company_id, location_id, location_id))
-    customers = cursor.fetchall()
     
-    return render_template('customers.html', customers=customers)
+    print("DEBUG: Executing Customers SQL", flush=True)
+    try:
+        cursor.execute('''
+            SELECT c.*, 
+                (SELECT COUNT(*) FROM appointments WHERE customer_id = c.id) as appt_count,
+                (SELECT SUM(total) FROM orders WHERE customer_id = c.id) as total_spent
+            FROM customers c
+            WHERE c.company_id = ? AND (c.location_id = ? OR ? = 0)
+            ORDER BY c.created_at DESC
+        ''', (company_id, location_id, location_id))
+        customers = cursor.fetchall()
+        print(f"DEBUG: SQL query succeeded. Fetched {len(customers)} customers.", flush=True)
+    except Exception as e:
+        print("DEBUG: SQL CRASH:", e, flush=True)
+        raise
+    
+    print("DEBUG: Entering Jinja Template Render", flush=True)
+    try:
+        html = render_template('customers.html', customers=customers)
+        print("DEBUG: Jinja Custom Template successful", flush=True)
+        return html
+    except Exception as e:
+        print("DEBUG: Jinja Render CRASH:", e, flush=True)
+        import traceback
+        traceback.print_exc()
+        raise
 
 @bp.route('/<int:id>')
 def customer_detail(id):
@@ -29,9 +45,13 @@ def customer_detail(id):
     
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM customers WHERE id = ?', (id,))
+    cursor.execute('SELECT * FROM customers WHERE id = ? AND company_id = ?', (id, session.get('company_id')))
     customer = cursor.fetchone()
     
+    if not customer:
+        flash("Customer not found or access denied.", "error")
+        return redirect(url_for('customers.customer_list'))
+        
     cursor.execute('SELECT * FROM appointments WHERE customer_id = ? ORDER BY start_at DESC', (id,))
     appointments = cursor.fetchall()
     
@@ -51,23 +71,26 @@ def customer_detail(id):
     ''', (session.get('company_id'),))
     designers = cursor.fetchall()
 
-    if not customer:
-        flash("Customer not found.", "error")
-        return redirect(url_for('customers.customer_list'))
-        
     return render_template('customer_detail.html', customer=customer, appointments=appointments, orders=orders, measurements=measurements, designers=designers)
 
 @bp.route('/<int:id>/measurements', methods=['POST'])
 def save_measurements(id):
     if 'user_id' not in session: return redirect(url_for('login'))
     
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Verify company_id
+    cursor.execute('SELECT id FROM customers WHERE id = ? AND company_id = ?', (id, session.get('company_id')))
+    if not cursor.fetchone():
+        flash("Unauthorized", "error")
+        return redirect(url_for('customers.customer_list'))
+    
     bust = request.form.get('bust', 0.0)
     waist = request.form.get('waist', 0.0)
     hips = request.form.get('hips', 0.0)
     hollow_to_hem = request.form.get('hollow_to_hem', 0.0)
     
-    conn = get_db()
-    cursor = conn.cursor()
     cursor.execute("SELECT id FROM customer_measurements WHERE customer_id = ?", (id,))
     if cursor.fetchone():
         cursor.execute("UPDATE customer_measurements SET bust=?, waist=?, hips=?, hollow_to_hem=?, updated_at=CURRENT_TIMESTAMP WHERE customer_id=?", (bust, waist, hips, hollow_to_hem, id))
@@ -82,11 +105,16 @@ def save_measurements(id):
 def recommend_size(id):
     if 'user_id' not in session: return jsonify({"error": "Unauthorized"}), 401
     
-    vendor_id = request.args.get('vendor_id')
-    if not vendor_id: return jsonify({"error": "Missing vendor_id"}), 400
-    
     conn = get_db()
     cursor = conn.cursor()
+    
+    # Verify company_id
+    cursor.execute('SELECT id FROM customers WHERE id = ? AND company_id = ?', (id, session.get('company_id')))
+    if not cursor.fetchone():
+        return jsonify({"error": "Unauthorized"}), 403
+        
+    vendor_id = request.args.get('vendor_id')
+    if not vendor_id: return jsonify({"error": "Missing vendor_id"}), 400
     
     cursor.execute('SELECT * FROM customer_measurements WHERE customer_id = ?', (id,))
     meas = cursor.fetchone()
@@ -133,3 +161,30 @@ def recommend_size(id):
         "recommended_size": recommended_size,
         "limiting_factor": f"{limit_str} determined this sizing"
     })
+
+@bp.route('/add', methods=['POST'])
+def add_customer():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    
+    first_name = request.form.get('first_name')
+    last_name = request.form.get('last_name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    wedding_date = request.form.get('wedding_date')
+    company_id = session.get('company_id')
+    location_id = session.get('location_id', 0)
+    
+    # Handle empty date strings from HTML5 inputs
+    if not wedding_date:
+        wedding_date = None
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO customers (company_id, location_id, first_name, last_name, email, phone, wedding_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (company_id, location_id, first_name, last_name, email, phone, wedding_date))
+    conn.commit()
+    
+    flash("Customer added successfully.", "success")
+    return redirect(url_for('customers.customer_list'))

@@ -102,8 +102,8 @@ def vendor_detail(id):
     conn = get_db()
     cursor = conn.cursor()
     
-    # Get vendor info
-    cursor.execute('SELECT * FROM vendors WHERE id = ?', (id,))
+    # Get vendor info securely
+    cursor.execute('SELECT * FROM vendors WHERE id = ? AND company_id = ?', (id, session.get('company_id')))
     vendor = cursor.fetchone()
     
     if not vendor:
@@ -169,3 +169,57 @@ def receive_po(id):
     conn.commit()
     flash(f"Purchase Order #{id:04d} successfully received. Arrival notifications have been dispatched to the relevant brides.", "success")
     return redirect(url_for('purchasing.vendor_list'))
+
+@bp.route('/vendor/add', methods=['POST'])
+def add_vendor():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    
+    name = request.form.get('name')
+    contact_name = request.form.get('contact_name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    lead_time_days = request.form.get('lead_time_days', 0)
+    company_id = session.get('company_id')
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO vendors (company_id, name, contact_name, email, phone, lead_time_days)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (company_id, name, contact_name, email, phone, lead_time_days))
+    conn.commit()
+    
+    flash("Vendor added successfully.", "success")
+    return redirect(url_for('purchasing.vendor_list'))
+
+@bp.route('/po/add', methods=['POST'])
+def create_po():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    
+    vendor_id = request.form.get('vendor_id')
+    expected_delivery = request.form.get('expected_delivery')
+    notes = request.form.get('notes')
+    user_id = session.get('user_id')
+    
+    if not expected_delivery:
+        expected_delivery = None
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Verify vendor belongs to company
+    cursor.execute("SELECT id FROM vendors WHERE id = ? AND company_id = ?", (vendor_id, session.get('company_id')))
+    if not cursor.fetchone():
+        flash("Invalid vendor selected.", "error")
+        return redirect(url_for('purchasing.vendor_list'))
+        
+    cursor.execute('''
+        INSERT INTO purchase_orders (vendor_id, expected_delivery, notes, created_by, status)
+        VALUES (?, ?, ?, ?, 'Draft')
+    ''', (vendor_id, expected_delivery, notes, user_id))
+    new_po_id = cursor.lastrowid
+    conn.commit()
+    
+    flash(f"Purchase Order Draft #{new_po_id:04d} created.", "success")
+    # Redirect to PO detail / vendor detail view
+    return redirect(url_for('purchasing.vendor_detail', id=vendor_id))

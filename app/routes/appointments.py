@@ -22,4 +22,46 @@ def appointment_list():
     ''', (company_id, location_id, location_id))
     appointments = cursor.fetchall()
     
-    return render_template('appointments.html', appointments=appointments)
+    # Fetch data for New Appointment modal
+    cursor.execute("SELECT id, first_name, last_name FROM customers WHERE company_id = ? ORDER BY first_name", (company_id,))
+    customers = cursor.fetchall()
+    
+    cursor.execute("SELECT id, name FROM services WHERE company_id = ? ORDER BY name", (company_id,))
+    services_list = cursor.fetchall()
+    
+    cursor.execute("SELECT id, first_name, last_name, role FROM users WHERE company_id = ? ORDER BY first_name", (company_id,))
+    staff_list = cursor.fetchall()
+    
+    return render_template('appointments.html', 
+                           appointments=appointments,
+                           customers=customers,
+                           services_list=services_list,
+                           staff_list=staff_list)
+
+@bp.route('/book', methods=['POST'])
+def book_appointment():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    
+    customer_id = request.form.get('customer_id')
+    service_id = request.form.get('service_id')
+    start_at = request.form.get('start_at')
+    end_at = request.form.get('end_at')
+    assigned_staff_id = request.form.get('assigned_staff_id') or None
+    company_id = session.get('company_id')
+    location_id = session.get('location_id', 0)
+    
+    # Simple replace of 'T' to space for SQLite TIMESTAMP formatting from HTML5 input
+    start_at = start_at.replace('T', ' ') if start_at else None
+    end_at = end_at.replace('T', ' ') if end_at else None
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO appointments (location_id, customer_id, service_id, assigned_staff_id, start_at, end_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (location_id, customer_id, service_id, assigned_staff_id, start_at, end_at))
+    conn.commit()
+    
+    from flask import request as req, flash
+    flash("Appointment booked successfully.", "success")
+    return redirect(req.referrer or url_for('appointments.appointment_list'))

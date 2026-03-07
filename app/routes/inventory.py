@@ -38,7 +38,14 @@ def reserve_product(id):
     
     try:
         # Reserve against the first available variant for the demo
-        cursor.execute('SELECT id FROM product_variants WHERE product_id = ? LIMIT 1', (id,))
+        cursor.execute('''
+            SELECT pv.id 
+            FROM product_variants pv
+            JOIN products p ON pv.product_id = p.id
+            JOIN vendors v ON p.vendor_id = v.id
+            WHERE p.id = ? AND v.company_id = ?
+            LIMIT 1
+        ''', (id, session.get('company_id')))
         variant = cursor.fetchone()
         
         if variant:

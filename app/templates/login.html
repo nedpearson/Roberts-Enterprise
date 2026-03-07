@@ -15,14 +15,13 @@
                 <form method="POST" action="{{ url_for('login') }}">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address</label>
-                        <input type="email" class="form-control text-light" id="email" name="email"
-                            style="background-color: #2b2b2b; border-color: #444;" value="admin@robertsenterprise.com"
-                            required>
+                        <input type="email" class="form-control" id="email" name="email" required
+                            autocomplete="username">
                     </div>
                     <div class="mb-4">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control text-light" id="password" name="password"
-                            style="background-color: #2b2b2b; border-color: #444;" value="password" required>
+                        <input type="password" class="form-control" id="password" name="password" required
+                            autocomplete="current-password">
                     </div>
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary btn-lg">Log In (Demo Bypass)</button>

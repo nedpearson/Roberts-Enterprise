@@ -44,11 +44,15 @@ def alterations_board():
         else:
             kanban['Awaiting 1st Fitting'].append(t)
             
-    # Fetch seamstresses for potential reassignment logic later
+    # Fetch seamstresses for potential reassignment logic
     cursor.execute("SELECT id, first_name || ' ' || last_name as name FROM users WHERE company_id = ? AND role IN ('Owner', 'Manager', 'Alterations')", (company_id,))
     staff = cursor.fetchall()
+    
+    # Fetch customers for modal
+    cursor.execute("SELECT id, first_name, last_name FROM customers WHERE company_id = ? ORDER BY first_name", (company_id,))
+    customers = cursor.fetchall()
 
-    return render_template('alterations.html', kanban=kanban, staff=staff)
+    return render_template('alterations.html', kanban=kanban, staff=staff, customers=customers)
 
 @bp.route('/api/alterations/update_status', methods=['POST'])
 def update_alteration_status():
@@ -77,3 +81,27 @@ def update_alteration_status():
     conn.commit()
     
     return jsonify({"success": True})
+
+@bp.route('/add', methods=['POST'])
+def add_ticket():
+    from flask import request as req, flash
+    if 'user_id' not in session: return redirect(url_for('login'))
+    
+    company_id = session.get('company_id')
+    location_id = session.get('location_id', 0)
+    customer_id = req.form.get('customer_id')
+    item_description = req.form.get('item_description')
+    due_date = req.form.get('due_date') or None
+    assigned_seamstress_id = req.form.get('assigned_seamstress_id') or None
+    notes = req.form.get('notes')
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO alterations (company_id, location_id, customer_id, item_description, due_date, assigned_seamstress_id, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (company_id, location_id, customer_id, item_description, due_date, assigned_seamstress_id, notes))
+    conn.commit()
+    
+    flash("Alteration ticket created successfully.", "success")
+    return redirect(url_for('alterations.alterations_board'))

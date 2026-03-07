@@ -10,7 +10,7 @@
             <ol class="breadcrumb bg-transparent p-0 m-0 w-100">
                 <li class="breadcrumb-item"><a href="{{ url_for('customers.customer_list') }}"
                         class="text-muted text-decoration-none">Customers</a></li>
-                <li class="breadcrumb-item active text-light" aria-current="page">{{ customer.first_name }} {{
+                <li class="breadcrumb-item active " aria-current="page">{{ customer.first_name }} {{
                     customer.last_name }}</li>
             </ol>
         </nav>
@@ -30,14 +30,14 @@
     <!-- Customer Info Sidebar -->
     <div class="col-lg-4">
         <div class="card shadow-sm border-0 mb-4 h-100">
-            <div class="card-header bg-dark border-bottom">
-                <h5 class="mb-0 text-light"><i class="bi bi-person-badge-fill me-2 text-primary"
+            <div class="card-header border-bottom">
+                <h5 class="mb-0 "><i class="bi bi-person-badge-fill me-2 text-primary"
                         style="color: #aa8c66 !important;"></i> Profile Details</h5>
             </div>
             <div class="card-body">
                 <dl class="row mb-0">
                     <dt class="col-sm-4 text-muted fw-normal">Email</dt>
-                    <dd class="col-sm-8"><a href="mailto:{{ customer.email }}" class="text-light">{{ customer.email or
+                    <dd class="col-sm-8"><a href="mailto:{{ customer.email }}" class=" ">{{ customer.email or
                             '--' }}</a></dd>
 
                     <dt class="col-sm-4 text-muted fw-normal mt-2">Phone</dt>
@@ -59,9 +59,9 @@
                     <dd class="col-sm-8 mt-2">{{ customer.partner_name or '--' }}</dd>
                 </dl>
 
-                <hr class="border-secondary mt-4 mb-3">
+                <hr class=" mt-4 mb-3">
                 <h6 class="text-muted mb-2">Internal Notes</h6>
-                <div class="bg-dark p-3 rounded" style="font-size: 0.9rem; border: 1px solid #333;">
+                <div class=" p-3 rounded" style="font-size: 0.9rem; border: 1px solid #333;">
                     {{ customer.notes or 'No notes provided.' }}
                 </div>
             </div>
@@ -71,10 +71,10 @@
     <!-- Related Information Grid (Tabs) -->
     <div class="col-lg-8">
         <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-dark p-0 border-bottom">
+            <div class="card-header p-0 border-bottom">
                 <ul class="nav nav-tabs border-0" id="customerTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active px-4 py-3 border-0 bg-transparent text-light fw-semibold"
+                        <button class="nav-link active px-4 py-3 border-0 bg-transparent fw-semibold"
                             id="appointments-tab" data-bs-toggle="tab" data-bs-target="#appointments" type="button"
                             role="tab">Appointments</button>
                     </li>
@@ -95,7 +95,7 @@
                     <!-- Appointments Tab -->
                     <div class="tab-pane fade show active" id="appointments" role="tabpanel">
                         <div class="table-responsive">
-                            <table class="table table-hover table-dark mb-0 align-middle">
+                            <table class="table table-hover mb-0 align-middle">
                                 <thead>
                                     <tr>
                                         <th class="ps-4 border-0">Date & Time</th>
@@ -107,8 +107,8 @@
                                 <tbody>
                                     {% for appt in appointments %}
                                     <tr>
-                                        <td class="ps-4 text-light">{{ appt.start_at }}</td>
-                                        <td class="text-light">Service #{{ appt.service_id }}</td>
+                                        <td class="ps-4 ">{{ appt.start_at }}</td>
+                                        <td class=" ">Service #{{ appt.service_id }}</td>
                                         <td>
                                             {% if appt.status == 'Completed' %}
                                             <span class="badge bg-secondary">{{ appt.status }}</span>
@@ -135,7 +135,7 @@
                     <!-- Orders Tab -->
                     <div class="tab-pane fade" id="orders" role="tabpanel">
                         <div class="table-responsive">
-                            <table class="table table-hover table-dark mb-0 align-middle">
+                            <table class="table table-hover mb-0 align-middle">
                                 <thead>
                                     <tr>
                                         <th class="ps-4 border-0">Order ID</th>
@@ -148,10 +148,10 @@
                                 <tbody>
                                     {% for order in orders %}
                                     <tr>
-                                        <td class="ps-4 text-light">#{{ "{:04d}".format(order.id) }}</td>
-                                        <td class="text-light">{{ order.created_at.split(' ')[0] }}</td>
+                                        <td class="ps-4 ">#{{ "{:04d}".format(order.id) }}</td>
+                                        <td class=" ">{{ order.created_at.split(' ')[0] }}</td>
                                         <td><span class="badge bg-info text-dark">{{ order.status }}</span></td>
-                                        <td class="text-light">${{ "{:,.2f}".format(order.total) }}</td>
+                                        <td class=" ">${{ "{:,.2f}".format(order.total) }}</td>
                                         <td class="text-end pe-4">
                                             <button class="btn btn-sm btn-outline-light global-drilldown"
                                                 data-drilldown-url="/api/drilldown/order/{{ order.id }}"
@@ -174,7 +174,7 @@
                             <div class="row g-4">
                                 <!-- Measurement Form -->
                                 <div class="col-md-6">
-                                    <h5 class="mb-3 text-light">Customer Measurements</h5>
+                                    <h5 class="mb-3 ">Customer Measurements</h5>
                                     <form action="{{ url_for('customers.save_measurements', id=customer.id) }}"
                                         method="POST">
                                         <div class="mb-3">
@@ -207,13 +207,13 @@
 
                                 <!-- Sizing Intelligence -->
                                 <div class="col-md-6">
-                                    <h5 class="mb-3 text-light">Sizing Intelligence Engine</h5>
-                                    <div class="bg-dark p-4 rounded border border-secondary">
+                                    <h5 class="mb-3 ">Sizing Intelligence Engine</h5>
+                                    <div class=" p-4 rounded border ">
                                         <p class="text-muted small">Select a designer to cross-reference the bride's
                                             measurements against their official sizing metrics.</p>
 
                                         <div class="mb-3">
-                                            <label class="form-label text-light">Target Designer</label>
+                                            <label class="form-label ">Target Designer</label>
                                             <select class="form-select" id="designerSelect">
                                                 <option value="" selected disabled>Choose Designer...</option>
                                                 {% for designer in designers %}
@@ -231,7 +231,7 @@
                                                 style="font-size: 0.8rem;">Recommended Size</h6>
                                             <h2 class="display-4 fw-bold theme-text mb-2" id="recommendedSizeLabel">
                                             </h2>
-                                            <p class="text-light small mb-0"><i class="bi bi-info-circle me-1"></i>
+                                            <p class=" small mb-0"><i class="bi bi-info-circle me-1"></i>
                                                 <span id="limitingFactorLabel"></span>
                                             </p>
                                         </div>
