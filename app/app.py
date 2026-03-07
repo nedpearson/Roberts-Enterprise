@@ -93,12 +93,12 @@ def inject_company_context():
         
         if theme_bg_type == 'custom_proper':
             t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#000000', '#ffffff', '#f8f9fa'
-            t_col, s_txt, s_hvr, b_col = '#000000', '#ffffff', '#222222', '#e0e0e0'
+            t_col, s_txt, s_hvr, b_col = '#333333', '#ffffff', '#222222', '#e0e0e0'
             k_bg, muted = '#f8f9fa', '#888888'
         elif theme_bg_type == 'custom_idc':
-            t_bg, s_bg, c_bg, ch_bg = '#f4f4f4', '#6e6e6e', '#ffffff', '#ffffff'
-            t_col, s_txt, s_hvr, b_col = '#212529', '#ffffff', 'rgba(255,255,255,0.1)', '#e0e0e0'
-            k_bg, muted = '#ffffff', '#888888'
+            t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#666666', '#ffffff', '#f8f9fa'
+            t_col, s_txt, s_hvr, b_col = '#333333', '#ffffff', 'rgba(255,255,255,0.1)', '#e0e0e0'
+            k_bg, muted = '#f8f9fa', '#888888'
         elif theme_bg_type != 'dark':
             t_bg, s_bg, c_bg, ch_bg = '#f8f9fa', '#ffffff', '#ffffff', '#f8f9fa'
             t_col, s_txt, s_hvr, b_col = '#212529', '#444444', '#f0f0f0', '#dee2e6'
