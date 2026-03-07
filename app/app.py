@@ -94,17 +94,22 @@ def inject_company_context():
         
         if theme_bg_type == 'custom_proper':
             t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#000000', '#ffffff', '#f8f9fa'
-            t_col, s_txt, s_hvr, b_col = '#333333', '#ffffff', '#222222', '#e0e0e0'
+            t_col, s_txt, s_hvr, b_col = '#1d1d1d', '#ffffff', '#222222', '#000000'
             k_bg, muted = '#f8f9fa', '#888888'
-            inp_bg, inp_br, inp_border = '#f5f5f5', '2rem', 'none'
+            inp_bg, inp_br, inp_border = '#f5f5f5', '0', '1px solid #000000'
+            btn_bg, btn_hvr, btn_txt = '#000000', '#333333', '#ffffff'
         elif theme_bg_type == 'custom_idc':
-            t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#666666', '#ffffff', '#f8f9fa'
-            t_col, s_txt, s_hvr, b_col = '#333333', '#ffffff', 'rgba(255,255,255,0.1)', '#e0e0e0'
+            t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#6d6d6d', '#ffffff', '#f8f9fa'
+            t_col, s_txt, s_hvr, b_col = '#1d1d1d', '#ffffff', '#3a3a3a', '#d4d4d4'
             k_bg, muted = '#f8f9fa', '#888888'
-            inp_bg, inp_br, inp_border = '#f5f5f5', '2rem', 'none'
+            inp_bg, inp_br, inp_border = '#f5f5f5', '0', '1px solid #d4d4d4'
+            btn_bg, btn_hvr, btn_txt = '#6d6d6d', '#3a3a3a', '#ffffff'
         elif theme_bg_type != 'dark':
             t_bg, s_bg, c_bg, ch_bg = '#f8f9fa', '#ffffff', '#ffffff', '#f8f9fa'
             t_col, s_txt, s_hvr, b_col = '#212529', '#444444', '#f0f0f0', '#dee2e6'
+            btn_bg, btn_hvr, btn_txt = primary, primary, '#ffffff'
+        else:
+            btn_bg, btn_hvr, btn_txt = primary, primary, '#ffffff'
 
         dynamic_css = f"""
         :root {{
@@ -118,24 +123,30 @@ def inject_company_context():
             --sidebar-hover-bg: {s_hvr};
             --border-color: {b_col};
             --kpi-bg: {k_bg};
+            --btn-bg: {btn_bg};
+            --btn-hvr: {btn_hvr};
+            --btn-txt: {btn_txt};
         }}
-        body {{ background-color: var(--theme-bg); color: var(--text-color); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 0.95rem; }}
+        body {{ background-color: var(--theme-bg); color: var(--text-color); font-family: 'Assistant', system-ui, -apple-system, sans-serif; font-size: 18px; }}
+        h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .logo-text {{ font-family: 'Halant', serif; font-weight: 600; letter-spacing: -0.025em; }}
         .sidebar {{ background-color: var(--sidebar-bg); border-right: none; box-shadow: 2px 0 12px rgba(0,0,0,0.05); }}
-        .card {{ background-color: var(--card-bg); border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 1.5rem; }}
-        .card-header {{ background-color: var(--card-header-bg); border-bottom: none; border-radius: 16px 16px 0 0 !important; font-weight: 600; padding: 1.25rem 1.5rem; }}
+        .card {{ background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 0px; box-shadow: none; margin-bottom: 1.5rem; }}
+        .card-header {{ background-color: var(--card-header-bg); border-bottom: 1px solid var(--border-color); border-radius: 0 !important; font-weight: 600; padding: 1.25rem 1.5rem; }}
         .card-body {{ padding: 1.5rem; }}
-        .table {{ color: var(--text-color); }}
+        .table {{ color: var(--text-color); font-family: 'Assistant', sans-serif; }}
         .table-dark {{ --bs-table-bg: var(--card-bg) !important; --bs-table-color: var(--text-color) !important; --bs-table-border-color: var(--border-color) !important; }}
-        .nav-link {{ color: var(--sidebar-text); border-radius: 8px; margin: 4px 12px; font-weight: 500; transition: all 0.2s ease; }}
-        .nav-link:hover, .nav-link.active {{ background-color: var(--sidebar-hover-bg); color: #ffffff; transform: translateX(2px); }}
+        .nav-link {{ color: var(--sidebar-text); border-radius: 0px; margin: 4px 12px; font-weight: 500; transition: all 0.2s ease; font-family: 'Assistant', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }}
+        .nav-link:hover, .nav-link.active {{ background-color: var(--sidebar-hover-bg); color: var(--text-color); transform: translateX(2px); }}
         .text-muted {{ color: {muted} !important; }}
         .border-bottom {{ border-color: var(--border-color) !important; }}
+        .btn-primary {{ background-color: var(--btn-bg); border-color: var(--btn-bg); color: var(--btn-txt); border-radius: 0; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; font-family: 'Assistant', sans-serif; transition: background-color 0.3s ease, border-color 0.3s ease; }}
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active {{ background-color: var(--btn-hvr) !important; border-color: var(--btn-hvr) !important; color: var(--btn-txt) !important; }}
         
         /* Overrides to map hardcoded dark classes */
         .text-light, .text-white {{ color: var(--text-color) !important; }}
         .bg-dark, .bg-secondary {{ background-color: var(--card-bg) !important; }}
         .border-secondary {{ border-color: var(--border-color) !important; }}
-        .modal-content, .offcanvas {{ background-color: var(--card-bg) !important; color: var(--text-color) !important; border-color: var(--border-color) !important; }}
+        .modal-content, .offcanvas {{ background-color: var(--card-bg) !important; color: var(--text-color) !important; border-color: var(--border-color) !important; border-radius: 0; }}
         .form-control, .form-select, .form-control:focus, .form-select:focus {{
             background-color: {inp_bg} !important;
             color: var(--text-color) !important;
