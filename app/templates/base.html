@@ -11,68 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-        }
-
-        .sidebar {
-            background-color: #1e1e1e;
-            min-height: 100vh;
-            border-right: 1px solid #333;
-        }
-
-        .nav-link {
-            color: #aaa;
-            padding: 0.8rem 1rem;
-            border-radius: 6px;
-            margin-bottom: 0.2rem;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            background-color: #2d2d2d;
-            color: #fff;
-        }
-
-        .content-area {
-            padding: 2rem;
-        }
-
-        .card {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-        }
-
-        .card-header {
-            border-bottom: 1px solid #333;
-            background-color: #252525;
-        }
-
-        .table {
-            color: #e0e0e0;
-        }
-
-        .table-dark {
-            --bs-table-bg: #1e1e1e;
-        }
-
-        .btn-primary {
-            background-color: var(--theme-color, #aa8c66);
-            border-color: var(--theme-color, #aa8c66);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            filter: brightness(0.8);
-        }
-
-        .theme-text {
-            color: var(--theme-color, #aa8c66) !important;
-        }
-    </style>
+    <!-- Removed hardcoded styles here, relying on app.py dynamic token injection -->
 
     <!-- Dynamic Theme Injection -->
     {% if active_company and dynamic_css %}
