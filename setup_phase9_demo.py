@@ -2,7 +2,7 @@ import sqlite3
 import datetime
 
 def setup_demo():
-    conn = sqlite3.connect('app/bridal_beyond.db')
+    conn = sqlite3.connect('app/roberts_enterprise.db')
     cursor = conn.cursor()
     
     # 10 weeks from today

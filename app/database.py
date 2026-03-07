@@ -1,7 +1,7 @@
 import sqlite3
 from flask import g
 
-DATABASE = 'bridal_beyond.db'
+DATABASE = 'roberts_enterprise.db'
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -570,6 +570,6 @@ def init_db():
     conn.commit()
 
 if __name__ == '__main__':
-    print("Initializing Bridal and Beyond AI Database...")
+    print("Initializing Roberts Enterprise Database...")
     init_db()
     print("Database tables created successfully!")

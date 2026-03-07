@@ -1,7 +1,7 @@
 import sqlite3
 
 try:
-    conn = sqlite3.connect('C:/Users/nedpe/.gemini/antigravity/scratch/Bridal-and-Beyond-AI/app/bridal_beyond.db')
+    conn = sqlite3.connect('C:/dev/github/business/Roberts Enterprise/app/roberts_enterprise.db')
     cursor = conn.cursor()
     cursor.execute('''
         SELECT p.scheduled_date as "Date", '#' || o.id as "Order #", 

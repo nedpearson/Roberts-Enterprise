@@ -2,7 +2,7 @@ import sqlite3
 
 def migrate_db():
     print("Starting Phase 7 shifts schema migration...")
-    conn = sqlite3.connect('app/bridal_beyond.db')
+    conn = sqlite3.connect('app/roberts_enterprise.db')
     cursor = conn.cursor()
 
     cursor.execute('''

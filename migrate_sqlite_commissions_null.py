@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-DB_PATH = 'app/bridal_beyond.db'
+DB_PATH = 'app/roberts_enterprise.db'
 
 def run_migration():
     if not os.path.exists(DB_PATH):

@@ -1,5 +1,5 @@
 import sqlite3
-DATABASE = 'bridal_beyond.db'
+DATABASE = 'roberts_enterprise.db'
 def seed():
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()

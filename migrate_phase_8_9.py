@@ -2,7 +2,7 @@ import sqlite3
 
 def migrate():
     print("Starting Phase 8 & 9 schema migration...")
-    conn = sqlite3.connect('app/bridal_beyond.db')
+    conn = sqlite3.connect('app/roberts_enterprise.db')
     cursor = conn.cursor()
 
     # PHASE 8: Transfers & Location Inventory

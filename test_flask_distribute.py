@@ -12,7 +12,7 @@ def run_flask_test():
             sess['company_id'] = 1
             sess['location_id'] = 1
         
-        conn = sqlite3.connect("app/bridal_beyond.db")
+        conn = sqlite3.connect("app/roberts_enterprise.db")
         cursor = conn.cursor()
         
         # Wipe any old pending pools

@@ -3,7 +3,7 @@ import os
 from database import init_db
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-for-bridal-ops")
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-for-roberts-enterprise")
 
 # Ensure database is initialized on startup
 with app.app_context():
@@ -172,7 +172,7 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Default to company ID 1 ('I Do Bridal Couture') and "All Locations" (0)
+        # Default to company ID 1 ('Roberts Enterprise') and "All Locations" (0)
         session['user_id'] = 1
         session['company_id'] = 1
         session['location_id'] = 0
