@@ -19,8 +19,11 @@ def catalog():
         ORDER BY p.name ASC
     ''', (company_id,))
     products = cursor.fetchall()
+
+    cursor.execute('SELECT * FROM vendors WHERE company_id = ? ORDER BY name ASC', (company_id,))
+    vendors = cursor.fetchall()
     
-    return render_template('inventory.html', products=products)
+    return render_template('inventory.html', products=products, vendors=vendors)
 
 @bp.route('/product/<int:id>/reserve', methods=['POST'])
 def reserve_product(id):
@@ -50,8 +53,52 @@ def reserve_product(id):
             
     except Exception as e:
         conn.rollback()
-        flash(f"Reservation failed: {str(e)}", "error")
     finally:
         pass
+        
+    return redirect(url_for('inventory.catalog'))
+
+@bp.route('/product/add', methods=['POST'])
+def add_product():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    
+    name = request.form.get('name')
+    ptype = request.form.get('type')
+    sku = request.form.get('sku')
+    vendor_id = request.form.get('vendor_id') or None
+    brand = request.form.get('brand')
+    cost = request.form.get('cost', 0.0)
+    price = request.form.get('price', 0.0)
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Check for duplicate SKU globally (as it MUST be unique)
+        cursor.execute('SELECT id FROM products WHERE sku = ?', (sku,))
+        if cursor.fetchone():
+            flash("Error: That Product SKU already exists.", "error")
+            return redirect(url_for('inventory.catalog'))
+            
+        cursor.execute('''
+            INSERT INTO products (vendor_id, type, brand, name, sku, cost, price, active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+        ''', (vendor_id, ptype, brand, name, sku, cost, price))
+        
+        product_id = cursor.lastrowid
+        
+        # Create a default variant so it actually has manageable inventory
+        default_variant_sku = f"{sku}-BASE"
+        cursor.execute('''
+            INSERT INTO product_variants (product_id, size, color, sku_variant, on_hand_qty, track_inventory)
+            VALUES (?, 'O/S', 'Default', ?, 0, 1)
+        ''', (product_id, default_variant_sku))
+        
+        conn.commit()
+        flash(f"Successfully added product: {name}", "success")
+        
+    except Exception as e:
+        conn.rollback()
+        flash(f"Failed to add product: {str(e)}", "error")
         
     return redirect(url_for('inventory.catalog'))

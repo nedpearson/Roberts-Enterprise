@@ -1,0 +1,857 @@
+.\app.py:1:80: E501 line too long (84 > 79 characters)
+.\app.py:6:80: E501 line too long (84 > 79 characters)
+.\app.py:13:1: E402 module level import not at top of file
+.\app.py:14:1: E402 module level import not at top of file
+.\app.py:15:1: E402 module level import not at top of file
+.\app.py:16:1: E402 module level import not at top of file
+.\app.py:17:1: E402 module level import not at top of file
+.\app.py:18:1: E402 module level import not at top of file
+.\app.py:19:1: E402 module level import not at top of file
+.\app.py:20:1: E402 module level import not at top of file
+.\app.py:21:1: E402 module level import not at top of file
+.\app.py:22:1: E402 module level import not at top of file
+.\app.py:35:1: E302 expected 2 blank lines, found 1
+.\app.py:42:1: E302 expected 2 blank lines, found 1
+.\app.py:53:1: W293 blank line contains whitespace
+.\app.py:56:1: W293 blank line contains whitespace
+.\app.py:60:1: W293 blank line contains whitespace
+.\app.py:62:80: E501 line too long (88 > 79 characters)
+.\app.py:64:1: W293 blank line contains whitespace
+.\app.py:67:80: E501 line too long (128 > 79 characters)
+.\app.py:69:1: W293 blank line contains whitespace
+.\app.py:71:80: E501 line too long (129 > 79 characters)
+.\app.py:73:1: W293 blank line contains whitespace
+.\app.py:79:1: W293 blank line contains whitespace
+.\app.py:81:80: E501 line too long (134 > 79 characters)
+.\app.py:83:80: E501 line too long (85 > 79 characters)
+.\app.py:84:1: W293 blank line contains whitespace
+.\app.py:89:1: W293 blank line contains whitespace
+.\app.py:91:80: E501 line too long (80 > 79 characters)
+.\app.py:92:80: E501 line too long (83 > 79 characters)
+.\app.py:95:80: E501 line too long (80 > 79 characters)
+.\app.py:96:80: E501 line too long (97 > 79 characters)
+.\app.py:99:80: E501 line too long (80 > 79 characters)
+.\app.py:100:80: E501 line too long (83 > 79 characters)
+.\app.py:116:80: E501 line too long (104 > 79 characters)
+.\app.py:117:80: E501 line too long (88 > 79 characters)
+.\app.py:118:80: E501 line too long (109 > 79 characters)
+.\app.py:120:80: E501 line too long (172 > 79 characters)
+.\app.py:122:80: E501 line too long (106 > 79 characters)
+.\app.py:125:1: W293 blank line contains whitespace
+.\app.py:128:80: E501 line too long (82 > 79 characters)
+.\app.py:130:80: E501 line too long (168 > 79 characters)
+.\app.py:136:80: E501 line too long (115 > 79 characters)
+.\app.py:137:80: E501 line too long (129 > 79 characters)
+.\app.py:143:37: E261 at least two spaces before inline comment
+.\app.py:157:31: W291 trailing whitespace
+.\app.py:162:1: E302 expected 2 blank lines, found 1
+.\app.py:168:1: E302 expected 2 blank lines, found 1
+.\app.py:171:80: E501 line too long (81 > 79 characters)
+.\app.py:178:1: W293 blank line contains whitespace
+.\app.py:181:1: E302 expected 2 blank lines, found 1
+.\app.py:186:1: E302 expected 2 blank lines, found 1
+.\app.py:190:1: W293 blank line contains whitespace
+.\app.py:198:35: E261 at least two spaces before inline comment
+.\app.py:202:1: W293 blank line contains whitespace
+.\app.py:205:1: E302 expected 2 blank lines, found 1
+.\app.py:209:1: W293 blank line contains whitespace
+.\app.py:214:1: W293 blank line contains whitespace
+.\app.py:219:80: E501 line too long (120 > 79 characters)
+.\app.py:225:1: W293 blank line contains whitespace
+.\app.py:228:1: E302 expected 2 blank lines, found 1
+.\app.py:232:1: W293 blank line contains whitespace
+.\app.py:238:1: W293 blank line contains whitespace
+.\app.py:243:80: E501 line too long (98 > 79 characters)
+.\app.py:246:1: W293 blank line contains whitespace
+.\app.py:250:80: E501 line too long (102 > 79 characters)
+.\app.py:253:1: W293 blank line contains whitespace
+.\app.py:255:30: W291 trailing whitespace
+.\app.py:256:80: E501 line too long (140 > 79 characters)
+.\app.py:257:80: E501 line too long (121 > 79 characters)
+.\app.py:259:80: E501 line too long (91 > 79 characters)
+.\app.py:263:1: W293 blank line contains whitespace
+.\app.py:267:80: E501 line too long (83 > 79 characters)
+.\app.py:270:1: W293 blank line contains whitespace
+.\app.py:273:80: W291 trailing whitespace
+.\app.py:274:80: E501 line too long (93 > 79 characters)
+.\app.py:279:80: E501 line too long (98 > 79 characters)
+.\app.py:283:1: W293 blank line contains whitespace
+.\app.py:285:27: E128 continuation line under-indented for visual indent
+.\app.py:286:27: E128 continuation line under-indented for visual indent
+.\app.py:287:27: E128 continuation line under-indented for visual indent
+.\app.py:288:27: E128 continuation line under-indented for visual indent
+.\app.py:289:27: E128 continuation line under-indented for visual indent
+.\app.py:291:1: E302 expected 2 blank lines, found 1
+.\app.py:295:1: W293 blank line contains whitespace
+.\app.py:297:1: W293 blank line contains whitespace
+.\app.py:303:1: W293 blank line contains whitespace
+.\app.py:305:80: E501 line too long (87 > 79 characters)
+.\app.py:307:80: E501 line too long (88 > 79 characters)
+.\app.py:308:10: E261 at least two spaces before inline comment
+.\app.py:310:1: W293 blank line contains whitespace
+.\app.py:311:13: F541 f-string is missing placeholders
+.\app.py:312:80: W291 trailing whitespace
+.\app.py:313:80: E501 line too long (93 > 79 characters)
+.\app.py:318:80: E501 line too long (83 > 79 characters)
+.\app.py:320:46: E261 at least two spaces before inline comment
+.\app.py:320:80: E501 line too long (113 > 79 characters)
+.\app.py:321:1: W293 blank line contains whitespace
+.\app.py:324:1: W293 blank line contains whitespace
+.\app.py:327:1: E302 expected 2 blank lines, found 1
+.\app.py:331:1: W293 blank line contains whitespace
+.\app.py:337:1: W293 blank line contains whitespace
+.\app.py:340:80: E501 line too long (90 > 79 characters)
+.\app.py:340:91: W291 trailing whitespace
+.\app.py:341:80: E501 line too long (90 > 79 characters)
+.\app.py:341:91: W291 trailing whitespace
+.\app.py:347:80: E501 line too long (102 > 79 characters)
+.\app.py:351:80: E501 line too long (122 > 79 characters)
+.\app.py:352:1: W293 blank line contains whitespace
+.\app.py:355:71: W291 trailing whitespace
+.\app.py:356:80: E501 line too long (89 > 79 characters)
+.\app.py:360:80: E501 line too long (106 > 79 characters)
+.\app.py:364:80: E501 line too long (111 > 79 characters)
+.\app.py:365:1: W293 blank line contains whitespace
+.\app.py:368:80: E501 line too long (92 > 79 characters)
+.\app.py:368:93: W291 trailing whitespace
+.\app.py:371:80: E501 line too long (98 > 79 characters)
+.\app.py:372:33: W291 trailing whitespace
+.\app.py:373:80: E501 line too long (148 > 79 characters)
+.\app.py:374:80: E501 line too long (129 > 79 characters)
+.\app.py:377:80: E501 line too long (99 > 79 characters)
+.\app.py:383:80: E501 line too long (114 > 79 characters)
+.\app.py:384:1: W293 blank line contains whitespace
+.\app.py:387:80: E501 line too long (93 > 79 characters)
+.\app.py:387:94: W291 trailing whitespace
+.\app.py:391:80: E501 line too long (87 > 79 characters)
+.\app.py:395:80: E501 line too long (124 > 79 characters)
+.\app.py:396:1: W293 blank line contains whitespace
+.\app.py:397:1: E302 expected 2 blank lines, found 1
+.\app.py:401:1: W293 blank line contains whitespace
+.\app.py:404:1: W293 blank line contains whitespace
+.\app.py:407:1: W293 blank line contains whitespace
+.\app.py:414:1: W293 blank line contains whitespace
+.\app.py:418:1: W293 blank line contains whitespace
+.\app.py:421:1: E302 expected 2 blank lines, found 1
+.\app.py:425:1: W293 blank line contains whitespace
+.\app.py:429:1: W293 blank line contains whitespace
+.\app.py:432:80: E501 line too long (80 > 79 characters)
+.\app.py:432:81: W291 trailing whitespace
+.\app.py:433:80: E501 line too long (91 > 79 characters)
+.\app.py:442:14: E111 indentation is not a multiple of 4
+.\app.py:442:14: E117 over-indented
+.\app.py:443:80: E501 line too long (126 > 79 characters)
+.\app.py:444:1: W293 blank line contains whitespace
+.\app.py:448:77: W291 trailing whitespace
+.\app.py:449:80: E501 line too long (94 > 79 characters)
+.\app.py:449:95: W291 trailing whitespace
+.\app.py:450:80: E501 line too long (80 > 79 characters)
+.\app.py:457:1: W293 blank line contains whitespace
+.\app.py:460:71: W291 trailing whitespace
+.\app.py:466:9: F841 local variable 'payments' is assigned to but never used
+.\app.py:467:1: W293 blank line contains whitespace
+.\app.py:468:80: E501 line too long (126 > 79 characters)
+.\app.py:469:79: W291 trailing whitespace
+.\app.py:471:80: E501 line too long (127 > 79 characters)
+.\app.py:472:1: W293 blank line contains whitespace
+.\app.py:475:80: E501 line too long (83 > 79 characters)
+.\app.py:475:84: W291 trailing whitespace
+.\app.py:476:80: E501 line too long (115 > 79 characters)
+.\app.py:481:80: E501 line too long (117 > 79 characters)
+.\app.py:482:1: W293 blank line contains whitespace
+.\app.py:485:65: W291 trailing whitespace
+.\app.py:486:80: E501 line too long (80 > 79 characters)
+.\app.py:486:81: W291 trailing whitespace
+.\app.py:488:80: E501 line too long (84 > 79 characters)
+.\app.py:495:80: E501 line too long (128 > 79 characters)
+.\app.py:496:1: W293 blank line contains whitespace
+.\app.py:498:10: E111 indentation is not a multiple of 4
+.\app.py:498:10: E117 over-indented
+.\app.py:499:80: E501 line too long (89 > 79 characters)
+.\app.py:500:80: E501 line too long (93 > 79 characters)
+.\app.py:504:10: E111 indentation is not a multiple of 4
+.\app.py:505:10: E111 indentation is not a multiple of 4
+.\app.py:505:80: E501 line too long (126 > 79 characters)
+.\app.py:509:1: E305 expected 2 blank lines after class or function definition, found 1
+.\database.py:2:1: F401 'datetime' imported but unused
+.\database.py:3:1: F401 'json' imported but unused
+.\database.py:4:1: F401 'hashlib' imported but unused
+.\database.py:9:1: E302 expected 2 blank lines, found 1
+.\database.py:16:1: E302 expected 2 blank lines, found 1
+.\database.py:23:1: W293 blank line contains whitespace
+.\database.py:60:80: E501 line too long (105 > 79 characters)
+.\database.py:100:80: E501 line too long (83 > 79 characters)
+.\database.py:121:80: E501 line too long (100 > 79 characters)
+.\database.py:141:80: E501 line too long (85 > 79 characters)
+.\database.py:153:80: E501 line too long (86 > 79 characters)
+.\database.py:213:80: E501 line too long (87 > 79 characters)
+.\database.py:227:80: E501 line too long (101 > 79 characters)
+.\database.py:235:1: W293 blank line contains whitespace
+.\database.py:244:80: E501 line too long (92 > 79 characters)
+.\database.py:270:80: E501 line too long (80 > 79 characters)
+.\database.py:290:80: E501 line too long (80 > 79 characters)
+.\database.py:396:1: W293 blank line contains whitespace
+.\database.py:429:80: E501 line too long (97 > 79 characters)
+.\database.py:490:80: E501 line too long (84 > 79 characters)
+.\database.py:491:80: E501 line too long (81 > 79 characters)
+.\database.py:507:80: E501 line too long (80 > 79 characters)
+.\database.py:513:1: E305 expected 2 blank lines after class or function definition, found 1
+.\drilldown_engine.py:1:1: F401 'sqlite3' imported but unused
+.\drilldown_engine.py:3:1: E302 expected 2 blank lines, found 1
+.\drilldown_engine.py:16:80: E501 line too long (94 > 79 characters)
+.\drilldown_engine.py:16:95: W291 trailing whitespace
+.\drilldown_engine.py:17:77: W291 trailing whitespace
+.\drilldown_engine.py:18:80: E501 line too long (98 > 79 characters)
+.\drilldown_engine.py:24:80: E501 line too long (88 > 79 characters)
+.\drilldown_engine.py:28:80: E501 line too long (87 > 79 characters)
+.\drilldown_engine.py:29:53: W291 trailing whitespace
+.\drilldown_engine.py:34:80: E501 line too long (108 > 79 characters)
+.\drilldown_engine.py:35:80: E501 line too long (104 > 79 characters)
+.\drilldown_engine.py:50:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:52:80: E501 line too long (174 > 79 characters)
+.\drilldown_engine.py:57:80: E501 line too long (136 > 79 characters)
+.\drilldown_engine.py:67:80: E501 line too long (108 > 79 characters)
+.\drilldown_engine.py:67:109: W291 trailing whitespace
+.\drilldown_engine.py:68:80: E501 line too long (84 > 79 characters)
+.\drilldown_engine.py:71:80: E501 line too long (95 > 79 characters)
+.\drilldown_engine.py:75:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:78:1: W293 blank line contains whitespace
+.\drilldown_engine.py:83:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:84:80: E501 line too long (91 > 79 characters)
+.\drilldown_engine.py:98:80: E501 line too long (109 > 79 characters)
+.\drilldown_engine.py:99:80: E501 line too long (114 > 79 characters)
+.\drilldown_engine.py:109:61: W291 trailing whitespace
+.\drilldown_engine.py:114:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:116:80: E501 line too long (174 > 79 characters)
+.\drilldown_engine.py:121:80: E501 line too long (136 > 79 characters)
+.\drilldown_engine.py:133:80: E501 line too long (80 > 79 characters)
+.\drilldown_engine.py:134:80: E501 line too long (98 > 79 characters)
+.\drilldown_engine.py:166:80: W291 trailing whitespace
+.\drilldown_engine.py:169:80: E501 line too long (93 > 79 characters)
+.\drilldown_engine.py:178:80: E501 line too long (91 > 79 characters)
+.\drilldown_engine.py:185:80: E501 line too long (96 > 79 characters)
+.\drilldown_engine.py:190:73: W291 trailing whitespace
+.\drilldown_engine.py:208:80: E501 line too long (113 > 79 characters)
+.\drilldown_engine.py:210:80: E501 line too long (88 > 79 characters)
+.\drilldown_engine.py:220:80: E501 line too long (102 > 79 characters)
+.\drilldown_engine.py:220:103: W291 trailing whitespace
+.\drilldown_engine.py:223:80: E501 line too long (87 > 79 characters)
+.\drilldown_engine.py:228:80: E501 line too long (92 > 79 characters)
+.\drilldown_engine.py:239:80: E501 line too long (87 > 79 characters)
+.\drilldown_engine.py:244:35: W291 trailing whitespace
+.\drilldown_engine.py:245:38: E231 missing whitespace after ','
+.\drilldown_engine.py:245:66: W291 trailing whitespace
+.\drilldown_engine.py:246:38: E231 missing whitespace after ','
+.\drilldown_engine.py:246:66: W291 trailing whitespace
+.\drilldown_engine.py:255:80: E501 line too long (125 > 79 characters)
+.\drilldown_engine.py:259:47: W291 trailing whitespace
+.\drilldown_engine.py:266:38: E231 missing whitespace after ','
+.\drilldown_engine.py:266:67: W291 trailing whitespace
+.\drilldown_engine.py:267:38: E231 missing whitespace after ','
+.\drilldown_engine.py:267:67: W291 trailing whitespace
+.\drilldown_engine.py:268:38: E231 missing whitespace after ','
+.\drilldown_engine.py:268:67: W291 trailing whitespace
+.\drilldown_engine.py:279:27: W291 trailing whitespace
+.\drilldown_engine.py:302:80: E501 line too long (89 > 79 characters)
+.\drilldown_engine.py:311:80: E501 line too long (90 > 79 characters)
+.\drilldown_engine.py:328:80: E501 line too long (91 > 79 characters)
+.\drilldown_engine.py:342:80: E501 line too long (105 > 79 characters)
+.\drilldown_engine.py:343:80: E501 line too long (101 > 79 characters)
+.\drilldown_engine.py:348:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:351:80: E501 line too long (92 > 79 characters)
+.\drilldown_engine.py:358:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:359:80: E501 line too long (90 > 79 characters)
+.\drilldown_engine.py:368:38: E231 missing whitespace after ','
+.\drilldown_engine.py:368:66: W291 trailing whitespace
+.\drilldown_engine.py:369:38: E231 missing whitespace after ','
+.\drilldown_engine.py:369:66: W291 trailing whitespace
+.\drilldown_engine.py:380:80: E501 line too long (90 > 79 characters)
+.\drilldown_engine.py:380:91: W291 trailing whitespace
+.\drilldown_engine.py:395:80: E501 line too long (99 > 79 characters)
+.\drilldown_engine.py:395:100: W291 trailing whitespace
+.\drilldown_engine.py:396:80: E501 line too long (108 > 79 characters)
+.\drilldown_engine.py:401:80: E501 line too long (95 > 79 characters)
+.\drilldown_engine.py:404:80: E501 line too long (92 > 79 characters)
+.\drilldown_engine.py:411:80: E501 line too long (92 > 79 characters)
+.\drilldown_engine.py:412:80: E501 line too long (122 > 79 characters)
+.\drilldown_engine.py:416:80: E501 line too long (85 > 79 characters)
+.\drilldown_engine.py:416:86: W291 trailing whitespace
+.\drilldown_engine.py:420:38: E231 missing whitespace after ','
+.\drilldown_engine.py:420:66: W291 trailing whitespace
+.\drilldown_engine.py:421:38: E231 missing whitespace after ','
+.\drilldown_engine.py:421:66: W291 trailing whitespace
+.\drilldown_engine.py:431:80: E501 line too long (86 > 79 characters)
+.\drilldown_engine.py:431:87: W291 trailing whitespace
+.\drilldown_engine.py:432:80: E501 line too long (103 > 79 characters)
+.\drilldown_engine.py:434:80: E501 line too long (114 > 79 characters)
+.\drilldown_engine.py:443:80: E501 line too long (119 > 79 characters)
+.\drilldown_engine.py:451:80: E501 line too long (110 > 79 characters)
+.\drilldown_engine.py:452:80: E501 line too long (90 > 79 characters)
+.\drilldown_engine.py:462:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:464:80: E501 line too long (157 > 79 characters)
+.\drilldown_engine.py:469:80: E501 line too long (110 > 79 characters)
+.\drilldown_engine.py:480:80: E501 line too long (109 > 79 characters)
+.\drilldown_engine.py:484:80: E501 line too long (93 > 79 characters)
+.\drilldown_engine.py:496:80: E501 line too long (92 > 79 characters)
+.\drilldown_engine.py:497:80: E501 line too long (145 > 79 characters)
+.\drilldown_engine.py:498:80: E501 line too long (117 > 79 characters)
+.\drilldown_engine.py:505:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:518:80: E501 line too long (91 > 79 characters)
+.\drilldown_engine.py:519:80: E501 line too long (81 > 79 characters)
+.\drilldown_engine.py:532:80: E501 line too long (84 > 79 characters)
+.\drilldown_engine.py:533:80: E501 line too long (93 > 79 characters)
+.\drilldown_engine.py:544:80: E501 line too long (88 > 79 characters)
+.\drilldown_engine.py:544:89: W291 trailing whitespace
+.\drilldown_engine.py:551:52: E261 at least two spaces before inline comment
+.\drilldown_engine.py:551:80: E501 line too long (86 > 79 characters)
+.\drilldown_engine.py:558:80: E501 line too long (88 > 79 characters)
+.\drilldown_engine.py:559:80: E501 line too long (85 > 79 characters)
+.\drilldown_engine.py:563:80: E501 line too long (95 > 79 characters)
+.\drilldown_engine.py:567:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:573:80: E501 line too long (93 > 79 characters)
+.\drilldown_engine.py:574:80: E501 line too long (97 > 79 characters)
+.\drilldown_engine.py:595:80: E501 line too long (95 > 79 characters)
+.\drilldown_engine.py:604:80: E501 line too long (89 > 79 characters)
+.\drilldown_engine.py:605:80: E501 line too long (81 > 79 characters)
+.\drilldown_engine.py:613:80: E501 line too long (95 > 79 characters)
+.\drilldown_engine.py:617:80: E501 line too long (80 > 79 characters)
+.\drilldown_engine.py:621:78: E261 at least two spaces before inline comment
+.\drilldown_engine.py:621:80: E501 line too long (119 > 79 characters)
+.\drilldown_engine.py:622:80: E501 line too long (80 > 79 characters)
+.\drilldown_engine.py:631:80: E501 line too long (95 > 79 characters)
+.\drilldown_engine.py:640:80: E501 line too long (80 > 79 characters)
+.\drilldown_engine.py:646:80: E501 line too long (94 > 79 characters)
+.\drilldown_engine.py:649:80: E501 line too long (94 > 79 characters)
+.\drilldown_engine.py:657:78: E261 at least two spaces before inline comment
+.\drilldown_engine.py:657:80: E501 line too long (95 > 79 characters)
+.\drilldown_engine.py:658:80: E501 line too long (93 > 79 characters)
+.\drilldown_engine.py:664:80: E501 line too long (83 > 79 characters)
+.\drilldown_engine.py:667:80: E501 line too long (163 > 79 characters)
+.\drilldown_engine.py:670:80: E501 line too long (86 > 79 characters)
+.\drilldown_engine.py:674:78: E261 at least two spaces before inline comment
+.\drilldown_engine.py:674:80: E501 line too long (96 > 79 characters)
+.\drilldown_engine.py:675:80: E501 line too long (95 > 79 characters)
+.\drilldown_engine.py:681:80: E501 line too long (96 > 79 characters)
+.\drilldown_engine.py:682:80: E501 line too long (112 > 79 characters)
+.\drilldown_engine.py:686:1: W293 blank line contains whitespace
+.\drilldown_engine.py:688:1: W293 blank line contains whitespace
+.\drilldown_engine.py:689:80: E501 line too long (89 > 79 characters)
+.\drilldown_engine.py:690:80: E501 line too long (104 > 79 characters)
+.\drilldown_engine.py:694:1: W293 blank line contains whitespace
+.\drilldown_engine.py:696:1: W293 blank line contains whitespace
+.\drilldown_engine.py:697:80: E501 line too long (96 > 79 characters)
+.\drilldown_engine.py:698:80: E501 line too long (148 > 79 characters)
+.\drilldown_engine.py:700:80: E501 line too long (88 > 79 characters)
+.\drilldown_engine.py:701:1: W293 blank line contains whitespace
+.\drilldown_engine.py:704:80: E501 line too long (103 > 79 characters)
+.\drilldown_engine.py:704:85: E261 at least two spaces before inline comment
+.\drilldown_engine.py:705:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:706:80: E501 line too long (104 > 79 characters)
+.\drilldown_engine.py:723:80: E501 line too long (96 > 79 characters)
+.\drilldown_engine.py:735:80: E501 line too long (80 > 79 characters)
+.\drilldown_engine.py:739:80: E501 line too long (96 > 79 characters)
+.\drilldown_engine.py:745:80: E501 line too long (80 > 79 characters)
+.\drilldown_engine.py:746:80: E501 line too long (91 > 79 characters)
+.\drilldown_engine.py:748:80: E501 line too long (147 > 79 characters)
+.\drilldown_engine.py:755:80: E501 line too long (106 > 79 characters)
+.\drilldown_engine.py:764:80: E501 line too long (87 > 79 characters)
+.\drilldown_engine.py:768:80: E501 line too long (105 > 79 characters)
+.\drilldown_engine.py:771:80: E501 line too long (102 > 79 characters)
+.\drilldown_engine.py:774:1: W293 blank line contains whitespace
+.\drilldown_engine.py:778:80: E501 line too long (80 > 79 characters)
+.\drilldown_engine.py:779:80: E501 line too long (91 > 79 characters)
+.\drilldown_engine.py:780:80: E501 line too long (147 > 79 characters)
+.\drilldown_engine.py:788:80: E501 line too long (91 > 79 characters)
+.\drilldown_engine.py:798:80: E501 line too long (158 > 79 characters)
+.\drilldown_engine.py:799:80: E501 line too long (182 > 79 characters)
+.\drilldown_engine.py:807:80: E501 line too long (94 > 79 characters)
+.\drilldown_engine.py:813:80: E501 line too long (94 > 79 characters)
+.\drilldown_engine.py:815:80: E501 line too long (153 > 79 characters)
+.\drilldown_engine.py:816:80: E501 line too long (169 > 79 characters)
+.\drilldown_engine.py:823:78: E261 at least two spaces before inline comment
+.\drilldown_engine.py:823:80: E501 line too long (90 > 79 characters)
+.\drilldown_engine.py:824:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:833:80: E501 line too long (96 > 79 characters)
+.\drilldown_engine.py:837:80: E501 line too long (88 > 79 characters)
+.\drilldown_engine.py:841:80: E501 line too long (85 > 79 characters)
+.\drilldown_engine.py:848:80: E501 line too long (88 > 79 characters)
+.\drilldown_engine.py:850:80: E501 line too long (113 > 79 characters)
+.\drilldown_engine.py:854:80: E501 line too long (95 > 79 characters)
+.\drilldown_engine.py:854:96: W291 trailing whitespace
+.\drilldown_engine.py:859:80: E501 line too long (89 > 79 characters)
+.\drilldown_engine.py:865:80: E501 line too long (97 > 79 characters)
+.\drilldown_engine.py:866:80: E501 line too long (81 > 79 characters)
+.\drilldown_engine.py:867:59: W291 trailing whitespace
+.\drilldown_engine.py:876:80: E501 line too long (93 > 79 characters)
+.\drilldown_engine.py:882:80: E501 line too long (100 > 79 characters)
+.\drilldown_engine.py:884:80: E501 line too long (91 > 79 characters)
+.\drilldown_engine.py:887:80: E501 line too long (88 > 79 characters)
+.\drilldown_engine.py:890:80: E501 line too long (81 > 79 characters)
+.\drilldown_engine.py:898:80: E501 line too long (94 > 79 characters)
+.\drilldown_engine.py:898:95: W291 trailing whitespace
+.\drilldown_engine.py:899:80: E501 line too long (99 > 79 characters)
+.\drilldown_engine.py:908:80: E501 line too long (83 > 79 characters)
+.\drilldown_engine.py:913:80: E501 line too long (91 > 79 characters)
+.\drilldown_engine.py:913:92: W291 trailing whitespace
+.\drilldown_engine.py:914:80: E501 line too long (97 > 79 characters)
+.\drilldown_engine.py:914:98: W291 trailing whitespace
+.\drilldown_engine.py:924:80: E501 line too long (83 > 79 characters)
+.\drilldown_engine.py:930:80: E501 line too long (98 > 79 characters)
+.\drilldown_engine.py:930:99: W291 trailing whitespace
+.\drilldown_engine.py:931:80: E501 line too long (123 > 79 characters)
+.\drilldown_engine.py:943:80: E501 line too long (80 > 79 characters)
+.\drilldown_engine.py:943:81: W291 trailing whitespace
+.\drilldown_engine.py:944:80: E501 line too long (88 > 79 characters)
+.\drilldown_engine.py:944:89: W291 trailing whitespace
+.\drilldown_engine.py:946:80: E501 line too long (93 > 79 characters)
+.\drilldown_engine.py:956:80: E501 line too long (86 > 79 characters)
+.\drilldown_engine.py:962:80: E501 line too long (103 > 79 characters)
+.\drilldown_engine.py:963:80: E501 line too long (101 > 79 characters)
+.\drilldown_engine.py:968:80: E501 line too long (82 > 79 characters)
+.\drilldown_engine.py:975:1: W293 blank line contains whitespace
+.\drilldown_engine.py:977:1: W293 blank line contains whitespace
+.\drilldown_engine.py:983:1: W293 blank line contains whitespace
+.\drilldown_engine.py:987:18: E111 indentation is not a multiple of 4
+.\drilldown_engine.py:987:18: E117 over-indented
+.\drilldown_engine.py:988:1: W293 blank line contains whitespace
+.\drilldown_engine.py:989:80: E501 line too long (81 > 79 characters)
+.\drilldown_engine.py:989:82: W291 trailing whitespace
+.\drilldown_engine.py:991:1: W293 blank line contains whitespace
+.\drilldown_engine.py:993:80: E501 line too long (82 > 79 characters)
+.\routes\appointments.py:1:1: F401 'flask.request' imported but unused
+.\routes\appointments.py:1:1: F401 'flask.flash' imported but unused
+.\routes\appointments.py:1:80: E501 line too long (88 > 79 characters)
+.\routes\appointments.py:6:1: E302 expected 2 blank lines, found 1
+.\routes\appointments.py:8:32: E701 multiple statements on one line (colon)
+.\routes\appointments.py:9:1: W293 blank line contains whitespace
+.\routes\appointments.py:15:80: E501 line too long (97 > 79 characters)
+.\routes\appointments.py:24:1: W293 blank line contains whitespace
+.\routes\customers.py:1:1: F401 'flask.request' imported but unused
+.\routes\customers.py:1:80: E501 line too long (88 > 79 characters)
+.\routes\customers.py:6:1: E302 expected 2 blank lines, found 1
+.\routes\customers.py:8:32: E701 multiple statements on one line (colon)
+.\routes\customers.py:9:1: W293 blank line contains whitespace
+.\routes\customers.py:15:20: W291 trailing whitespace
+.\routes\customers.py:16:80: E501 line too long (87 > 79 characters)
+.\routes\customers.py:17:80: E501 line too long (83 > 79 characters)
+.\routes\customers.py:23:1: W293 blank line contains whitespace
+.\routes\customers.py:26:1: E302 expected 2 blank lines, found 1
+.\routes\customers.py:28:32: E701 multiple statements on one line (colon)
+.\routes\customers.py:29:1: W293 blank line contains whitespace
+.\routes\customers.py:34:1: W293 blank line contains whitespace
+.\routes\customers.py:35:80: E501 line too long (100 > 79 characters)
+.\routes\customers.py:37:1: W293 blank line contains whitespace
+.\routes\customers.py:38:80: E501 line too long (96 > 79 characters)
+.\routes\customers.py:40:1: W293 blank line contains whitespace
+.\routes\customers.py:44:1: W293 blank line contains whitespace
+.\routes\customers.py:45:80: E501 line too long (111 > 79 characters)
+.\routes\inventory.py:1:80: E501 line too long (88 > 79 characters)
+.\routes\inventory.py:6:1: E302 expected 2 blank lines, found 1
+.\routes\inventory.py:8:32: E701 multiple statements on one line (colon)
+.\routes\inventory.py:9:1: W293 blank line contains whitespace
+.\routes\inventory.py:15:80: E501 line too long (96 > 79 characters)
+.\routes\inventory.py:23:80: E501 line too long (97 > 79 characters)
+.\routes\inventory.py:25:1: W293 blank line contains whitespace
+.\routes\inventory.py:26:80: E501 line too long (80 > 79 characters)
+.\routes\inventory.py:28:1: E302 expected 2 blank lines, found 1
+.\routes\inventory.py:30:32: E701 multiple statements on one line (colon)
+.\routes\inventory.py:31:1: W293 blank line contains whitespace
+.\routes\inventory.py:35:1: W293 blank line contains whitespace
+.\routes\inventory.py:38:1: W293 blank line contains whitespace
+.\routes\inventory.py:41:80: E501 line too long (93 > 79 characters)
+.\routes\inventory.py:43:1: W293 blank line contains whitespace
+.\routes\inventory.py:53:1: W293 blank line contains whitespace
+.\routes\inventory.py:54:5: F841 local variable 'e' is assigned to but never used
+.\routes\inventory.py:58:1: W293 blank line contains whitespace
+.\routes\inventory.py:61:1: E302 expected 2 blank lines, found 1
+.\routes\inventory.py:63:32: E701 multiple statements on one line (colon)
+.\routes\inventory.py:64:1: W293 blank line contains whitespace
+.\routes\inventory.py:72:1: W293 blank line contains whitespace
+.\routes\inventory.py:75:1: W293 blank line contains whitespace
+.\routes\inventory.py:82:1: W293 blank line contains whitespace
+.\routes\inventory.py:84:80: E501 line too long (89 > 79 characters)
+.\routes\inventory.py:87:1: W293 blank line contains whitespace
+.\routes\inventory.py:89:1: W293 blank line contains whitespace
+.\routes\inventory.py:93:80: E501 line too long (109 > 79 characters)
+.\routes\inventory.py:96:1: W293 blank line contains whitespace
+.\routes\inventory.py:99:1: W293 blank line contains whitespace
+.\routes\inventory.py:103:1: W293 blank line contains whitespace
+.\routes\orders.py:1:80: E501 line too long (88 > 79 characters)
+.\routes\orders.py:7:1: E302 expected 2 blank lines, found 1
+.\routes\orders.py:9:32: E701 multiple statements on one line (colon)
+.\routes\orders.py:10:1: W293 blank line contains whitespace
+.\routes\orders.py:15:1: W293 blank line contains whitespace
+.\routes\orders.py:19:80: E501 line too long (150 > 79 characters)
+.\routes\orders.py:20:80: E501 line too long (125 > 79 characters)
+.\routes\orders.py:27:1: W293 blank line contains whitespace
+.\routes\orders.py:32:80: E501 line too long (101 > 79 characters)
+.\routes\orders.py:35:1: W293 blank line contains whitespace
+.\routes\orders.py:38:1: E302 expected 2 blank lines, found 1
+.\routes\orders.py:40:32: E701 multiple statements on one line (colon)
+.\routes\orders.py:41:1: W293 blank line contains whitespace
+.\routes\orders.py:44:1: W293 blank line contains whitespace
+.\routes\orders.py:53:1: W293 blank line contains whitespace
+.\routes\orders.py:57:1: W293 blank line contains whitespace
+.\routes\orders.py:60:80: E501 line too long (104 > 79 characters)
+.\routes\orders.py:68:1: W293 blank line contains whitespace
+.\routes\orders.py:72:1: W293 blank line contains whitespace
+.\routes\orders.py:75:80: E501 line too long (100 > 79 characters)
+.\routes\orders.py:76:80: E501 line too long (112 > 79 characters)
+.\routes\orders.py:79:1: W293 blank line contains whitespace
+.\routes\orders.py:90:17: E261 at least two spaces before inline comment
+.\routes\orders.py:91:1: W293 blank line contains whitespace
+.\routes\orders.py:101:1: W293 blank line contains whitespace
+.\routes\orders.py:103:38: E741 ambiguous variable name 'l'
+.\routes\orders.py:103:80: E501 line too long (101 > 79 characters)
+.\routes\orders.py:104:42: E741 ambiguous variable name 'l'
+.\routes\orders.py:106:1: W293 blank line contains whitespace
+.\routes\orders.py:107:48: W291 trailing whitespace
+.\routes\orders.py:108:27: E128 continuation line under-indented for visual indent
+.\routes\orders.py:108:39: W291 trailing whitespace
+.\routes\orders.py:109:27: E128 continuation line under-indented for visual indent
+.\routes\orders.py:109:39: W291 trailing whitespace
+.\routes\orders.py:110:27: E128 continuation line under-indented for visual indent
+.\routes\orders.py:110:41: W291 trailing whitespace
+.\routes\orders.py:111:27: E128 continuation line under-indented for visual indent
+.\routes\orders.py:112:27: E128 continuation line under-indented for visual indent
+.\routes\orders.py:113:27: E128 continuation line under-indented for visual indent
+.\routes\orders.py:115:1: E302 expected 2 blank lines, found 1
+.\routes\orders.py:117:32: E701 multiple statements on one line (colon)
+.\routes\orders.py:118:1: W293 blank line contains whitespace
+.\routes\orders.py:124:1: W293 blank line contains whitespace
+.\routes\orders.py:128:1: W293 blank line contains whitespace
+.\routes\orders.py:131:1: W293 blank line contains whitespace
+.\routes\orders.py:138:1: W293 blank line contains whitespace
+.\routes\orders.py:140:80: E501 line too long (99 > 79 characters)
+.\routes\orders.py:142:1: W293 blank line contains whitespace
+.\routes\orders.py:146:39: W291 trailing whitespace
+.\routes\orders.py:147:80: E501 line too long (102 > 79 characters)
+.\routes\orders.py:149:80: E501 line too long (127 > 79 characters)
+.\routes\orders.py:150:1: W293 blank line contains whitespace
+.\routes\orders.py:152:80: E501 line too long (91 > 79 characters)
+.\routes\orders.py:158:1: W293 blank line contains whitespace
+.\routes\payroll.py:1:80: E501 line too long (88 > 79 characters)
+.\routes\payroll.py:7:1: E302 expected 2 blank lines, found 1
+.\routes\payroll.py:9:32: E701 multiple statements on one line (colon)
+.\routes\payroll.py:10:1: W293 blank line contains whitespace
+.\routes\payroll.py:15:1: W293 blank line contains whitespace
+.\routes\payroll.py:18:20: W291 trailing whitespace
+.\routes\payroll.py:20:80: E501 line too long (110 > 79 characters)
+.\routes\payroll.py:23:80: E501 line too long (80 > 79 characters)
+.\routes\payroll.py:28:1: W293 blank line contains whitespace
+.\routes\payroll.py:40:1: W293 blank line contains whitespace
+.\routes\payroll.py:43:46: W291 trailing whitespace
+.\routes\payroll.py:51:1: W293 blank line contains whitespace
+.\routes\payroll.py:52:80: E501 line too long (99 > 79 characters)
+.\routes\payroll.py:54:1: E302 expected 2 blank lines, found 1
+.\routes\payroll.py:56:32: E701 multiple statements on one line (colon)
+.\routes\payroll.py:57:1: W293 blank line contains whitespace
+.\routes\payroll.py:60:1: W293 blank line contains whitespace
+.\routes\payroll.py:63:1: W293 blank line contains whitespace
+.\routes\payroll.py:67:1: W293 blank line contains whitespace
+.\routes\payroll.py:68:80: E501 line too long (101 > 79 characters)
+.\routes\payroll.py:70:1: W293 blank line contains whitespace
+.\routes\payroll.py:72:1: W293 blank line contains whitespace
+.\routes\payroll.py:73:80: E501 line too long (118 > 79 characters)
+.\routes\payroll.py:75:1: E302 expected 2 blank lines, found 1
+.\routes\payroll.py:77:67: W291 trailing whitespace
+.\routes\payroll.py:80:1: W293 blank line contains whitespace
+.\routes\payroll.py:83:1: W293 blank line contains whitespace
+.\routes\payroll.py:85:80: E501 line too long (109 > 79 characters)
+.\routes\payroll.py:93:1: W293 blank line contains whitespace
+.\routes\payroll.py:96:1: E302 expected 2 blank lines, found 1
+.\routes\payroll.py:98:32: E701 multiple statements on one line (colon)
+.\routes\payroll.py:101:1: W293 blank line contains whitespace
+.\routes\payroll.py:103:80: E501 line too long (112 > 79 characters)
+.\routes\payroll.py:107:1: W293 blank line contains whitespace
+.\routes\payroll.py:109:80: E501 line too long (116 > 79 characters)
+.\routes\payroll.py:109:117: W291 trailing whitespace
+.\routes\payroll.py:116:1: W293 blank line contains whitespace
+.\routes\payroll.py:119:1: E302 expected 2 blank lines, found 1
+.\routes\payroll.py:121:32: E701 multiple statements on one line (colon)
+.\routes\payroll.py:124:1: W293 blank line contains whitespace
+.\routes\payroll.py:125:80: E501 line too long (153 > 79 characters)
+.\routes\payroll.py:127:1: W293 blank line contains whitespace
+.\routes\payroll.py:131:1: W293 blank line contains whitespace
+.\routes\payroll.py:134:32: W291 trailing whitespace
+.\routes\payroll.py:136:80: E501 line too long (87 > 79 characters)
+.\routes\payroll.py:144:1: W293 blank line contains whitespace
+.\routes\payroll.py:147:1: E302 expected 2 blank lines, found 1
+.\routes\payroll.py:152:1: W293 blank line contains whitespace
+.\routes\payroll.py:155:1: W293 blank line contains whitespace
+.\routes\payroll.py:159:1: W293 blank line contains whitespace
+.\routes\payroll.py:163:1: W293 blank line contains whitespace
+.\routes\payroll.py:166:80: E501 line too long (96 > 79 characters)
+.\routes\payroll.py:168:1: W293 blank line contains whitespace
+.\routes\payroll.py:170:1: W293 blank line contains whitespace
+.\routes\payroll.py:175:1: W293 blank line contains whitespace
+.\routes\payroll.py:179:34: W291 trailing whitespace
+.\routes\payroll.py:186:1: W293 blank line contains whitespace
+.\routes\payroll.py:189:44: W291 trailing whitespace
+.\routes\payroll.py:190:33: W291 trailing whitespace
+.\routes\payroll.py:196:1: W293 blank line contains whitespace
+.\routes\payroll.py:200:1: W293 blank line contains whitespace
+.\routes\payroll.py:202:1: W293 blank line contains whitespace
+.\routes\payroll.py:205:37: W291 trailing whitespace
+.\routes\payroll.py:206:80: E501 line too long (149 > 79 characters)
+.\routes\payroll.py:208:80: E501 line too long (158 > 79 characters)
+.\routes\payroll.py:209:1: W293 blank line contains whitespace
+.\routes\payroll.py:216:1: W293 blank line contains whitespace
+.\routes\payroll.py:222:1: W293 blank line contains whitespace
+.\routes\payroll.py:224:1: W293 blank line contains whitespace
+.\routes\payroll.py:227:80: E501 line too long (99 > 79 characters)
+.\routes\payroll.py:229:80: E501 line too long (135 > 79 characters)
+.\routes\payroll.py:230:1: W293 blank line contains whitespace
+.\routes\payroll.py:234:1: W293 blank line contains whitespace
+.\routes\payroll.py:237:1: E302 expected 2 blank lines, found 1
+.\routes\payroll.py:242:1: W293 blank line contains whitespace
+.\routes\payroll.py:245:1: W293 blank line contains whitespace
+.\routes\payroll.py:249:1: W293 blank line contains whitespace
+.\routes\payroll.py:252:1: W293 blank line contains whitespace
+.\routes\payroll.py:256:1: W293 blank line contains whitespace
+.\routes\payroll.py:259:80: E501 line too long (129 > 79 characters)
+.\routes\payroll.py:261:1: W293 blank line contains whitespace
+.\routes\payroll.py:263:1: W293 blank line contains whitespace
+.\routes\payroll.py:265:80: E501 line too long (83 > 79 characters)
+.\routes\payroll.py:267:1: W293 blank line contains whitespace
+.\routes\payroll.py:270:13: E722 do not use bare 'except'
+.\routes\payroll.py:272:1: W293 blank line contains whitespace
+.\routes\payroll.py:274:1: W293 blank line contains whitespace
+.\routes\payroll.py:277:1: W293 blank line contains whitespace
+.\routes\payroll.py:281:28: W291 trailing whitespace
+.\routes\payroll.py:282:37: W291 trailing whitespace
+.\routes\payroll.py:285:68: W291 trailing whitespace
+.\routes\payroll.py:288:80: E501 line too long (93 > 79 characters)
+.\routes\payroll.py:292:1: W293 blank line contains whitespace
+.\routes\payroll.py:296:1: W293 blank line contains whitespace
+.\routes\payroll.py:298:80: E501 line too long (82 > 79 characters)
+.\routes\payroll.py:302:1: W293 blank line contains whitespace
+.\routes\payroll.py:305:80: E501 line too long (97 > 79 characters)
+.\routes\payroll.py:307:80: E501 line too long (98 > 79 characters)
+.\routes\payroll.py:308:1: W293 blank line contains whitespace
+.\routes\payroll.py:312:1: W293 blank line contains whitespace
+.\routes\pickups.py:1:1: F401 'flask.request' imported but unused
+.\routes\pickups.py:1:80: E501 line too long (88 > 79 characters)
+.\routes\pickups.py:7:1: E302 expected 2 blank lines, found 1
+.\routes\pickups.py:9:32: E701 multiple statements on one line (colon)
+.\routes\pickups.py:10:1: W293 blank line contains whitespace
+.\routes\pickups.py:15:1: W293 blank line contains whitespace
+.\routes\pickups.py:26:1: W293 blank line contains whitespace
+.\routes\pickups.py:28:80: E501 line too long (176 > 79 characters)
+.\routes\pickups.py:29:80: E501 line too long (84 > 79 characters)
+.\routes\pickups.py:30:1: W293 blank line contains whitespace
+.\routes\pickups.py:31:80: E501 line too long (113 > 79 characters)
+.\routes\pickups.py:33:1: E302 expected 2 blank lines, found 1
+.\routes\pickups.py:35:32: E701 multiple statements on one line (colon)
+.\routes\pickups.py:36:1: W293 blank line contains whitespace
+.\routes\pickups.py:39:1: W293 blank line contains whitespace
+.\routes\pickups.py:43:27: W291 trailing whitespace
+.\routes\pickups.py:48:1: W293 blank line contains whitespace
+.\routes\pickups.py:49:80: E501 line too long (89 > 79 characters)
+.\routes\pickups.py:51:1: W293 blank line contains whitespace
+.\routes\pickups.py:59:1: W293 blank line contains whitespace
+.\routes\purchasing.py:1:1: F401 'flask.request' imported but unused
+.\routes\purchasing.py:1:80: E501 line too long (88 > 79 characters)
+.\routes\purchasing.py:6:1: E302 expected 2 blank lines, found 1
+.\routes\purchasing.py:8:32: E701 multiple statements on one line (colon)
+.\routes\purchasing.py:9:1: W293 blank line contains whitespace
+.\routes\purchasing.py:13:1: W293 blank line contains whitespace
+.\routes\purchasing.py:16:20: W291 trailing whitespace
+.\routes\purchasing.py:20:80: E501 line too long (121 > 79 characters)
+.\routes\purchasing.py:29:43: W291 trailing whitespace
+.\routes\purchasing.py:37:1: W293 blank line contains whitespace
+.\routes\purchasing.py:47:80: E501 line too long (100 > 79 characters)
+.\routes\purchasing.py:49:1: W293 blank line contains whitespace
+.\routes\purchasing.py:50:46: W291 trailing whitespace
+.\routes\purchasing.py:51:44: W291 trailing whitespace
+.\routes\purchasing.py:57:1: E302 expected 2 blank lines, found 1
+.\routes\purchasing.py:59:32: E701 multiple statements on one line (colon)
+.\routes\purchasing.py:60:1: W293 blank line contains whitespace
+.\routes\purchasing.py:64:1: W293 blank line contains whitespace
+.\routes\purchasing.py:67:80: E501 line too long (103 > 79 characters)
+.\routes\purchasing.py:71:80: E501 line too long (114 > 79 characters)
+.\routes\purchasing.py:72:1: W293 blank line contains whitespace
+.\routes\purchasing.py:75:80: E501 line too long (151 > 79 characters)
+.\routes\purchasing.py:82:80: E501 line too long (124 > 79 characters)
+.\routes\purchasing.py:83:1: W293 blank line contains whitespace
+.\routes\purchasing.py:86:80: E501 line too long (134 > 79 characters)
+.\routes\purchasing.py:93:80: E501 line too long (108 > 79 characters)
+.\routes\purchasing.py:94:1: W293 blank line contains whitespace
+.\routes\purchasing.py:97:1: E302 expected 2 blank lines, found 1
+.\routes\purchasing.py:99:32: E701 multiple statements on one line (colon)
+.\routes\purchasing.py:100:1: W293 blank line contains whitespace
+.\routes\purchasing.py:103:1: W293 blank line contains whitespace
+.\routes\purchasing.py:107:1: W293 blank line contains whitespace
+.\routes\purchasing.py:111:1: W293 blank line contains whitespace
+.\routes\purchasing.py:114:38: W291 trailing whitespace
+.\routes\purchasing.py:115:28: W291 trailing whitespace
+.\routes\purchasing.py:119:1: W293 blank line contains whitespace
+.\routes\reports.py:1:1: F401 'flask.request' imported but unused
+.\routes\reports.py:1:1: F401 'flask.flash' imported but unused
+.\routes\reports.py:1:80: E501 line too long (97 > 79 characters)
+.\routes\reports.py:3:1: F401 'datetime' imported but unused
+.\routes\reports.py:7:1: E302 expected 2 blank lines, found 1
+.\routes\reports.py:9:32: E701 multiple statements on one line (colon)
+.\routes\reports.py:10:1: W293 blank line contains whitespace
+.\routes\reports.py:15:1: W293 blank line contains whitespace
+.\routes\reports.py:17:80: E501 line too long (170 > 79 characters)
+.\routes\reports.py:19:1: W293 blank line contains whitespace
+.\routes\reports.py:21:40: W291 trailing whitespace
+.\routes\reports.py:24:80: E501 line too long (111 > 79 characters)
+.\routes\reports.py:28:1: W293 blank line contains whitespace
+.\routes\reports.py:30:44: W291 trailing whitespace
+.\routes\reports.py:31:80: E501 line too long (159 > 79 characters)
+.\routes\reports.py:36:80: E501 line too long (102 > 79 characters)
+.\routes\reports.py:37:80: E501 line too long (99 > 79 characters)
+.\routes\reports.py:39:1: W293 blank line contains whitespace
+.\routes\reports.py:40:43: W291 trailing whitespace
+.\routes\reports.py:41:27: E128 continuation line under-indented for visual indent
+.\routes\reports.py:42:27: E128 continuation line under-indented for visual indent
+.\routes\reports.py:43:27: E128 continuation line under-indented for visual indent
+.\routes\reports.py:45:1: E302 expected 2 blank lines, found 1
+.\routes\reports.py:48:80: E501 line too long (80 > 79 characters)
+.\routes\reports.py:51:32: E701 multiple statements on one line (colon)
+.\routes\reports.py:52:1: W293 blank line contains whitespace
+.\routes\reports.py:57:1: W293 blank line contains whitespace
+.\routes\reports.py:60:1: W293 blank line contains whitespace
+.\routes\reports.py:64:80: E501 line too long (104 > 79 characters)
+.\routes\reports.py:68:80: E501 line too long (118 > 79 characters)
+.\routes\reports.py:80:1: W293 blank line contains whitespace
+.\routes\reports.py:82:80: E501 line too long (82 > 79 characters)
+.\routes\reports.py:85:80: E501 line too long (148 > 79 characters)
+.\routes\reports.py:86:80: E501 line too long (123 > 79 characters)
+.\routes\reports.py:89:80: E501 line too long (95 > 79 characters)
+.\routes\reports.py:93:31: E261 at least two spaces before inline comment
+.\routes\reports.py:101:1: W293 blank line contains whitespace
+.\routes\reports.py:108:80: E501 line too long (91 > 79 characters)
+.\routes\reports.py:118:1: W293 blank line contains whitespace
+.\routes\staff.py:1:80: E501 line too long (88 > 79 characters)
+.\routes\staff.py:7:1: E302 expected 2 blank lines, found 1
+.\routes\staff.py:9:32: E701 multiple statements on one line (colon)
+.\routes\staff.py:10:1: W293 blank line contains whitespace
+.\routes\staff.py:14:1: W293 blank line contains whitespace
+.\routes\staff.py:17:44: W291 trailing whitespace
+.\routes\staff.py:24:1: W293 blank line contains whitespace
+.\routes\staff.py:26:80: E501 line too long (121 > 79 characters)
+.\routes\staff.py:28:1: W293 blank line contains whitespace
+.\routes\staff.py:29:80: E501 line too long (82 > 79 characters)
+.\routes\staff.py:31:1: E302 expected 2 blank lines, found 1
+.\routes\staff.py:33:32: E701 multiple statements on one line (colon)
+.\routes\staff.py:34:1: W293 blank line contains whitespace
+.\routes\staff.py:35:80: E501 line too long (95 > 79 characters)
+.\routes\staff.py:39:1: W293 blank line contains whitespace
+.\routes\staff.py:44:50: E261 at least two spaces before inline comment
+.\routes\staff.py:45:59: E261 at least two spaces before inline comment
+.\routes\staff.py:46:1: W293 blank line contains whitespace
+.\routes\staff.py:51:1: W293 blank line contains whitespace
+.\routes\staff.py:53:80: E501 line too long (85 > 79 characters)
+.\routes\staff.py:56:1: W293 blank line contains whitespace
+.\routes\staff.py:59:1: W293 blank line contains whitespace
+.\routes\staff.py:63:1: W293 blank line contains whitespace
+.\routes\staff.py:67:1: W293 blank line contains whitespace
+.\routes\staff.py:70:80: E501 line too long (182 > 79 characters)
+.\routes\staff.py:72:80: E501 line too long (166 > 79 characters)
+.\routes\staff.py:74:80: E501 line too long (85 > 79 characters)
+.\routes\staff.py:78:1: W293 blank line contains whitespace
+.\routes\staff.py:81:1: E302 expected 2 blank lines, found 1
+.\routes\staff.py:83:32: E701 multiple statements on one line (colon)
+.\routes\staff.py:84:1: W293 blank line contains whitespace
+.\routes\staff.py:94:1: W293 blank line contains whitespace
+.\routes\staff.py:99:1: W293 blank line contains whitespace
+.\routes\staff.py:101:80: E501 line too long (85 > 79 characters)
+.\routes\staff.py:104:1: W293 blank line contains whitespace
+.\routes\staff.py:107:1: W293 blank line contains whitespace
+.\routes\staff.py:111:1: W293 blank line contains whitespace
+.\routes\staff.py:115:80: E501 line too long (84 > 79 characters)
+.\routes\staff.py:116:80: E501 line too long (83 > 79 characters)
+.\routes\staff.py:119:80: E501 line too long (160 > 79 characters)
+.\routes\staff.py:125:1: W293 blank line contains whitespace
+.\routes\staff.py:128:1: E302 expected 2 blank lines, found 1
+.\routes\staff.py:130:32: E701 multiple statements on one line (colon)
+.\routes\staff.py:131:1: W293 blank line contains whitespace
+.\routes\staff.py:135:1: W293 blank line contains whitespace
+.\routes\staff.py:139:1: W293 blank line contains whitespace
+.\routes\staff.py:149:1: W293 blank line contains whitespace
+.\routes\staff.py:150:80: E501 line too long (81 > 79 characters)
+.\routes\staff.py:152:1: W293 blank line contains whitespace
+.\routes\staff.py:155:1: W293 blank line contains whitespace
+.\routes\staff.py:158:28: W291 trailing whitespace
+.\routes\staff.py:159:80: E501 line too long (96 > 79 characters)
+.\routes\staff.py:163:1: W293 blank line contains whitespace
+.\routes\staff.py:164:80: E501 line too long (81 > 79 characters)
+.\routes\staff.py:175:1: W293 blank line contains whitespace
+.\routes\staff.py:179:1: W293 blank line contains whitespace
+.\routes\staff.py:186:1: W293 blank line contains whitespace
+.\routes\staff.py:194:1: W293 blank line contains whitespace
+.\routes\staff.py:195:44: W291 trailing whitespace
+.\routes\staff.py:196:9: E128 continuation line under-indented for visual indent
+.\routes\staff.py:196:29: W291 trailing whitespace
+.\routes\staff.py:197:9: E128 continuation line under-indented for visual indent
+.\routes\staff.py:198:9: E128 continuation line under-indented for visual indent
+.\routes\staff.py:199:9: E128 continuation line under-indented for visual indent
+.\routes\staff.py:200:9: E128 continuation line under-indented for visual indent
+.\routes\staff.py:201:9: E128 continuation line under-indented for visual indent
+.\routes\staff.py:202:9: E128 continuation line under-indented for visual indent
+.\routes\staff.py:203:5: E124 closing bracket does not match visual indentation
+.\routes\staff.py:205:1: E302 expected 2 blank lines, found 1
+.\routes\staff.py:207:32: E701 multiple statements on one line (colon)
+.\routes\staff.py:211:1: W293 blank line contains whitespace
+.\routes\staff.py:214:48: E261 at least two spaces before inline comment
+.\routes\staff.py:215:48: E261 at least two spaces before inline comment
+.\routes\staff.py:216:44: E261 at least two spaces before inline comment
+.\routes\staff.py:217:44: E261 at least two spaces before inline comment
+.\routes\staff.py:219:1: W293 blank line contains whitespace
+.\routes\staff.py:220:80: E501 line too long (84 > 79 characters)
+.\routes\staff.py:223:1: W293 blank line contains whitespace
+.\routes\staff.py:227:1: W293 blank line contains whitespace
+.\routes\staff.py:231:1: W293 blank line contains whitespace
+.\routes\staff.py:234:80: E501 line too long (94 > 79 characters)
+.\routes\staff.py:242:1: W293 blank line contains whitespace
+.\routes\staff.py:243:80: E501 line too long (94 > 79 characters)
+.\routes\staff.py:245:1: E302 expected 2 blank lines, found 1
+.\routes\staff.py:247:32: E701 multiple statements on one line (colon)
+.\routes\staff.py:251:1: W293 blank line contains whitespace
+.\routes\staff.py:255:1: W293 blank line contains whitespace
+.\routes\staff.py:257:80: E501 line too long (100 > 79 characters)
+.\routes\staff.py:263:1: W293 blank line contains whitespace
+.\routes\transfers.py:1:80: E501 line too long (88 > 79 characters)
+.\routes\transfers.py:6:1: E302 expected 2 blank lines, found 1
+.\routes\transfers.py:8:32: E701 multiple statements on one line (colon)
+.\routes\transfers.py:9:1: W293 blank line contains whitespace
+.\routes\transfers.py:16:80: E501 line too long (103 > 79 characters)
+.\routes\transfers.py:18:1: W293 blank line contains whitespace
+.\routes\transfers.py:22:20: W291 trailing whitespace
+.\routes\transfers.py:35:1: W293 blank line contains whitespace
+.\routes\transfers.py:38:80: E501 line too long (97 > 79 characters)
+.\routes\transfers.py:51:45: W291 trailing whitespace
+.\routes\transfers.py:52:9: E128 continuation line under-indented for visual indent
+.\routes\transfers.py:52:29: W291 trailing whitespace
+.\routes\transfers.py:53:9: E128 continuation line under-indented for visual indent
+.\routes\transfers.py:54:9: E128 continuation line under-indented for visual indent
+.\routes\transfers.py:55:9: E128 continuation line under-indented for visual indent
+.\routes\transfers.py:56:5: E124 closing bracket does not match visual indentation
+.\routes\transfers.py:58:1: E302 expected 2 blank lines, found 1
+.\routes\transfers.py:60:32: E701 multiple statements on one line (colon)
+.\routes\transfers.py:61:1: W293 blank line contains whitespace
+.\routes\transfers.py:67:1: W293 blank line contains whitespace
+.\routes\transfers.py:83:80: E501 line too long (141 > 79 characters)
+.\routes\transfers.py:85:1: W293 blank line contains whitespace
+.\routes\transfers.py:87:80: E501 line too long (97 > 79 characters)
+.\routes\transfers.py:89:1: W293 blank line contains whitespace
+.\routes\transfers.py:92:38: W291 trailing whitespace
+.\routes\transfers.py:93:46: W291 trailing whitespace
+.\routes\transfers.py:99:80: E501 line too long (107 > 79 characters)
+.\routes\transfers.py:111:80: E501 line too long (100 > 79 characters)
+.\routes\transfers.py:112:1: W293 blank line contains whitespace
+.\routes\transfers.py:119:1: E302 expected 2 blank lines, found 1
+.\routes\transfers.py:121:32: E701 multiple statements on one line (colon)
+.\routes\transfers.py:122:1: W293 blank line contains whitespace
+.\routes\transfers.py:129:80: E501 line too long (95 > 79 characters)
+.\routes\transfers.py:131:1: W293 blank line contains whitespace
+.\routes\transfers.py:137:80: E501 line too long (105 > 79 characters)
+.\routes\transfers.py:144:80: E501 line too long (93 > 79 characters)
+.\routes\transfers.py:148:80: E501 line too long (100 > 79 characters)
+.\routes\transfers.py:152:29: W291 trailing whitespace
+.\routes\transfers.py:153:80: E501 line too long (85 > 79 characters)
+.\routes\transfers.py:158:80: E501 line too long (91 > 79 characters)
+.\routes\transfers.py:159:1: W293 blank line contains whitespace

@@ -83,6 +83,11 @@
                             id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button"
                             role="tab">Orders & Payments</button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link px-4 py-3 border-0 bg-transparent text-muted text-hover-light"
+                            id="measurements-tab" data-bs-toggle="tab" data-bs-target="#measurements" type="button"
+                            role="tab">Measurements & Sizing</button>
+                    </li>
                 </ul>
             </div>
             <div class="card-body p-0">
@@ -162,11 +167,131 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- Measurements & Sizing Tab -->
+                    <div class="tab-pane fade" id="measurements" role="tabpanel">
+                        <div class="p-4">
+                            <div class="row g-4">
+                                <!-- Measurement Form -->
+                                <div class="col-md-6">
+                                    <h5 class="mb-3 text-light">Bridal Measurements</h5>
+                                    <form action="{{ url_for('customers.save_measurements', id=customer.id) }}"
+                                        method="POST">
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted">Bust (inches)</label>
+                                            <input type="number" step="0.1" name="bust" class="form-control"
+                                                value="{{ measurements.bust if measurements else '' }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted">Waist (inches)</label>
+                                            <input type="number" step="0.1" name="waist" class="form-control"
+                                                value="{{ measurements.waist if measurements else '' }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted">Hips (inches)</label>
+                                            <input type="number" step="0.1" name="hips" class="form-control"
+                                                value="{{ measurements.hips if measurements else '' }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted">Hollow to Hem (inches)</label>
+                                            <input type="number" step="0.1" name="hollow_to_hem" class="form-control"
+                                                value="{{ measurements.hollow_to_hem if measurements else '' }}">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">Save Measurements</button>
+                                        {% if measurements %}
+                                        <small class="text-muted mt-2 d-block text-center">Last updated: {{
+                                            measurements.updated_at.split(' ')[0] }}</small>
+                                        {% endif %}
+                                    </form>
+                                </div>
+
+                                <!-- Sizing Intelligence -->
+                                <div class="col-md-6">
+                                    <h5 class="mb-3 text-light">Sizing Intelligence Engine</h5>
+                                    <div class="bg-dark p-4 rounded border border-secondary">
+                                        <p class="text-muted small">Select a designer to cross-reference the bride's
+                                            measurements against their official sizing metrics.</p>
+
+                                        <div class="mb-3">
+                                            <label class="form-label text-light">Target Designer</label>
+                                            <select class="form-select" id="designerSelect">
+                                                <option value="" selected disabled>Choose Designer...</option>
+                                                {% for designer in designers %}
+                                                <option value="{{ designer.id }}">{{ designer.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <button class="btn btn-outline-light w-100 mb-4"
+                                            onclick="calculateSize()">Calculate Recommendation</button>
+
+                                        <div id="sizingResult" class="d-none text-center p-3 rounded"
+                                            style="background-color: rgba(170, 140, 102, 0.1); border: 1px solid var(--theme-color);">
+                                            <h6 class="text-muted mb-1 text-uppercase fw-bold"
+                                                style="font-size: 0.8rem;">Recommended Size</h6>
+                                            <h2 class="display-4 fw-bold theme-text mb-2" id="recommendedSizeLabel">
+                                            </h2>
+                                            <p class="text-light small mb-0"><i class="bi bi-info-circle me-1"></i>
+                                                <span id="limitingFactorLabel"></span>
+                                            </p>
+                                        </div>
+                                        <div id="sizingError"
+                                            class="d-none text-center p-3 rounded bg-danger text-white border border-danger bg-opacity-10">
+                                            <i class="bi bi-exclamation-triangle me-2"></i><span
+                                                id="sizingErrorMsg"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function calculateSize() {
+        const designerId = document.getElementById('designerSelect').value;
+        const resultDiv = document.getElementById('sizingResult');
+        const errorDiv = document.getElementById('sizingError');
+        const sizeLabel = document.getElementById('recommendedSizeLabel');
+        const factorLabel = document.getElementById('limitingFactorLabel');
+        const errorMsg = document.getElementById('sizingErrorMsg');
+
+        if (!designerId) {
+            // Validation visually
+            resultDiv.classList.add('d-none');
+            errorDiv.classList.remove('d-none');
+            errorMsg.textContent = "Please select a Designer.";
+            return;
+        }
+
+        // Call the Engine API
+        fetch(`/customers/api/customers/{{ customer.id }}/recommend_size?vendor_id=${designerId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultDiv.classList.add('d-none');
+                    errorDiv.classList.remove('d-none');
+                    errorMsg.textContent = data.error;
+                } else {
+                    errorDiv.classList.add('d-none');
+                    resultDiv.classList.remove('d-none');
+
+                    sizeLabel.textContent = `Size ${data.recommended_size}`;
+                    factorLabel.textContent = data.limiting_factor;
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                resultDiv.classList.add('d-none');
+                errorDiv.classList.remove('d-none');
+                errorMsg.textContent = "A network error occurred. Please try again.";
+            });
+    }
+</script>
 
 {% endblock %}
 

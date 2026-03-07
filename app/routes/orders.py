@@ -44,7 +44,7 @@ def order_detail(id):
     
     # Get the order and customer
     cursor.execute('''
-        SELECT o.*, c.first_name, c.last_name, c.email, c.phone
+        SELECT o.*, c.first_name, c.last_name, c.email, c.phone, c.wedding_date
         FROM orders o
         JOIN customers c ON o.customer_id = c.id
         WHERE o.id = ?
@@ -55,15 +55,39 @@ def order_detail(id):
         flash("Order not found.", "error")
         return redirect(url_for('orders.order_list'))
         
-    # Get line items
+    # Get line items with vendor lead times
     cursor.execute('''
-        SELECT oi.*, p.name as product_name, pv.size, pv.color
+        SELECT oi.*, p.name as product_name, pv.size, pv.color, v.lead_time_weeks, v.name as vendor_name
         FROM order_items oi
         LEFT JOIN product_variants pv ON oi.product_variant_id = pv.id
         LEFT JOIN products p ON pv.product_id = p.id
+        LEFT JOIN vendors v ON p.vendor_id = v.id
         WHERE oi.order_id = ?
     ''', (id,))
     items = cursor.fetchall()
+    
+    # Lead Time Intelligence Engine
+    import datetime
+    rush_warnings = []
+    
+    if order['wedding_date']:
+        try:
+            # Parse wedding date (SQLite timestamp is usually 'YYYY-MM-DD HH:MM:SS' or 'YYYY-MM-DD')
+            wedding_dt = datetime.datetime.strptime(str(order['wedding_date']).split(' ')[0], '%Y-%m-%d').date()
+            today = datetime.date.today()
+            weeks_until_wedding = (wedding_dt - today).days / 7.0
+            
+            for item in items:
+                if item['lead_time_weeks']:
+                    if item['lead_time_weeks'] > weeks_until_wedding:
+                        rush_warnings.append({
+                            'product_name': item['product_name'],
+                            'vendor_name': item['vendor_name'],
+                            'lead_time': item['lead_time_weeks'],
+                            'weeks_left': round(weeks_until_wedding, 1)
+                        })
+        except ValueError:
+            pass # Invalid date format fallback
     
     # Get the append-only ledger history
     cursor.execute('''
@@ -85,7 +109,8 @@ def order_detail(id):
                           items=items, 
                           ledger=ledger, 
                           balance_due=balance_due,
-                          total_paid=total_paid)
+                          total_paid=total_paid,
+                          rush_warnings=rush_warnings)
 
 @bp.route('/<int:id>/payment', methods=['POST'])
 def post_payment(id):

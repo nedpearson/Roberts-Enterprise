@@ -22,8 +22,8 @@
     <div class="col-md-3">
         <div class="card h-100 shadow-sm border-0 global-drilldown"
             data-drilldown-url="/api/dashboard/drilldown/appointments_today" data-title="Appointments Today"
-            style="background: linear-gradient(145deg, #2a2a2a, #1e1e1e); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
-            onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='#aa8c66';"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #2a2a2a, #1e1e1e)); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--theme-color)';"
             onmouseout="this.style.transform='none'; this.style.borderColor='transparent';">
             <div class="card-body">
                 <h6 class="card-subtitle mb-2 text-muted">Appointments Today</h6>
@@ -35,8 +35,8 @@
     <div class="col-md-3">
         <div class="card h-100 shadow-sm border-0 global-drilldown"
             data-drilldown-url="/api/dashboard/drilldown/pickups_due" data-title="Pickups Due"
-            style="background: linear-gradient(145deg, #2a2a2a, #1e1e1e); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
-            onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='#aa8c66';"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #2a2a2a, #1e1e1e)); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--theme-color)';"
             onmouseout="this.style.transform='none'; this.style.borderColor='transparent';">
             <div class="card-body">
                 <h6 class="card-subtitle mb-2 text-muted">Pickups Due</h6>
@@ -48,8 +48,8 @@
     <div class="col-md-3">
         <div class="card h-100 shadow-sm border-0 global-drilldown"
             data-drilldown-url="/api/dashboard/drilldown/outstanding_balances" data-title="Outstanding Balances"
-            style="background: linear-gradient(145deg, #2a2a2a, #1e1e1e); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
-            onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='#aa8c66';"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #2a2a2a, #1e1e1e)); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--theme-color)';"
             onmouseout="this.style.transform='none'; this.style.borderColor='transparent';">
             <div class="card-body">
                 <h6 class="card-subtitle mb-2 text-muted">Outstanding Balances</h6>
@@ -61,8 +61,8 @@
     <div class="col-md-3">
         <div class="card h-100 shadow-sm border-0 global-drilldown"
             data-drilldown-url="/api/dashboard/drilldown/awaiting_receiving" data-title="Awaiting Receiving"
-            style="background: linear-gradient(145deg, #2a2a2a, #1e1e1e); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
-            onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='#aa8c66';"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #2a2a2a, #1e1e1e)); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--theme-color)';"
             onmouseout="this.style.transform='none'; this.style.borderColor='transparent';">
             <div class="card-body">
                 <h6 class="card-subtitle mb-2 text-muted">Awaiting Receiving</h6>
@@ -74,13 +74,20 @@
 </div>
 
 <div class="row g-4">
-    <!-- Today's Schedule -->
+    <!-- Schedule Viewer -->
     <div class="col-md-8">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Today's Schedule</h5>
-                <a href="{{ url_for('appointments.appointment_list') }}" class="btn btn-sm btn-outline-secondary">View
-                    Complete</a>
+                <h5 class="mb-0" id="scheduleCardTitle">Today's Schedule</h5>
+                <div>
+                    <div class="btn-group btn-group-sm me-2" role="group" id="scheduleViewSelector">
+                        <button type="button" class="btn btn-primary theme-btn active" data-view="day">Day</button>
+                        <button type="button" class="btn btn-outline-secondary" data-view="week">Week</button>
+                        <button type="button" class="btn btn-outline-secondary" data-view="month">Month</button>
+                    </div>
+                    <a href="{{ url_for('appointments.appointment_list') }}"
+                        class="btn btn-sm btn-outline-secondary d-none d-md-inline-block">Full List</a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -137,21 +144,24 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-3">
-                    <button class="btn btn-outline-light text-start p-3 d-flex align-items-center border-secondary">
+                    <button class="btn btn-outline-secondary text-start p-3 d-flex align-items-center"
+                        style="color: var(--text-color); border-color: var(--border-color);">
                         <i class="bi bi-cash-coin fs-4 me-3 text-success"></i>
                         <div>
                             <strong>Take Payment / Deposit</strong>
                             <div class="small text-muted">Process a new ledger entry</div>
                         </div>
                     </button>
-                    <button class="btn btn-outline-light text-start p-3 d-flex align-items-center border-secondary">
+                    <button class="btn btn-outline-secondary text-start p-3 d-flex align-items-center"
+                        style="color: var(--text-color); border-color: var(--border-color);">
                         <i class="bi bi-box-seam fs-4 me-3 text-info"></i>
                         <div>
                             <strong>Receive Inventory</strong>
                             <div class="small text-muted">Log items from vendor P.O.</div>
                         </div>
                     </button>
-                    <button class="btn btn-outline-light text-start p-3 d-flex align-items-center border-secondary">
+                    <button class="btn btn-outline-secondary text-start p-3 d-flex align-items-center"
+                        style="color: var(--text-color); border-color: var(--border-color);">
                         <i class="bi bi-clock-history fs-4 me-3 text-warning"></i>
                         <div>
                             <strong>Staff Timeclock</strong>
@@ -163,5 +173,85 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const viewButtons = document.querySelectorAll('#scheduleViewSelector button');
+        const scheduleTbody = document.querySelector('.table-hover tbody');
+        const cardTitle = document.getElementById('scheduleCardTitle');
+
+        viewButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                // Update active state
+                viewButtons.forEach(b => {
+                    b.classList.remove('btn-primary', 'theme-btn', 'active');
+                    b.classList.add('btn-outline-secondary');
+                });
+                this.classList.remove('btn-outline-secondary');
+                this.classList.add('btn-primary', 'theme-btn', 'active');
+
+                const viewType = this.getAttribute('data-view');
+
+                // Update title
+                if (viewType === 'day') cardTitle.textContent = "Today's Schedule";
+                else if (viewType === 'week') cardTitle.textContent = "This Week's Schedule";
+                else if (viewType === 'month') cardTitle.textContent = "This Month's Schedule";
+
+                // Fetch new data
+                scheduleTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4"><div class="spinner-border spinner-border-sm text-secondary" role="status"></div> Loading...</td></tr>';
+
+                fetch(`/api/dashboard/schedule_view?range=${viewType}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error) {
+                            scheduleTbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">Error loading schedule: ${data.error}</td></tr>`;
+                            return;
+                        }
+
+                        if (!data.schedule || data.schedule.length === 0) {
+                            scheduleTbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No appointments scheduled for this period.</td></tr>`;
+                            return;
+                        }
+
+                        let html = '';
+                        data.schedule.forEach(item => {
+                            let timeStr = item.start_at;
+                            try {
+                                const dateObj = new Date(item.start_at.replace(' ', 'T'));
+                                if (viewType === 'day') {
+                                    timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                } else {
+                                    timeStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' +
+                                        dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                }
+                            } catch (e) { }
+
+                            let statusBadge = `<span class="badge bg-secondary">${item.status}</span>`;
+                            if (item.status === 'Scheduled') statusBadge = `<span class="badge bg-warning text-dark">Scheduled</span>`;
+                            else if (item.status === 'Checked In') statusBadge = `<span class="badge bg-info text-dark">Checked In</span>`;
+                            else if (item.status === 'Completed') statusBadge = `<span class="badge bg-success">Completed</span>`;
+
+                            let weddingDateStr = item.wedding_date ? item.wedding_date.split(' ')[0] : 'N/A';
+                            let stylistStr = item.stylist_name || 'Unassigned';
+
+                            html += `
+                            <tr>
+                                <td class="ps-3">${timeStr}</td>
+                                <td><strong>${item.customer_name}</strong><br><small class="text-muted">Wedding: ${weddingDateStr}</small></td>
+                                <td>${item.service_name}</td>
+                                <td>${stylistStr}</td>
+                                <td>${statusBadge}</td>
+                            </tr>
+                        `;
+                        });
+                        scheduleTbody.innerHTML = html;
+                    })
+                    .catch(err => {
+                        scheduleTbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">Network error loading schedule.</td></tr>`;
+                    });
+            });
+        });
+    });
+</script>
 
 {% endblock %}

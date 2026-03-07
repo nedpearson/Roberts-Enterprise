@@ -1,4 +1,3 @@
-import sqlite3
 
 class DrilldownEngine:
     """
@@ -42,7 +41,7 @@ class DrilldownEngine:
                 'params': lambda ctx: [ctx.get('company_id')],
                 'columns': ["Date", "Customer", "Order", "Status"],
                 # We hide fields starting with _ but use them for linking
-                'drill_links': {'id': 'pickup', '_order_id': 'order'}
+                'drill_links': {'id': 'pickup', '_order_id': 'url:/orders/'}
             },
             'outstanding_balances': {
                 'title': 'Outstanding Balances',
@@ -59,7 +58,7 @@ class DrilldownEngine:
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
                 'columns': ["Customer", "Total", "Balance Due", "Status"],
-                'drill_links': {'id': 'order'}
+                'drill_links': {'id': 'url:/orders/'}
             },
             'awaiting_receiving': {
                 'title': 'Awaiting Receiving',
@@ -90,7 +89,7 @@ class DrilldownEngine:
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
                 'columns': ["Customer", "Status", "Total", "Date"],
-                'drill_links': {'id': 'order'}
+                'drill_links': {'id': 'url:/orders/'}
             },
             'collected_revenue': {
                 'title': 'Revenue Ledger',
@@ -106,7 +105,7 @@ class DrilldownEngine:
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
                 'columns': ["Date", "Customer", "Type", "Method", "Amount"],
-                'drill_links': {'_order_id': 'order'} 
+                'drill_links': {'_order_id': 'url:/orders/'} 
             },
             'accounts_receivable': {
                 'title': 'Accounts Receivable',
@@ -123,7 +122,7 @@ class DrilldownEngine:
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
                 'columns': ["Customer", "Total", "Balance Due", "Status"],
-                'drill_links': {'id': 'order'}
+                'drill_links': {'id': 'url:/orders/'}
             },
 
             # --- CRM Specific Drilldowns ---
@@ -156,7 +155,7 @@ class DrilldownEngine:
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Date", "Status", "Subtotal", "Tax", "Total"],
-                'drill_links': {'id': 'order'}
+                'drill_links': {'id': 'url:/orders/'}
             },
 
             # --- Inventory KPI Drilldowns ---
@@ -370,7 +369,7 @@ class DrilldownEngine:
                     ctx.get('company_id')
                 ],
                 'columns': ["Customer", "Total", "Status"],
-                'drill_links': {'id': 'order'}
+                'drill_links': {'id': 'url:/orders/'}
             },
 
             # 4. DEPOSITS AND PAYMENTS
@@ -441,7 +440,7 @@ class DrilldownEngine:
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Tx ID", "Type", "Method", "Amount", "Timestamp", "Customer", "Processed By", "Reference"],
-                'drill_links': {'_order_id': 'order'}
+                'drill_links': {'_order_id': 'url:/orders/'}
             },
 
             # 5. PICKUP OPERATIONS
@@ -470,7 +469,7 @@ class DrilldownEngine:
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Customer", "Order", "Status", "Balance Due"],
-                'drill_links': {'id': 'pickup', '_order_id': 'order'}
+                'drill_links': {'id': 'pickup', '_order_id': 'url:/orders/'}
             },
 
             # 6. ALTERATIONS AND FITTINGS
@@ -703,7 +702,7 @@ class DrilldownEngine:
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('id'), ctx.get('id')], # ID is Variant ID
                 'columns': ["Date", "Event Type", "Quantity Change", "Reference"],
-                'drill_links': {'_po_id': 'po', '_order_id': 'order', '_customer_id': 'customer'}
+                'drill_links': {'_po_id': 'po', '_order_id': 'url:/orders/', '_customer_id': 'customer'}
             },
 
             # --- Low & Out of Stock ---

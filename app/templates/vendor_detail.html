@@ -101,7 +101,18 @@
                                 <td>{{ po.expected_delivery.split(' ')[0] if po.expected_delivery else 'TBD' }}</td>
                                 <td class="text-light">${{ "{:,.2f}".format(po.total_cost) }}</td>
                                 <td class="text-end pe-4">
-                                    <button class="btn btn-sm btn-outline-light">Receive</button>
+                                    {% if po.status in ['Submitted', 'Partially_Received'] %}
+                                    <form action="{{ url_for('purchasing.receive_po', id=po.id) }}" method="POST"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-info me-1"
+                                            title="Receive PO">
+                                            <i class="bi bi-box-arrow-in-down"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    <button class="btn btn-sm btn-outline-light global-drilldown"
+                                        data-drilldown-url="/api/v2/drilldown/po?id={{ po.id }}"
+                                        data-title="PO Details">Details</button>
                                 </td>
                             </tr>
                             {% else %}

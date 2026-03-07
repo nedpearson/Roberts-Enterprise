@@ -75,65 +75,12 @@
     </style>
 
     <!-- Dynamic Theme Injection -->
-    {% if active_company %}
+    {% if active_company and dynamic_css %}
     <style>
-        :root {
-            --theme-color: {
-                    {
-                    active_company.primary_color
-                }
+        {
+                {
+                dynamic_css | safe
             }
-
-            ;
-
-            --theme-bg: {
-                    {
-                    '#121212' if active_company.theme_bg=='dark' else '#f8f9fa'
-                }
-            }
-
-            ;
-
-            --sidebar-bg: {
-                    {
-                    '#1e1e1e' if active_company.theme_bg=='dark' else '#ffffff'
-                }
-            }
-
-            ;
-
-            --card-bg: {
-                    {
-                    '#1e1e1e' if active_company.theme_bg=='dark' else '#ffffff'
-                }
-            }
-
-            ;
-
-            --text-color: {
-                    {
-                    '#e0e0e0' if active_company.theme_bg=='dark' else '#212529'
-                }
-            }
-
-            ;
-        }
-
-        body {
-            background-color: var(--theme-bg);
-            color: var(--text-color);
-        }
-
-        .sidebar {
-            background-color: var(--sidebar-bg);
-        }
-
-        .card {
-            background-color: var(--card-bg);
-        }
-
-        .table {
-            color: var(--text-color);
         }
     </style>
     {% endif %}
@@ -213,6 +160,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('alterations') %}active{% endif %}"
+                                href="{{ url_for('alterations.alterations_board') }}">
+                                <i class="bi bi-scissors me-2"></i> Alterations
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {% if request.endpoint and request.endpoint.startswith('customers') %}active{% endif %}"
                                 href="{{ url_for('customers.customer_list') }}">
                                 <i class="bi bi-people me-2"></i> Customers
@@ -234,6 +187,12 @@
                             <a class="nav-link {% if request.endpoint and request.endpoint.startswith('inventory') %}active{% endif %}"
                                 href="{{ url_for('inventory.catalog') }}">
                                 <i class="bi bi-box me-2"></i> Inventory & Products
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('transfers') %}active{% endif %}"
+                                href="{{ url_for('transfers.dashboard') }}">
+                                <i class="bi bi-truck me-2"></i> Transfers
                             </a>
                         </li>
                     </ul>
@@ -261,6 +220,12 @@
                                 <i class="bi bi-person-badge me-2"></i> Staff & Locations
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('communications') %}active{% endif %}"
+                                href="{{ url_for('communications.log_view') }}">
+                                <i class="bi bi-megaphone me-2"></i> Communications
+                            </a>
+                        </li>
                         <li class="nav-item mt-3">
                             <a class="nav-link {% if request.endpoint and request.endpoint.startswith('reports') %}active{% endif %}"
                                 href="{{ url_for('reports.overview') }}">
@@ -276,6 +241,27 @@
 
                     <div class="mt-auto p-3 position-absolute bottom-0 w-100 border-top mt-5"
                         style="border-color: #333 !important;">
+
+                        <!-- Time Clock Widget -->
+                        <div class="mb-3 px-1">
+                            {% if is_clocked_in %}
+                            <form action="{{ url_for('payroll.clock_out') }}" method="POST" class="d-grid">
+                                <button type="submit"
+                                    class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center border-opacity-50">
+                                    <i class="bi bi-stop-circle me-2"></i> Clock Out
+                                </button>
+                            </form>
+                            {% else %}
+                            <form action="{{ url_for('payroll.clock_in') }}" method="POST" class="d-grid">
+                                <button type="submit"
+                                    class="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center border-opacity-50">
+                                    <i class="bi bi-play-circle me-2"></i> Clock In
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+
+                        <!-- User Profile -->
                         <div class="d-flex align-items-center">
                             <div class="ms-2">
                                 <strong class="d-block">{{ session.get('name') }}</strong>
@@ -416,10 +402,18 @@
                     // We check if any of the keys in drill_links exist in this row's data
                     let rowLinkUrl = null;
                     let rowLinkTitle = 'Details';
+                    let isExternalUrl = false;
                     for (const [key, metricType] of Object.entries(drillLinks)) {
                         if (row[key] !== undefined && row[key] !== null) {
-                            rowLinkUrl = `/api/v2/drilldown/${metricType}?id=${row[key]}`;
-                            rowLinkTitle = `${metricType} Details`;
+                            if (metricType.startsWith('url:')) {
+                                rowLinkUrl = `${metricType.substring(4)}${row[key]}`;
+                                rowLinkTitle = 'View Details';
+                                isExternalUrl = true;
+                            } else {
+                                rowLinkUrl = `/api/v2/drilldown/${metricType}?id=${row[key]}`;
+                                rowLinkTitle = `${metricType} Details`;
+                                isExternalUrl = false;
+                            }
                             break; // just take the first matched drill path for now
                         }
                     }
@@ -444,7 +438,11 @@
 
                         // If this is the first column and we have a drill link, make it clickable
                         if (index === 0 && rowLinkUrl) {
-                            td.innerHTML = `<a href="#" class="text-decoration-none theme-text fw-bold nested-drill-link" data-url="${rowLinkUrl}" data-title="${rowLinkTitle}">${cellVal}</a>`;
+                            if (isExternalUrl) {
+                                td.innerHTML = `<a href="${rowLinkUrl}" class="text-decoration-none text-info fw-bold">${cellVal} <i class="bi bi-box-arrow-up-right ms-1" style="font-size:0.75rem;"></i></a>`;
+                            } else {
+                                td.innerHTML = `<a href="#" class="text-decoration-none theme-text fw-bold nested-drill-link" data-url="${rowLinkUrl}" data-title="${rowLinkTitle}">${cellVal}</a>`;
+                            }
                         } else {
                             td.innerHTML = cellVal;
                         }
@@ -500,25 +498,7 @@
                     return;
                 }
 
-                // 3. Check for generic administrator/creation buttons for Demo Alert
-                const btnTarget = e.target.closest('button, .btn');
-                if (btnTarget) {
-                    // Skip if it's inside a form, explicitly toggles a modal, or is a real link
-                    if (!btnTarget.closest('form') && !btnTarget.hasAttribute('data-bs-toggle') && !btnTarget.hasAttribute('data-bs-dismiss')) {
-                        if (!(btnTarget.tagName === 'A' && btnTarget.getAttribute('href') && btnTarget.getAttribute('href') !== '#')) {
-                            const text = btnTarget.textContent.trim().toLowerCase();
-                            if (text.startsWith('add ') || text.includes(' add ') ||
-                                text.startsWith('new ') || text.includes(' new ') ||
-                                text.includes('submit ') || text.includes('schedule ') ||
-                                text.includes('book ')) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                alert(`Administrative Action Locked:\n\nThe '${btnTarget.textContent.trim()}' feature is disabled in this shared demonstration environment.`);
-                                return;
-                            }
-                        }
-                    }
-                }
+
             });
         });
 

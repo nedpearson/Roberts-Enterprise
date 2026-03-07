@@ -1,7 +1,4 @@
 import sqlite3
-import datetime
-import json
-import hashlib
 from flask import g
 
 DATABASE = 'bridal_beyond.db'
@@ -62,6 +59,11 @@ def init_db():
             last_name TEXT NOT NULL,
             active BOOLEAN DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            commission_type TEXT DEFAULT 'NONE',
+            commission_rate REAL DEFAULT 0.0,
+            commission_locations TEXT,
+            hourly_wage REAL DEFAULT 0.0,
+            bonus REAL DEFAULT 0.0,
             FOREIGN KEY(company_id) REFERENCES companies(id),
             FOREIGN KEY(location_id) REFERENCES locations(id)
         )
@@ -98,6 +100,68 @@ def init_db():
             buffer_minutes INTEGER DEFAULT 0,
             active BOOLEAN DEFAULT 1,
             FOREIGN KEY(company_id) REFERENCES companies(id)
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS alterations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id INTEGER,
+            location_id INTEGER,
+            customer_id INTEGER NOT NULL,
+            item_description TEXT NOT NULL,
+            status TEXT DEFAULT 'Awaiting 1st Fitting', -- Awaiting 1st Fitting, Pinned, Sewing, Steaming, Ready for Pickup, Delivered
+            due_date TIMESTAMP,
+            assigned_seamstress_id INTEGER,
+            notes TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(company_id) REFERENCES companies(id),
+            FOREIGN KEY(location_id) REFERENCES locations(id),
+            FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE,
+            FOREIGN KEY(assigned_seamstress_id) REFERENCES users(id)
+        )
+    ''')
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS customer_measurements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_id INTEGER UNIQUE NOT NULL,
+            bust REAL DEFAULT 0.0,
+            waist REAL DEFAULT 0.0,
+            hips REAL DEFAULT 0.0,
+            hollow_to_hem REAL DEFAULT 0.0,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS designer_size_charts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            vendor_id INTEGER NOT NULL,
+            size_label TEXT NOT NULL,
+            bust REAL NOT NULL,
+            waist REAL NOT NULL,
+            hips REAL NOT NULL,
+            FOREIGN KEY(vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
+        )
+    ''')
+    
+    # ==========================================
+    # COMMUNICATIONS & NOTIFICATIONS
+    # ==========================================
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS communication_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id INTEGER NOT NULL,
+            customer_id INTEGER NOT NULL,
+            type TEXT NOT NULL, -- SMS, Email
+            subject TEXT,
+            message_body TEXT NOT NULL,
+            status TEXT DEFAULT 'Sent', -- Sent, Failed
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(company_id) REFERENCES companies(id),
+            FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
         )
     ''')
 
@@ -164,6 +228,7 @@ def init_db():
             portal_url TEXT,
             notes TEXT,
             active BOOLEAN DEFAULT 1,
+            lead_time_weeks INTEGER DEFAULT 16,
             FOREIGN KEY(company_id) REFERENCES companies(id)
         )
     ''')
@@ -236,6 +301,52 @@ def init_db():
             qty_received INTEGER DEFAULT 0,
             unit_cost REAL NOT NULL,
             FOREIGN KEY(purchase_order_id) REFERENCES purchase_orders(id) ON DELETE CASCADE,
+            FOREIGN KEY(product_variant_id) REFERENCES product_variants(id)
+        )
+    ''')
+
+    # ==========================================
+    # INTER-STORE TRANSFERS
+    # ==========================================
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS location_inventory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            location_id INTEGER NOT NULL,
+            product_variant_id INTEGER NOT NULL,
+            qty_on_hand INTEGER DEFAULT 0,
+            FOREIGN KEY(location_id) REFERENCES locations(id),
+            FOREIGN KEY(product_variant_id) REFERENCES product_variants(id),
+            UNIQUE(location_id, product_variant_id)
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS transfers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id INTEGER NOT NULL,
+            from_location_id INTEGER NOT NULL,
+            to_location_id INTEGER NOT NULL,
+            status TEXT DEFAULT 'In_Transit', -- In_Transit, Received, Cancelled
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_by INTEGER,
+            received_at TIMESTAMP,
+            received_by INTEGER,
+            notes TEXT,
+            FOREIGN KEY(company_id) REFERENCES companies(id),
+            FOREIGN KEY(from_location_id) REFERENCES locations(id),
+            FOREIGN KEY(to_location_id) REFERENCES locations(id),
+            FOREIGN KEY(created_by) REFERENCES users(id),
+            FOREIGN KEY(received_by) REFERENCES users(id)
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS transfer_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            transfer_id INTEGER NOT NULL,
+            product_variant_id INTEGER NOT NULL,
+            qty INTEGER NOT NULL,
+            FOREIGN KEY(transfer_id) REFERENCES transfers(id) ON DELETE CASCADE,
             FOREIGN KEY(product_variant_id) REFERENCES product_variants(id)
         )
     ''')
@@ -321,6 +432,7 @@ def init_db():
             clock_out TIMESTAMP,
             total_hours REAL,
             approved BOOLEAN DEFAULT 0,
+            status TEXT DEFAULT 'Unpaid', -- Unpaid, Paid
             notes TEXT,
             FOREIGN KEY(user_id) REFERENCES users(id),
             FOREIGN KEY(location_id) REFERENCES locations(id)
@@ -331,12 +443,34 @@ def init_db():
         CREATE TABLE IF NOT EXISTS commissions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
-            order_id INTEGER NOT NULL,
+            order_id INTEGER,
+            description TEXT,
             amount REAL NOT NULL,
             status TEXT DEFAULT 'Pending', -- Pending, Paid, Reversed
             earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(user_id) REFERENCES users(id),
             FOREIGN KEY(order_id) REFERENCES orders(id)
+        )
+    ''')
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS paystubs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id INTEGER,
+            user_id INTEGER NOT NULL,
+            period_start DATE,
+            period_end DATE,
+            total_hours REAL DEFAULT 0.0,
+            hourly_rate REAL DEFAULT 0.0,
+            base_pay REAL DEFAULT 0.0,
+            commission_pay REAL DEFAULT 0.0,
+            bonus_pay REAL DEFAULT 0.0,
+            total_pay REAL DEFAULT 0.0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_by INTEGER,
+            FOREIGN KEY(company_id) REFERENCES companies(id),
+            FOREIGN KEY(user_id) REFERENCES users(id),
+            FOREIGN KEY(created_by) REFERENCES users(id)
         )
     ''')
 
@@ -372,6 +506,24 @@ def init_db():
             checklist_status BOOLEAN DEFAULT 0,
             FOREIGN KEY(pickup_id) REFERENCES pickups(id) ON DELETE CASCADE,
             FOREIGN KEY(order_item_id) REFERENCES order_items(id)
+        )
+    ''')
+
+    # ==========================================
+    # SHIFTS & SCHEDULING
+    # ==========================================
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS shifts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id INTEGER NOT NULL,
+            location_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            start_time TIMESTAMP NOT NULL,
+            end_time TIMESTAMP NOT NULL,
+            notes TEXT,
+            FOREIGN KEY(company_id) REFERENCES companies(id),
+            FOREIGN KEY(location_id) REFERENCES locations(id),
+            FOREIGN KEY(user_id) REFERENCES users(id)
         )
     ''')
 

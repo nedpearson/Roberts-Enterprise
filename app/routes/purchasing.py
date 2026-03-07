@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, redirect, url_for, flash, session, request
 from database import get_db
+from services.communications import send_arrival_notification
 
 bp = Blueprint('purchasing', __name__, url_prefix='/purchasing')
 
@@ -118,3 +119,53 @@ def vendor_detail(id):
     pos = cursor.fetchall()
     
     return render_template('vendor_detail.html', vendor=vendor, pos=pos)
+
+@bp.route('/po/<int:id>/receive', methods=['POST'])
+def receive_po(id):
+    if 'user_id' not in session: return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    company_id = session.get('company_id')
+    
+    # Simple validation that the PO exists and belongs to the active tenant
+    cursor.execute('''
+        SELECT po.id, po.vendor_id, v.company_id
+        FROM purchase_orders po
+        JOIN vendors v ON po.vendor_id = v.id
+        WHERE po.id = ? AND v.company_id = ?
+    ''', (id, company_id))
+    
+    if not cursor.fetchone():
+        flash("PO not found or unauthorized.", "error")
+        return redirect(url_for('purchasing.vendor_list'))
+        
+    # Mark PO as Received
+    cursor.execute("UPDATE purchase_orders SET status = 'Received' WHERE id = ?", (id,))
+    
+    # 1. Fetch all items on this PO
+    cursor.execute('''
+        SELECT poi.product_variant_id, p.name as product_name
+        FROM purchase_order_items poi
+        JOIN product_variants pv ON poi.product_variant_id = pv.id
+        JOIN products p ON pv.product_id = p.id
+        WHERE poi.purchase_order_id = ?
+    ''', (id,))
+    po_items = cursor.fetchall()
+    
+    # 2. Cross-reference reservations to see if these incoming variants are earmarked for a Bride.
+    for item in po_items:
+        cursor.execute('''
+            SELECT customer_id 
+            FROM reservations 
+            WHERE product_variant_id = ? AND status IN ('Held', 'Confirmed')
+        ''', (item['product_variant_id'],))
+        reservations = cursor.fetchall()
+        
+        # 3. Fire Webhook
+        for res in reservations:
+            send_arrival_notification(company_id=company_id, customer_id=res['customer_id'], product_name=item['product_name'])
+            
+    conn.commit()
+    flash(f"Purchase Order #{id:04d} successfully received. Arrival notifications have been dispatched to the relevant brides.", "success")
+    return redirect(url_for('purchasing.vendor_list'))

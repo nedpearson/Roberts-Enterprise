@@ -19,6 +19,9 @@ from routes.orders import bp as orders_bp
 from routes.pickups import bp as pickups_bp
 from routes.reports import bp as reports_bp
 from routes.staff import bp as staff_bp
+from routes.transfers import bp as transfers_bp
+from routes.alterations import bp as alterations_bp
+from routes.communications import bp as communications_bp
 
 app.register_blueprint(customers_bp)
 app.register_blueprint(appointments_bp)
@@ -29,6 +32,9 @@ app.register_blueprint(orders_bp)
 app.register_blueprint(pickups_bp)
 app.register_blueprint(reports_bp)
 app.register_blueprint(staff_bp)
+app.register_blueprint(transfers_bp)
+app.register_blueprint(alterations_bp)
+app.register_blueprint(communications_bp)
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -60,6 +66,11 @@ def inject_company_context():
         cursor.execute("SELECT * FROM companies WHERE id = ?", (session['company_id'],))
         company = cursor.fetchone()
         
+        # Check if the active user is clocked in
+        if 'user_id' in session:
+            cursor.execute("SELECT id FROM time_entries WHERE user_id = ? AND clock_out IS NULL LIMIT 1", (session['user_id'],))
+            is_clocked_in = cursor.fetchone() is not None
+        
         # Load locations for this company
         cursor.execute("SELECT * FROM locations WHERE company_id = ? AND active = 1 ORDER BY name ASC", (session['company_id'],))
         locations = cursor.fetchall()
@@ -71,14 +82,75 @@ def inject_company_context():
             active_location = cursor.fetchone()
     
     if company:
+        # Pre-compile the dynamic CSS explicitly in Python to protect Jinja from aggressive IDE auto-formatters breaking the templates
+        theme_bg_type = company['theme_bg'] if company['theme_bg'] else 'dark'
+        primary = company['primary_color'] if company['primary_color'] else '#aa8c66'
+        
+        # Default Dark configuration
+        t_bg, s_bg, c_bg, ch_bg = '#121212', '#1e1e1e', '#1e1e1e', '#252525'
+        t_col, s_txt, s_hvr, b_col = '#e0e0e0', '#aaaaaa', '#2d2d2d', '#333333'
+        k_bg, muted = 'linear-gradient(145deg, #2a2a2a, #1e1e1e)', 'inherit'
+        
+        if theme_bg_type == 'custom_proper':
+            t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#000000', '#ffffff', '#f8f9fa'
+            t_col, s_txt, s_hvr, b_col = '#000000', '#ffffff', '#222222', '#e0e0e0'
+            k_bg, muted = '#f8f9fa', '#888888'
+        elif theme_bg_type == 'custom_idc':
+            t_bg, s_bg, c_bg, ch_bg = '#f4f4f4', '#6e6e6e', '#ffffff', '#ffffff'
+            t_col, s_txt, s_hvr, b_col = '#212529', '#ffffff', 'rgba(255,255,255,0.1)', '#e0e0e0'
+            k_bg, muted = '#ffffff', '#888888'
+        elif theme_bg_type != 'dark':
+            t_bg, s_bg, c_bg, ch_bg = '#f8f9fa', '#ffffff', '#ffffff', '#f8f9fa'
+            t_col, s_txt, s_hvr, b_col = '#212529', '#444444', '#f0f0f0', '#dee2e6'
+
+        dynamic_css = f"""
+        :root {{
+            --theme-color: {primary};
+            --theme-bg: {t_bg};
+            --sidebar-bg: {s_bg};
+            --card-bg: {c_bg};
+            --card-header-bg: {ch_bg};
+            --text-color: {t_col};
+            --sidebar-text: {s_txt};
+            --sidebar-hover-bg: {s_hvr};
+            --border-color: {b_col};
+            --kpi-bg: {k_bg};
+        }}
+        body {{ background-color: var(--theme-bg); color: var(--text-color); }}
+        .sidebar {{ background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); }}
+        .card {{ background-color: var(--card-bg); border-color: var(--border-color); }}
+        .card-header {{ background-color: var(--card-header-bg); border-bottom-color: var(--border-color); }}
+        .table {{ color: var(--text-color); }}
+        .table-dark {{ --bs-table-bg: var(--card-bg) !important; --bs-table-color: var(--text-color) !important; --bs-table-border-color: var(--border-color) !important; }}
+        .nav-link {{ color: var(--sidebar-text); }}
+        .nav-link:hover, .nav-link.active {{ background-color: var(--sidebar-hover-bg); color: #ffffff; }}
+        .text-muted {{ color: {muted} !important; }}
+        .border-bottom {{ border-color: var(--border-color) !important; }}
+        
+        /* Overrides to map hardcoded dark classes */
+        .text-light, .text-white {{ color: var(--text-color) !important; }}
+        .bg-dark, .bg-secondary {{ background-color: var(--card-bg) !important; }}
+        .border-secondary {{ border-color: var(--border-color) !important; }}
+        .modal-content, .offcanvas {{ background-color: var(--card-bg) !important; color: var(--text-color) !important; border-color: var(--border-color) !important; }}
+        .form-control, .form-select, .form-control:focus, .form-select:focus {{
+            background-color: var(--card-bg) !important;
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }}
+        .btn-outline-light {{ color: var(--text-color) !important; border-color: var(--border-color) !important; }}
+        .btn-outline-light:hover {{ background-color: var(--sidebar-hover-bg) !important; color: var(--text-color) !important; }}
+        """
+
         return dict(
             active_company=company,
             all_companies=all_companies,
             companies=all_companies, # Provide fallback naming
             locations=locations,
             active_location=active_location,
-            theme_color=company['primary_color'],
-            theme_bg=company['theme_bg']
+            theme_color=primary,
+            theme_bg=theme_bg_type,
+            dynamic_css=dynamic_css,
+            is_clocked_in=locals().get('is_clocked_in', False)
         )
     return dict(
         active_company=None,
@@ -87,7 +159,8 @@ def inject_company_context():
         locations=locations,
         active_location=None,
         theme_color="#aa8c66", 
-        theme_bg="dark"
+        theme_bg="dark",
+        is_clocked_in=False
     )
 
 @app.route('/')
@@ -218,6 +291,42 @@ def dashboard():
                           outstanding=outstanding,
                           po_count=po_count,
                           schedule=schedule)
+
+@app.route('/api/dashboard/schedule_view')
+def dashboard_schedule_view():
+    if 'user_id' not in session:
+        return {"error": "Unauthorized"}, 401
+        
+    range_val = request.args.get('range', 'day')
+    
+    from database import get_db
+    conn = get_db()
+    cursor = conn.cursor()
+    company_id = session.get('company_id')
+    location_id = session.get('location_id', 0)
+    
+    if range_val == 'week':
+        date_filter = "DATE(a.start_at) BETWEEN DATE('now') AND DATE('now', '+6 days')"
+    elif range_val == 'month':
+        date_filter = "DATE(a.start_at) BETWEEN DATE('now') AND DATE('now', '+30 days')"
+    else: # day
+        date_filter = "DATE(a.start_at) = DATE('now')"
+        
+    query = f'''
+        SELECT a.start_at, c.first_name || ' ' || c.last_name as customer_name, 
+               s.name as service_name, u.first_name as stylist_name, a.status, c.wedding_date
+        FROM appointments a
+        JOIN customers c ON a.customer_id = c.id
+        JOIN services s ON a.service_id = s.id
+        LEFT JOIN users u ON a.assigned_staff_id = u.id
+        WHERE {{date_filter}} AND c.company_id = ? AND (a.location_id = ? OR ? = 0)
+        ORDER BY a.start_at ASC
+    '''.replace('{date_filter}', date_filter) # Safe string replacement since date_filter is hardcoded internally
+    
+    cursor.execute(query, (company_id, location_id, location_id))
+    schedule = [dict(row) for row in cursor.fetchall()]
+    
+    return {"schedule": schedule}
 
 @app.route('/api/dashboard/drilldown/<metric>')
 def dashboard_drilldown(metric):
@@ -358,7 +467,7 @@ def universal_drilldown(type, id):
             WHERE order_id = ?
             ORDER BY date ASC
         ''', (id,))
-        payments = [dict(row) for row in cursor.fetchall()]
+        [dict(row) for row in cursor.fetchall()]
         
         # Combine them intelligently or just return items. For simplicity and because we only support one table format easily:
         # We will return items here, but a dedicated modal could display both. 
@@ -402,4 +511,4 @@ def universal_drilldown(type, id):
     return {"error": "Invalid drilldown type"}, 400
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)

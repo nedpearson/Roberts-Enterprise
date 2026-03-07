@@ -42,7 +42,7 @@
     <div class="col-md-4">
         <div class="card shadow-sm border-0 h-100 global-drilldown"
             data-drilldown-url="/api/v2/drilldown/active_vendors" data-title="Active Vendors Directory"
-            style="background: linear-gradient(145deg, #1e1e1e, #181818); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #1e1e1e, #181818)); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
             onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='#aa8c66';"
             onmouseout="this.style.transform='none'; this.style.borderColor='transparent';">
             <div class="card-body">
@@ -60,7 +60,7 @@
     <div class="col-md-4">
         <div class="card shadow-sm border-0 h-100 global-drilldown"
             data-drilldown-url="/api/v2/drilldown/awaiting_receiving" data-title="Open Purchase Orders"
-            style="background: linear-gradient(145deg, #1e1e1e, #181818); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #1e1e1e, #181818)); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
             onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='#aa8c66';"
             onmouseout="this.style.transform='none'; this.style.borderColor='transparent';">
             <div class="card-body">
@@ -78,7 +78,7 @@
     <div class="col-md-4">
         <div class="card shadow-sm border-0 h-100 global-drilldown"
             data-drilldown-url="/api/v2/drilldown/expected_cost_detail" data-title="Expected Cost Detail"
-            style="background: linear-gradient(145deg, #1e1e1e, #181818); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #1e1e1e, #181818)); cursor: pointer; transition: transform 0.2s; border: 1px solid transparent;"
             onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='#dc3545';"
             onmouseout="this.style.transform='none'; this.style.borderColor='transparent';">
             <div class="card-body">
@@ -130,6 +130,15 @@
                                     {% endif %}
                                 </td>
                                 <td class="text-end pe-3">
+                                    {% if po.status in ['Submitted', 'Partially_Received'] %}
+                                    <form action="{{ url_for('purchasing.receive_po', id=po.id) }}" method="POST"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-info me-1"
+                                            title="Receive PO">
+                                            <i class="bi bi-box-arrow-in-down"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
                                     <button class="btn btn-sm btn-outline-light global-drilldown"
                                         data-drilldown-url="/api/v2/drilldown/po?id={{ po.id }}"
                                         data-title="PO Details">Details</button>
