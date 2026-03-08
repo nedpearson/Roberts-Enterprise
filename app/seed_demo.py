@@ -43,8 +43,8 @@ def seed_demo_data():
     cursor.execute("""
         INSERT INTO locations (company_id, name, address, phone, email, active)
         VALUES 
-        (%s, 'Downtown Flagship', '123 Main St, New York, NY 10001', '212-555-0100', 'downtown@robertsbridal.com', TRUE),
-        (%s, 'Uptown Boutique', '456 Elite Ave, New York, NY 10022', '212-555-0200', 'uptown@robertsbridal.com', TRUE)
+        (%s, 'Baton Rouge', 'Baton Rouge, LA', '212-555-0100', 'downtown@robertsbridal.com', TRUE),
+        (%s, 'Covington', 'Covington, LA', '212-555-0200', 'uptown@robertsbridal.com', TRUE)
         RETURNING id
     """, (company_id, company_id))
     loc1_id, loc2_id = [r[0] for r in cursor.fetchmany(2)]
@@ -68,6 +68,29 @@ def seed_demo_data():
         company_id, loc1_id, pw_hash
     ))
     owner_id, manager_id, stylist1_id, stylist2_id, seamstress_id = [r[0] for r in cursor.fetchmany(5)]
+
+    # 3.5 Proper & Co
+    cursor.execute("""
+        INSERT INTO companies (name, domain, logo_url, primary_color, theme_bg, active, stripe_secret_key, stripe_publishable_key, qb_client_id, qb_client_secret, qb_access_token, qb_refresh_token, qb_realm_id)
+        VALUES ('Proper & Co', 'properandco.com', 'https://proper.com/logo.png', '#aa8c66', 'custom_proper', TRUE, 'sk_test_123', 'pk_test_123', 'qb_client_123', 'qb_secret_123', 'qb_access_123', 'qb_refresh_123', 'realm_123')
+        RETURNING id
+    """)
+    proper_company_id = cursor.fetchone()[0]
+
+    cursor.execute("""
+        INSERT INTO locations (company_id, name, address, phone, email, active)
+        VALUES 
+        (%s, 'Baton Rouge', 'Baton Rouge, LA', '212-555-0100', 'br@properandco.com', TRUE),
+        (%s, 'Covington', 'Covington, LA', '212-555-0200', 'covington@properandco.com', TRUE)
+        RETURNING id
+    """, (proper_company_id, proper_company_id))
+    proper_loc1_id, proper_loc2_id = [r[0] for r in cursor.fetchmany(2)]
+
+    cursor.execute("""
+        INSERT INTO users (company_id, location_id, email, password_hash, role, first_name, last_name, commission_type, commission_rate, hourly_wage, bonus)
+        VALUES 
+        (%s, %s, 'ramsey@properandco.com', %s, 'Owner', 'Ramsey', 'Roberts', 'NONE', 0.0, 0.0, 5000.0)
+    """, (proper_company_id, proper_loc1_id, pw_hash))
 
     # 4. Services
     cursor.execute("""
