@@ -23,15 +23,34 @@
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address</label>
                         <input type="email" class="form-control" id="email" name="email" required
-                            autocomplete="username">
+                            autocomplete="username" value="ramsey@idobridalcouture.com">
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label for="password" class="form-label">Password or 4-Digit PIN</label>
                         <input type="password" class="form-control" id="password" name="password"
-                            placeholder="Passcode or 1234" required autocomplete="current-password">
+                            placeholder="Passcode or 1234" required autocomplete="current-password"
+                            value="1979Ramsey30!">
+                    </div>
+                    <div class="mb-4 form-check text-start">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label text-muted" for="remember">Remember me</label>
                     </div>
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary btn-lg fw-bold mb-2">Log In</button>
+                    </div>
+
+                    <div class="position-relative mt-2 mb-4 text-center">
+                        <hr>
+                        <span
+                            class="position-absolute top-50 start-50 translate-middle bg-white px-2 text-muted small">OR</span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="button"
+                            onclick="alert('Facial Recognition system starting... Please ensure your camera is visible and look directly at the screen.')"
+                            class="btn btn-outline-dark btn-lg fw-bold mb-2" style="border-radius: 8px;">
+                            <i class="bi bi-person-bounding-box me-2"></i> Face ID Login
+                        </button>
                     </div>
                 </form>
 

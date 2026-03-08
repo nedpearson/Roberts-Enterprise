@@ -223,6 +223,7 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+        remember = request.form.get('remember') == 'on'
         
         from database import get_db
         conn = get_db()
@@ -239,6 +240,8 @@ def login():
                 is_valid_pin = check_password_hash(user['pin_hash'], password)
                 
             if is_valid_password or is_valid_pin:
+                if remember:
+                    session.permanent = True
                 session['user_id'] = user['id']
                 session['company_id'] = user['company_id']
                 session['location_id'] = user['location_id']
