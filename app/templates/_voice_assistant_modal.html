@@ -152,6 +152,11 @@
                             confirmationPrompt = `Shall I look up this inventory item?`;
                         } else if (data.action_plan.intent === 'UPDATE_ORDER_STATUS') {
                             confirmationPrompt = `I'm ready to update the order status. Shall I proceed?`;
+                        } else if (data.action_plan.intent === 'TIME_CLOCK_ACTION') {
+                            const action = data.action_plan.parameters.action || 'in';
+                            confirmationPrompt = `I am ready to clock you ${action}. Shall I proceed?`;
+                        } else if (data.action_plan.intent === 'CREATE_REMINDER') {
+                            confirmationPrompt = `I've drafted your reminder. Shall I save it?`;
                         }
 
                         const planHtml = `

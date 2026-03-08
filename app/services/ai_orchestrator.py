@@ -69,6 +69,8 @@ class AIOperationalOrchestrator:
         - QUERY_DATABASE
         - INVENTORY_LOOKUP
         - UPDATE_ORDER_STATUS
+        - TIME_CLOCK_ACTION
+        - CREATE_REMINDER
         
         Extract these fields in JSON formatted exactly like:
         {{
@@ -86,7 +88,10 @@ class AIOperationalOrchestrator:
                    "duration_minutes": 60 // default 60 or guess
                }}, // for BOOK_APPOINTMENT / RESCHEDULE_APPOINTMENT
                "inventory_query": "size 10 ivory veils", // string of search keywords for INVENTORY_LOOKUP
-               "new_order_status": "Fulfilled" // Draft, Active, Fulfilled, Cancelled for UPDATE_ORDER_STATUS
+               "new_order_status": "Fulfilled", // Draft, Active, Fulfilled, Cancelled for UPDATE_ORDER_STATUS
+               "action": "in", // "in" or "out" for TIME_CLOCK_ACTION
+               "trigger_datetime": "YYYY-MM-DD HH:MM:00", // calculate from current time for CREATE_REMINDER
+               "task_notes": "call Jane to confirm alterations" // description for CREATE_REMINDER
             }}
         }}
         """
@@ -347,6 +352,53 @@ class AIOperationalOrchestrator:
                     )
                     response = {"status": "success", "message": ans_resp.choices[0].message.content}
                 
+            elif intent == 'TIME_CLOCK_ACTION':
+                action = params.get('action') # 'in' or 'out'
+                if action == 'in':
+                    # Check if already clocked in
+                    cursor.execute("SELECT id FROM time_entries WHERE user_id = %s AND clock_out IS NULL ORDER BY clock_in DESC LIMIT 1", (current_user_id,))
+                    if cursor.fetchone():
+                        response = {"status": "success", "message": "You are already clocked in."}
+                    else:
+                        cursor.execute("INSERT INTO time_entries (user_id, location_id, clock_in) VALUES (%s, %s, CURRENT_TIMESTAMP)", (current_user_id, 0))
+                        response = {"status": "success", "message": "You have been successfully clocked in."}
+                elif action == 'out':
+                    cursor.execute("SELECT id, clock_in FROM time_entries WHERE user_id = %s AND clock_out IS NULL ORDER BY clock_in DESC LIMIT 1", (current_user_id,))
+                    entry = cursor.fetchone()
+                    if not entry:
+                        response = {"status": "success", "message": "You are not currently clocked in."}
+                    else:
+                        cursor.execute("UPDATE time_entries SET clock_out = CURRENT_TIMESTAMP WHERE id = %s", (entry['id'],))
+                        
+                        # Use EXTRACT EPOCH for Postgres total hours calculation
+                        cursor.execute("UPDATE time_entries SET total_hours = EXTRACT(EPOCH FROM (clock_out - clock_in))/3600.0 WHERE id = %s", (entry['id'],))
+                        response = {"status": "success", "message": "You have been successfully clocked out."}
+                else:
+                    raise ValueError(f"Invalid clock action: {action}")
+                    
+            elif intent == 'CREATE_REMINDER':
+                trigger_dt = params.get('trigger_datetime')
+                task_notes = params.get('task_notes', 'Reminder')
+                
+                if not trigger_dt:
+                    raise ValueError("Could not determine when to trigger this reminder.")
+                    
+                target_entity_id = target_id if target_id else 0
+                
+                cursor.execute('''
+                    INSERT INTO reminders (type, reference_id, trigger_at, status) 
+                    VALUES (%s, %s, %s, 'Pending') RETURNING id
+                ''', ('Task', target_entity_id, trigger_dt))
+                rem_id = cursor.fetchone()['id']
+                
+                # Tie it to the notification queue for the current staff member
+                payload_data = json.dumps({"note": task_notes})
+                cursor.execute('''
+                    INSERT INTO notification_jobs (reminder_id, channel, recipient, payload)
+                    VALUES (%s, 'In-App', %s, %s)
+                ''', (rem_id, str(current_user_id), payload_data))
+                
+                response = {"status": "success", "message": f"Reminder created for {trigger_dt}."}
                 
             else:
                 response = {"status": "ignored", "message": "Intent recognized but handler not implemented."}
