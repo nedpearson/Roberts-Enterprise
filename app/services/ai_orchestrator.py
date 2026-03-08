@@ -73,6 +73,8 @@ class AIOperationalOrchestrator:
         - CREATE_REMINDER
         - NAVIGATE_PAGE
         - DRAFT_COMMUNICATION
+        - CHECK_SCHEDULE
+        - BROADCAST_MESSAGE
         
         Extract these fields in JSON formatted exactly like:
         {{
@@ -96,7 +98,9 @@ class AIOperationalOrchestrator:
                "task_notes": "call Jane to confirm alterations", // description for CREATE_REMINDER
                "navigation_target": "point of sale", // if intent is NAVIGATE_PAGE, put the general area they want to go to
                "communication_type": "Email", // "Email" or "SMS" for DRAFT_COMMUNICATION
-               "draft_body": "tell Jane her dress arrived" // instructions for DRAFT_COMMUNICATION
+               "draft_body": "tell Jane her dress arrived", // instructions for DRAFT_COMMUNICATION
+               "broadcast_message": "The boutique is closing in 10 minutes", // for BROADCAST_MESSAGE
+               "schedule_date": "YYYY-MM-DD" // The specific date they are inquiring about for CHECK_SCHEDULE (typically today)
             }}
         }}
         """
@@ -465,6 +469,55 @@ class AIOperationalOrchestrator:
                 ''', (company_id, target_id, comm_type, subj, final_body))
                 
                 response = {"status": "success", "message": f"I have drafted the {comm_type} for {cust['first_name']}."}
+                
+                response = {"status": "success", "message": f"I have drafted the {comm_type} for {cust['first_name']}."}
+                
+            elif intent == 'BROADCAST_MESSAGE':
+                msg = params.get('broadcast_message', '')
+                if not msg: raise ValueError("Empty broadcast message.")
+                
+                cursor.execute("SELECT first_name, last_name FROM users WHERE id = %s", (current_user_id,))
+                usr = cursor.fetchone()
+                sender = f"{usr['first_name']} {usr['last_name']}" if usr else "Operations"
+                
+                from flask import current_app
+                socketio = current_app.extensions.get('socketio')
+                if socketio:
+                    socketio.emit(f'global_broadcast_{company_id}', {
+                        'message': msg,
+                        'sender': sender
+                    })
+                    response = {"status": "success", "message": "Message broadcasted to all active screens."}
+                else:
+                    raise ValueError("SocketIO not running.")
+                    
+            elif intent == 'CHECK_SCHEDULE':
+                chk_date = params.get('schedule_date')
+                if not chk_date:
+                    from datetime import datetime
+                    chk_date = datetime.now().strftime("%Y-%m-%d")
+                    
+                cursor.execute('''
+                    SELECT a.start_at, a.end_at, s.name as service_name, c.first_name, c.last_name
+                    FROM appointments a
+                    JOIN services s ON a.service_id = s.id
+                    LEFT JOIN customers c ON a.customer_id = c.id
+                    WHERE a.assigned_staff_id = %s AND a.start_at::date = %s
+                    ORDER BY a.start_at ASC
+                ''', (current_user_id, chk_date))
+                
+                appts = cursor.fetchall()
+                if not appts:
+                    response = {"status": "success", "message": f"You have no scheduled appointments for {chk_date}."}
+                else:
+                    context_data = {"appointments": [dict(r) for r in appts], "date": chk_date}
+                    sys_msg = "You are a personal assistant. Review the user's appointments and summarize them in 2 or 3 natural spoken sentences. Highlight who they are meeting and when. Do not use markdown."
+                    ans_resp = self.client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[{"role": "system", "content": sys_msg}, {"role": "user", "content": json.dumps(context_data, default=str)}],
+                        temperature=0.0
+                    )
+                    response = {"status": "success", "message": ans_resp.choices[0].message.content}
                 
             else:
                 response = {"status": "ignored", "message": "Intent recognized but handler not implemented."}

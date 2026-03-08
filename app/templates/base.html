@@ -641,6 +641,37 @@
             });
         }
 
+        // Listen for Global Broadcasts
+        socket.on(`global_broadcast_${window.CURRENT_COMPANY_ID}`, function (data) {
+            const toastContainer = document.getElementById('toastContainer');
+            if (toastContainer) {
+                const toastId = 'toast' + Date.now();
+                const toastHtml = `
+                <div id="${toastId}" class="toast border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="15000">
+                  <div class="toast-header" style="background-color: var(--kpi-bg, #1e1e1e); color: #aa8c66; border-bottom: 1px solid #333;">
+                    <i class="bi bi-broadcast me-2 fs-5 text-danger"></i>
+                    <strong class="me-auto text-uppercase" style="letter-spacing: 0.05em;">System Broadcast</strong>
+                    <small class="text-muted">from ${data.sender}</small>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                  </div>
+                  <div class="toast-body fw-bold" style="background-color: var(--card-bg); color: var(--text-color); font-size: 1.05rem;">
+                    ${data.message}
+                  </div>
+                </div>
+                `;
+                toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+                const newToast = new bootstrap.Toast(document.getElementById(toastId));
+                newToast.show();
+
+                if ('speechSynthesis' in window) {
+                    setTimeout(() => {
+                        const u = new SpeechSynthesisUtterance("Attention, Broadcast from " + data.sender + ". " + data.message);
+                        window.speechSynthesis.speak(u);
+                    }, 500);
+                }
+            }
+        });
+
         // Alert Badge Polling Engine
         function updateGlobalAlertBadge() {
             fetch('/api/team_comm/alerts/count')
@@ -664,6 +695,9 @@
             setInterval(updateGlobalAlertBadge, 30000);
         }
     </script>
+
+    <!-- Global Broadcast Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 2000;" id="toastContainer"></div>
 
     {% include "_voice_assistant_modal.html" %}
     {% block extra_js %}{% endblock %}

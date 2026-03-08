@@ -161,6 +161,10 @@
                             confirmationPrompt = `I will take you there now. Shall I proceed?`;
                         } else if (data.action_plan.intent === 'DRAFT_COMMUNICATION') {
                             confirmationPrompt = `I've prepared the ${data.action_plan.parameters.communication_type || 'message'}. Shall I save it to draft logs?`;
+                        } else if (data.action_plan.intent === 'CHECK_SCHEDULE') {
+                            confirmationPrompt = `Shall I retrieve your schedule?`;
+                        } else if (data.action_plan.intent === 'BROADCAST_MESSAGE') {
+                            confirmationPrompt = `I am ready to broadcast this system-wide. Shall I send it?`;
                         }
 
                         const planHtml = `
@@ -199,10 +203,15 @@
                 .then(data => {
                     if (data.status === 'success') {
                         this.speakText(data.message);
-                        if (this.currentActionPlan.intent === 'QUERY_DATABASE' || this.currentActionPlan.intent === 'INVENTORY_LOOKUP') {
+                        if (this.currentActionPlan.intent === 'QUERY_DATABASE' || this.currentActionPlan.intent === 'INVENTORY_LOOKUP' || this.currentActionPlan.intent === 'CHECK_SCHEDULE') {
                             // Show the answer instead of reloading
                             document.getElementById('voiceActionPlan').innerHTML = `
                                 <div class="alert alert-success py-2 mb-0"><strong><i class="bi bi-robot"></i> Answer:</strong> ${data.message}</div>
+                            `;
+                            document.getElementById('voiceConfirmBtn').innerText = "Done";
+                        } else if (this.currentActionPlan.intent === 'BROADCAST_MESSAGE') {
+                            document.getElementById('voiceActionPlan').innerHTML = `
+                                <div class="alert alert-success py-2 mb-0"><strong><i class="bi bi-broadcast"></i> Sent:</strong> ${data.message}</div>
                             `;
                             document.getElementById('voiceConfirmBtn').innerText = "Done";
                         } else if (data.redirect_url) {
