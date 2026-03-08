@@ -250,7 +250,7 @@ def login():
                     session.permanent = True
                 session['user_id'] = user['id']
                 session['company_id'] = user['company_id']
-                session['location_id'] = user['location_id']
+                session['location_id'] = 0 if user['role'] == 'Owner' else user['location_id']
                 session['role'] = user['role']
                 session['name'] = f"{user['first_name']} {user['last_name']}"
                 
@@ -277,7 +277,7 @@ def demo_login():
     if demo_user:
         session['user_id'] = demo_user['id']
         session['company_id'] = demo_user['company_id']
-        session['location_id'] = demo_user['location_id']
+        session['location_id'] = 0 if demo_user['role'] == 'Owner' else demo_user['location_id']
         session['role'] = demo_user['role']
         session['name'] = f"{demo_user['first_name']} {demo_user['last_name']} (Demo)"
         session['is_demo'] = True
