@@ -626,7 +626,8 @@
     <!-- Real-Time Socket.IO Client -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
     <script>
-        const socket = io(); // Connects to the same domain automatically
+        const socket = io({ transports: ['websocket'] }); // Forces websocket first to bypass Gunicorn worker drops
+        window.socket = socket;
         // We will make the company_id globally accessible
         window.CURRENT_COMPANY_ID = "{{ g.company_id if g.company_id else 'null' }}";
 

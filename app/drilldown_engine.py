@@ -47,8 +47,8 @@ class DrilldownEngine:
                 'title': 'Outstanding Balances',
                 'query': '''
                     SELECT o.id, c.first_name || ' ' || c.last_name as "Customer",
-                           "$" || printf("%.2f", o.total) as "Total",
-                           "$" || printf("%.2f", o.total - COALESCE((SELECT SUM(amount) FROM payment_ledger WHERE order_id = o.id AND type != 'Refund'), 0)) as "Balance Due",
+                           TO_CHAR(o.total, 'FM$999,999,990.00') as "Total",
+                           TO_CHAR(o.total - COALESCE((SELECT SUM(amount) FROM payment_ledger WHERE order_id = o.id AND type != 'Refund'), 0), 'FM$999,999,990.00') as "Balance Due",
                            o.status as "Status"
                     FROM orders o
                     JOIN customers c ON o.customer_id = c.id
@@ -80,7 +80,7 @@ class DrilldownEngine:
                 'title': 'Active Orders Detail',
                 'query': '''
                     SELECT o.id, c.first_name || ' ' || c.last_name as "Customer",
-                           o.status as "Status", "$" || printf("%.2f", o.total) as "Total",
+                           o.status as "Status", TO_CHAR(o.total, 'FM$999,999,990.00') as "Total",
                            o.created_at as "Date"
                     FROM orders o
                     JOIN customers c ON o.customer_id = c.id
@@ -95,7 +95,7 @@ class DrilldownEngine:
                 'title': 'Revenue Ledger',
                 'query': '''
                     SELECT pl.id, pl.occurred_at as "Date", c.first_name || ' ' || c.last_name as "Customer",
-                           pl.type as "Type", pl.method as "Method", "$" || printf("%.2f", pl.amount) as "Amount",
+                           pl.type as "Type", pl.method as "Method", TO_CHAR(pl.amount, 'FM$999,999,990.00') as "Amount",
                            pl.order_id as "_order_id"
                     FROM payment_ledger pl
                     JOIN customers c ON pl.customer_id = c.id
@@ -111,8 +111,8 @@ class DrilldownEngine:
                 'title': 'Accounts Receivable',
                 'query': '''
                     SELECT o.id, c.first_name || ' ' || c.last_name as "Customer",
-                           "$" || printf("%.2f", o.total) as "Total",
-                           "$" || printf("%.2f", o.total - COALESCE((SELECT SUM(amount) FROM payment_ledger WHERE order_id = o.id AND type != 'Refund'), 0)) as "Balance Due",
+                           TO_CHAR(o.total, 'FM$999,999,990.00') as "Total",
+                           TO_CHAR(o.total - COALESCE((SELECT SUM(amount) FROM payment_ledger WHERE order_id = o.id AND type != 'Refund'), 0), 'FM$999,999,990.00') as "Balance Due",
                            o.status as "Status"
                     FROM orders o
                     JOIN customers c ON o.customer_id = c.id
@@ -146,9 +146,9 @@ class DrilldownEngine:
                 'title': 'Customer Order History',
                 'query': '''
                     SELECT o.id, o.created_at as "Date", o.status as "Status",
-                           "$" || printf("%.2f", o.subtotal) as "Subtotal",
-                           "$" || printf("%.2f", o.tax) as "Tax",
-                           "$" || printf("%.2f", o.total) as "Total"
+                           TO_CHAR(o.subtotal, 'FM$999,999,990.00') as "Subtotal",
+                           TO_CHAR(o.tax, 'FM$999,999,990.00') as "Tax",
+                           TO_CHAR(o.total, 'FM$999,999,990.00') as "Total"
                     FROM orders o
                     WHERE o.customer_id = %s AND o.company_id = %s
                     ORDER BY o.created_at DESC
@@ -164,8 +164,8 @@ class DrilldownEngine:
                 'query': '''
                     SELECT pv.id, p.name as "Product", pv.sku_variant as "SKU", 
                            v.name as "Vendor", pv.on_hand_qty as "Qty",
-                           "$" || printf("%.2f", p.cost) as "Unit Cost",
-                           "$" || printf("%.2f", (pv.on_hand_qty * p.cost)) as "Total Value",
+                           TO_CHAR(p.cost, 'FM$999,999,990.00') as "Unit Cost",
+                           TO_CHAR((pv.on_hand_qty * p.cost), 'FM$999,999,990.00') as "Total Value",
                            pv.product_id as "_product_id"
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
@@ -186,7 +186,7 @@ class DrilldownEngine:
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
-                    WHERE pv.track_inventory = 1 AND pv.on_hand_qty <= 2 
+                    WHERE pv.track_inventory = TRUE AND pv.on_hand_qty <= 2 
                     AND v.company_id = %s
                     ORDER BY pv.on_hand_qty ASC
                 ''',
@@ -222,7 +222,7 @@ class DrilldownEngine:
                     FROM appointments a LEFT JOIN users u ON a.assigned_staff_id = u.id
                     JOIN locations l ON a.location_id = l.id
                     WHERE date(a.start_at) = %s AND l.company_id = %s
-                    GROUP BY "Consultant" ORDER BY "Appointments" DESC
+                    GROUP BY "Consultant", "_composite" ORDER BY "Appointments" DESC
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Consultant", "Appointments"],
@@ -237,7 +237,7 @@ class DrilldownEngine:
                     JOIN locations l ON a.location_id = l.id
                     WHERE date(a.start_at) = %s AND COALESCE(a.assigned_staff_id, 0) = %s
                     AND l.company_id = %s
-                    GROUP BY "Service" ORDER BY "Appointments" DESC
+                    GROUP BY "Service", "_composite" ORDER BY "Appointments" DESC
                 ''',
                 'params': lambda ctx: [
                     ctx.get('id'), 
@@ -289,7 +289,7 @@ class DrilldownEngine:
                     LEFT JOIN appointments a ON a.customer_id = c.id
                     LEFT JOIN orders o ON o.customer_id = c.id
                     WHERE c.company_id = %s
-                    GROUP BY "Stage" ORDER BY count(DISTINCT c.id) DESC
+                    GROUP BY "Stage", "_stage" ORDER BY count(DISTINCT c.id) DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
                 'columns': ["Stage", "Brides"],
@@ -324,9 +324,9 @@ class DrilldownEngine:
             'total_orders': {
                 'title': 'Total Sales by Month',
                 'query': '''
-                    SELECT strftime('%Y-%m', created_at) as "Month", count(id) as "Orders",
-                           "$" || printf("%.2f", SUM(total)) as "Revenue",
-                           strftime('%Y-%m', created_at) as "_month"
+                    SELECT TO_CHAR(created_at, 'YYYY-MM') as "Month", count(id) as "Orders",
+                           TO_CHAR(SUM(total), 'FM$999,999,990.00') as "Revenue",
+                           TO_CHAR(created_at, 'YYYY-MM') as "_month"
                     FROM orders
                     WHERE company_id = %s
                     GROUP BY "Month" ORDER BY "Month" DESC
@@ -339,13 +339,13 @@ class DrilldownEngine:
                 'title': 'Sales By Consultant',
                 'query': '''
                     SELECT COALESCE(u.first_name || ' ' || u.last_name, 'Online/System') as "Consultant",
-                           count(o.id) as "Orders", "$" || printf("%.2f", SUM(o.total)) as "Revenue",
+                           count(o.id) as "Orders", TO_CHAR(SUM(o.total), 'FM$999,999,990.00') as "Revenue",
                            %s || '|' || COALESCE(u.id, 0) as "_composite"
                     FROM orders o
                     LEFT JOIN customers c ON o.customer_id = c.id
                     LEFT JOIN users u ON c.created_by = u.id
-                    WHERE strftime('%Y-%m', o.created_at) = %s AND o.company_id = %s
-                    GROUP BY "Consultant" ORDER BY SUM(o.total) DESC
+                    WHERE TO_CHAR(o.created_at, 'YYYY-MM') = %s AND o.company_id = %s
+                    GROUP BY "Consultant", "_composite" ORDER BY SUM(o.total) DESC
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Consultant", "Orders", "Revenue"],
@@ -355,10 +355,10 @@ class DrilldownEngine:
                 'title': 'Order List',
                 'query': '''
                     SELECT o.id, c.first_name || ' ' || c.last_name as "Customer",
-                           "$" || printf("%.2f", o.total) as "Total", o.status as "Status"
+                           TO_CHAR(o.total, 'FM$999,999,990.00') as "Total", o.status as "Status"
                     FROM orders o
                     JOIN customers c ON o.customer_id = c.id
-                    WHERE strftime('%Y-%m', o.created_at) = %s
+                    WHERE TO_CHAR(o.created_at, 'YYYY-MM') = %s
                       AND COALESCE(c.created_by, 0) = %s
                       AND o.company_id = %s
                     ORDER BY o.created_at DESC
@@ -377,7 +377,7 @@ class DrilldownEngine:
                 'title': 'Deposits Collected',
                 'query': '''
                     SELECT date(pl.occurred_at) as "Date", count(pl.id) as "Transactions", 
-                           "$" || printf("%.2f", SUM(pl.amount)) as "Total",
+                           TO_CHAR(SUM(pl.amount), 'FM$999,999,990.00') as "Total",
                            date(pl.occurred_at) as "_date"
                     FROM payment_ledger pl
                     JOIN orders o ON pl.order_id = o.id
@@ -392,13 +392,13 @@ class DrilldownEngine:
                 'title': 'Deposits By Consultant',
                 'query': '''
                     SELECT COALESCE(u.first_name || ' ' || u.last_name, 'Unknown') as "Consultant", 
-                           count(pl.id) as "Transactions", "$" || printf("%.2f", SUM(pl.amount)) as "Total",
+                           count(pl.id) as "Transactions", TO_CHAR(SUM(pl.amount), 'FM$999,999,990.00') as "Total",
                            %s || '|' || COALESCE(u.id, 0) as "_composite"
                     FROM payment_ledger pl
                     LEFT JOIN users u ON pl.created_by = u.id
                     JOIN orders o ON pl.order_id = o.id
                     WHERE date(pl.occurred_at) = %s AND pl.type = 'Deposit' AND o.company_id = %s
-                    GROUP BY "Consultant" ORDER BY SUM(pl.amount) DESC
+                    GROUP BY "Consultant", "_composite" ORDER BY SUM(pl.amount) DESC
                 ''',
                 'params': lambda ctx: [ctx.get('id'), ctx.get('id'), ctx.get('company_id')],
                 'columns': ["Consultant", "Transactions", "Total"],
@@ -408,7 +408,7 @@ class DrilldownEngine:
                 'title': 'Deposits By Bride',
                 'query': '''
                     SELECT pl.id as "_tx_id", c.first_name || ' ' || c.last_name as "Bride",
-                           "$" || printf("%.2f", pl.amount) as "Amount", pl.method as "Method", pl.order_id as "_order_id"
+                           TO_CHAR(pl.amount, 'FM$999,999,990.00') as "Amount", pl.method as "Method", pl.order_id as "_order_id"
                     FROM payment_ledger pl
                     JOIN customers c ON pl.customer_id = c.id
                     JOIN orders o ON pl.order_id = o.id
@@ -428,7 +428,7 @@ class DrilldownEngine:
                 'title': 'Transaction Record',
                 'query': '''
                     SELECT pl.id as "Tx ID", pl.type as "Type", pl.method as "Method", 
-                           "$" || printf("%.2f", pl.amount) as "Amount", pl.occurred_at as "Timestamp",
+                           TO_CHAR(pl.amount, 'FM$999,999,990.00') as "Amount", pl.occurred_at as "Timestamp",
                            c.first_name || ' ' || c.last_name as "Customer",
                            '#' || pl.order_id as "Order", pl.order_id as "_order_id", pl.reference as "Reference",
                            COALESCE(u.first_name, 'Unknown') as "Processed By"
@@ -480,7 +480,7 @@ class DrilldownEngine:
                     FROM appointments a
                     JOIN services s ON a.service_id = s.id
                     JOIN locations l ON a.location_id = l.id
-                    WHERE s.name LIKE '%Fit%' AND l.company_id = %s AND a.status = 'Scheduled'
+                    WHERE s.name LIKE '%%Fit%%' AND l.company_id = %s AND a.status = 'Scheduled'
                     GROUP BY "Date" ORDER BY "Date" ASC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -529,7 +529,7 @@ class DrilldownEngine:
                 'title': 'Products by Vendor',
                 'query': '''
                     SELECT p.id as "_pid", p.sku as "Base SKU", p.name as "Product",
-                           p.type as "Category", "$" || printf("%.2f", p.cost) as "Unit Cost"
+                           p.type as "Category", TO_CHAR(p.cost, 'FM$999,999,990.00') as "Unit Cost"
                     FROM products p
                     WHERE p.vendor_id = %s AND p.active = TRUE
                 ''',
@@ -556,7 +556,7 @@ class DrilldownEngine:
                 'query': '''
                     SELECT po.id as "_poid", '#' || po.id as "PO #", v.name as "Vendor",
                            po.expected_delivery as "Expected", po.status as "Status",
-                           "$" || printf("%.2f", po.total_cost) as "Total Cost"
+                           TO_CHAR(po.total_cost, 'FM$999,999,990.00') as "Total Cost"
                     FROM purchase_orders po
                     JOIN vendors v ON po.vendor_id = v.id
                     WHERE v.company_id = %s AND po.status IN ('Submitted', 'Partially_Received')
@@ -570,7 +570,7 @@ class DrilldownEngine:
                 'title': 'Vendor Purchase Orders',
                 'query': '''
                     SELECT po.id as "_poid", '#' || po.id as "PO #", po.order_date as "Date",
-                           po.status as "Status", "$" || printf("%.2f", po.total_cost) as "Total"
+                           po.status as "Status", TO_CHAR(po.total_cost, 'FM$999,999,990.00') as "Total"
                     FROM purchase_orders po
                     WHERE po.vendor_id = %s
                     ORDER BY po.order_date DESC
@@ -591,7 +591,7 @@ class DrilldownEngine:
                     SELECT p.type as "_type", p.type as "Category",
                            COUNT(DISTINCT p.id) as "Distinct Styles",
                            SUM(pv.on_hand_qty) as "Qty On Hand",
-                           "$" || printf("%.2f", SUM(pv.on_hand_qty * p.cost)) as "Total Value"
+                           TO_CHAR(SUM(pv.on_hand_qty * p.cost), 'FM$999,999,990.00') as "Total Value"
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
@@ -609,7 +609,7 @@ class DrilldownEngine:
                     SELECT v.id as "_vendor_id", v.name as "Designer",
                            COUNT(DISTINCT p.id) as "Styles",
                            SUM(pv.on_hand_qty) as "Qty On Hand",
-                           "$" || printf("%.2f", SUM(pv.on_hand_qty * p.cost)) as "Total Value"
+                           TO_CHAR(SUM(pv.on_hand_qty * p.cost), 'FM$999,999,990.00') as "Total Value"
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
@@ -627,7 +627,7 @@ class DrilldownEngine:
                     SELECT v.id as "_vendor_id", v.name as "Designer",
                            COUNT(DISTINCT p.id) as "Styles",
                            SUM(pv.on_hand_qty) as "Qty On Hand",
-                           "$" || printf("%.2f", SUM(pv.on_hand_qty * p.cost)) as "Total Value"
+                           TO_CHAR(SUM(pv.on_hand_qty * p.cost), 'FM$999,999,990.00') as "Total Value"
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
@@ -645,7 +645,7 @@ class DrilldownEngine:
                     SELECT p.id as "_product_id", p.name as "Style Name", p.sku as "Base SKU",
                            COUNT(pv.id) as "Variants",
                            SUM(pv.on_hand_qty) as "Total Qty",
-                           "$" || printf("%.2f", SUM(pv.on_hand_qty * p.cost)) as "Total Cost"
+                           TO_CHAR(SUM(pv.on_hand_qty * p.cost), 'FM$999,999,990.00') as "Total Cost"
                     FROM product_variants pv
                     JOIN products p ON pv.product_id = p.id
                     JOIN vendors v ON p.vendor_id = v.id
@@ -846,12 +846,12 @@ class DrilldownEngine:
                 'query': '''
                     SELECT po.id as "_poid", '#' || po.id as "PO #", v.name as "Vendor",
                            date(po.expected_delivery) as "Expected Date",
-                           CAST(julianday('now') - julianday(po.expected_delivery) AS INTEGER) as "Days Overdue",
+                           EXTRACT(DAY FROM CURRENT_TIMESTAMP - (po.expected_delivery))::INTEGER as "Days Overdue",
                            po.status as "Status"
                     FROM purchase_orders po
                     JOIN vendors v ON po.vendor_id = v.id
                     WHERE v.company_id = %s AND po.status IN ('Submitted', 'Partially_Received') 
-                    AND po.expected_delivery < datetime('now', 'localtime')
+                    AND po.expected_delivery < CURRENT_TIMESTAMP
                     ORDER BY "Days Overdue" DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -910,8 +910,8 @@ class DrilldownEngine:
                 'title': 'Order Items',
                 'query': '''
                     SELECT oi.id, p.name as "Item", pv.size as "Size", pv.color as "Color", 
-                           oi.qty as "Qty", "$" || printf("%.2f", oi.unit_price) as "Unit Price", 
-                           "$" || printf("%.2f", oi.line_total) as "Total",
+                           oi.qty as "Qty", TO_CHAR(oi.unit_price, 'FM$999,999,990.00') as "Unit Price", 
+                           TO_CHAR(oi.line_total, 'FM$999,999,990.00') as "Total",
                            pv.product_id as "_product_id"
                     FROM order_items oi
                     JOIN product_variants pv ON oi.product_variant_id = pv.id
@@ -941,8 +941,8 @@ class DrilldownEngine:
                 'query': '''
                     SELECT poi.id, p.name as "Product", pv.sku_variant as "SKU", 
                            poi.qty_ordered as "Ordered", poi.qty_received as "Received", 
-                           "$" || printf("%.2f", poi.unit_cost) as "Cost",
-                           "$" || printf("%.2f", poi.qty_ordered * poi.unit_cost) as "Total",
+                           TO_CHAR(poi.unit_cost, 'FM$999,999,990.00') as "Cost",
+                           TO_CHAR(poi.qty_ordered * poi.unit_cost, 'FM$999,999,990.00') as "Total",
                            pv.product_id as "_product_id"
                     FROM purchase_order_items poi
                     JOIN product_variants pv ON poi.product_variant_id = pv.id
@@ -975,7 +975,9 @@ class DrilldownEngine:
         config = self.registry[metric_id]
         
         try:
-            params = config['params'](context)
+            raw_params = config['params'](context)
+            params = [None if str(p).strip() == '' or str(p).strip() == 'None' else p for p in raw_params]
+            
             cursor = self.conn.cursor()
             cursor.execute(config['query'], params)
             rows = [dict(row) for row in cursor.fetchall()]

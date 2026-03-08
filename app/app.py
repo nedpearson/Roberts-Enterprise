@@ -6,7 +6,7 @@ from flask_socketio import SocketIO
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-for-roberts-enterprise")
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
 
 # Ensure database is initialized on startup
 with app.app_context():
@@ -502,7 +502,7 @@ def dashboard_drilldown(metric):
     elif metric == 'outstanding_balances':
         cursor.execute('''
             SELECT '#' || order_id as "Order #", customer as "Customer", status as "Status", 
-                   "$" || printf("%.2f", balance) as "Balance"
+                   TO_CHAR(balance, 'FM$999,999,990.00') as "Balance"
             FROM (
                 SELECT o.id as order_id, c.first_name || ' ' || c.last_name as customer, o.status,
                        o.total - 
@@ -583,8 +583,8 @@ def universal_drilldown(type, id):
         # Retrieve Order items securely bounded to company
         cursor.execute('''
             SELECT p.name as "Item", pv.size as "Size", pv.color as "Color", 
-                   oi.quantity as "Qty", "$" || printf("%.2f", oi.unit_price) as "Unit Price", 
-                   "$" || printf("%.2f", oi.quantity * oi.unit_price) as "Total"
+                   oi.quantity as "Qty", TO_CHAR(oi.unit_price, 'FM$999,999,990.00') as "Unit Price", 
+                   TO_CHAR(oi.quantity * oi.unit_price, 'FM$999,999,990.00') as "Total"
             FROM order_items oi
             JOIN orders o ON oi.order_id = o.id
             JOIN product_variants pv ON oi.product_variant_id = pv.id
@@ -618,8 +618,8 @@ def universal_drilldown(type, id):
         cursor.execute('''
             SELECT p.name as "Product", pv.sku_variant as "SKU", 
                    poi.qty_ordered as "Ordered", poi.qty_received as "Received", 
-                   "$" || printf("%.2f", poi.unit_cost) as "Cost",
-                   "$" || printf("%.2f", poi.qty_ordered * poi.unit_cost) as "Total"
+                   TO_CHAR(poi.unit_cost, 'FM$999,999,990.00') as "Cost",
+                   TO_CHAR(poi.qty_ordered * poi.unit_cost, 'FM$999,999,990.00') as "Total"
             FROM purchase_order_items poi
             JOIN purchase_orders po ON poi.purchase_order_id = po.id
             JOIN vendors v ON po.vendor_id = v.id

@@ -442,3 +442,97 @@ Press CTRL+C to quit
 127.0.0.1 - - [07/Mar/2026 18:44:45] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
 127.0.0.1 - - [07/Mar/2026 18:44:47] "GET /dashboard HTTP/1.1" 200 -
 127.0.0.1 - - [07/Mar/2026 18:44:47] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 19:22:39] "GET /staff/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:22:39] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\payroll.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\payroll.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\payroll.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\staff.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\routes\\appointments.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568
+127.0.0.1 - - [07/Mar/2026 19:37:35] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:38:22] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:38:22] "GET /dashboard HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:38:22] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:38:52] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:38:52] "GET /dashboard HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:38:52] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:38:52] "GET /pos HTTP/1.1" 404 -
+127.0.0.1 - - [07/Mar/2026 19:38:52] "GET /catalog HTTP/1.1" 404 -
+127.0.0.1 - - [07/Mar/2026 19:38:52] "GET /orders HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:38:52] "GET /orders/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /customers HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /customers/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /vendors HTTP/1.1" 404 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /appointments HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /appointments/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /reports HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /reports/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /settings HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /settings/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /settings/manage_data HTTP/1.1" 404 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /brand HTTP/1.1" 404 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /staff HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /staff/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /communications HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /communications/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:38:53] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /dashboard HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /pos HTTP/1.1" 404 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /catalog HTTP/1.1" 404 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /orders HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /orders/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /customers HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /customers/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /vendors HTTP/1.1" 404 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /appointments HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /appointments/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /reports HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /reports/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /settings HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /settings/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /brand HTTP/1.1" 404 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /staff HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /staff/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /communications HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /communications/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /payroll HTTP/1.1" 308 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /payroll/ HTTP/1.1" 302 -
+127.0.0.1 - - [07/Mar/2026 19:39:07] "GET /login HTTP/1.1" 200 -
+ * Detected change in 'C:\\dev\\github\\business\\Roberts Enterprise\\app\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 277-232-568

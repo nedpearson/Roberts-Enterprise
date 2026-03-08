@@ -86,7 +86,7 @@ def drilldown_api(metric):
         
     elif metric == 'expected_cost':
         cursor.execute('''
-            SELECT '#' || po.id as "PO #", v.name as "Vendor", po.status as "Status", "$" || printf("%.2f", po.total_cost) as "Amount"
+            SELECT '#' || po.id as "PO #", v.name as "Vendor", po.status as "Status", TO_CHAR(po.total_cost, 'FM$999,999,990.00') as "Amount"
             FROM purchase_orders po
             JOIN vendors v ON po.vendor_id = v.id
             WHERE v.company_id = %s AND po.status != 'Received'
