@@ -20,8 +20,8 @@ ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=app/app.py
 ENV PYTHONPATH=/app
 
-# Expose port
-EXPOSE 5005
+# Expose dynamic port for Railway
+EXPOSE ${PORT:-5005}
 
-# Start the application using Gunicorn for production concurrency
-CMD ["gunicorn", "--bind", "0.0.0.0:5005", "--workers", "3", "--threads", "2", "--timeout", "120", "--chdir", "app", "app:app"]
+# Start the application using Gunicorn (allowing environment variables to evaluate)
+CMD gunicorn --bind 0.0.0.0:${PORT:-5005} --workers 3 --threads 2 --timeout 120 --chdir app app:app
