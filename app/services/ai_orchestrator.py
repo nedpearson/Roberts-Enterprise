@@ -76,6 +76,8 @@ class AIOperationalOrchestrator:
         - CHECK_SCHEDULE
         - BROADCAST_MESSAGE
         - CREATE_ORDER
+        - FETCH_KPI_DATA
+        - GET_PAYROLL_SUMMARY
         
         Extract these fields in JSON formatted exactly like:
         {{
@@ -102,7 +104,8 @@ class AIOperationalOrchestrator:
                "draft_body": "tell Jane her dress arrived", // instructions for DRAFT_COMMUNICATION
                "broadcast_message": "The boutique is closing in 10 minutes", // for BROADCAST_MESSAGE
                "schedule_date": "YYYY-MM-DD", // The specific date they are inquiring about for CHECK_SCHEDULE (typically today)
-               "item_keywords": "sweetheart ivory gown size 10" // for CREATE_ORDER, what did they say they want to buy?
+               "item_keywords": "sweetheart ivory gown size 10", // for CREATE_ORDER, what did they say they want to buy?
+               "time_period": "today" // 'today', 'this week', 'this month' for analytics and payroll
             }}
         }}
         """
@@ -579,6 +582,86 @@ class AIOperationalOrchestrator:
                     "status": "success", 
                     "message": f"Successfully created a Draft Order for {prod['name']}. Bringing it up now.",
                     "redirect_url": f"/orders/{new_ord_id}"
+                }
+                
+            elif intent == 'FETCH_KPI_DATA':
+                period = params.get('time_period', 'today').lower()
+                from datetime import datetime, timedelta
+                
+                # Default to today
+                start_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                if 'week' in period:
+                    start_date = start_date - timedelta(days=start_date.weekday())
+                elif 'month' in period:
+                    start_date = start_date.replace(day=1)
+                    
+                cursor.execute("""
+                    SELECT 
+                        COALESCE(SUM(total), 0) as total_sales,
+                        COUNT(id) as total_orders
+                    FROM orders
+                    WHERE company_id = %s AND created_at >= %s
+                """, (company_id, start_date))
+                sales_data = cursor.fetchone()
+                
+                cursor.execute("""
+                    SELECT COUNT(id) as appts
+                    FROM appointments
+                    WHERE start_at >= %s AND start_at < %s
+                """, (start_date, start_date + timedelta(days=1 if 'today' in period else 30)))
+                appt_data = cursor.fetchone()
+                
+                sys_msg = f"You are a sales manager. Summarize the boutique's performance for {period} naturally based on this data: Sales: ${sales_data['total_sales']:.2f} across {sales_data['total_orders']} orders. Appointments: {appt_data['appts']}."
+                ans_resp = self.client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "system", "content": sys_msg}],
+                    temperature=0.0
+                )
+                response = {
+                    "status": "success", 
+                    "message": ans_resp.choices[0].message.content,
+                    "redirect_url": "/reports/" # take them to analytics view seamlessly
+                }
+                
+            elif intent == 'GET_PAYROLL_SUMMARY':
+                period = params.get('time_period', 'this week').lower()
+                from datetime import datetime, timedelta
+                
+                start_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                if 'today' in period:
+                    pass
+                elif 'month' in period:
+                    start_date = start_date.replace(day=1)
+                else: # this week
+                    start_date = start_date - timedelta(days=start_date.weekday())
+                    
+                cursor.execute("""
+                    SELECT COALESCE(SUM(total_hours), 0) as hours
+                    FROM time_entries 
+                    WHERE user_id = %s AND clock_in >= %s
+                """, (current_user_id, start_date))
+                time_data = cursor.fetchone()
+                
+                cursor.execute("""
+                    SELECT COALESCE(SUM(amount), 0) as commission
+                    FROM commissions
+                    WHERE user_id = %s AND earned_at >= %s AND status != 'Void'
+                """, (current_user_id, start_date))
+                comm_data = cursor.fetchone()
+                
+                hours = float(time_data['hours'])
+                comm = float(comm_data['commission'])
+                
+                sys_msg = f"You are an HR assistant. Give a warm, natural summary for the user's payroll data for {period}. They worked {hours:.2f} hours and earned ${comm:.2f} in commission. Keep it brief."
+                ans_resp = self.client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "system", "content": sys_msg}],
+                    temperature=0.0
+                )
+                response = {
+                    "status": "success", 
+                    "message": ans_resp.choices[0].message.content,
+                    "redirect_url": "/payroll/timesheets"
                 }
                 
             else:

@@ -167,6 +167,10 @@
                             confirmationPrompt = `I am ready to broadcast this system-wide. Shall I send it?`;
                         } else if (data.action_plan.intent === 'CREATE_ORDER') {
                             confirmationPrompt = `I'll create an order for this now. Shall I proceed?`;
+                        } else if (data.action_plan.intent === 'FETCH_KPI_DATA') {
+                            confirmationPrompt = `Shall I fetch the reporting summary for ${data.action_plan.parameters.time_period || 'that period'}?`;
+                        } else if (data.action_plan.intent === 'GET_PAYROLL_SUMMARY') {
+                            confirmationPrompt = `Shall I check your payroll and commission data for ${data.action_plan.parameters.time_period || 'that period'}?`;
                         }
 
                         const planHtml = `
@@ -205,7 +209,7 @@
                 .then(data => {
                     if (data.status === 'success') {
                         this.speakText(data.message);
-                        if (this.currentActionPlan.intent === 'QUERY_DATABASE' || this.currentActionPlan.intent === 'INVENTORY_LOOKUP' || this.currentActionPlan.intent === 'CHECK_SCHEDULE') {
+                        if (this.currentActionPlan.intent === 'QUERY_DATABASE' || this.currentActionPlan.intent === 'INVENTORY_LOOKUP' || this.currentActionPlan.intent === 'CHECK_SCHEDULE' || this.currentActionPlan.intent === 'FETCH_KPI_DATA' || this.currentActionPlan.intent === 'GET_PAYROLL_SUMMARY') {
                             // Show the answer instead of reloading
                             document.getElementById('voiceActionPlan').innerHTML = `
                                 <div class="alert alert-success py-2 mb-0"><strong><i class="bi bi-robot"></i> Answer:</strong> ${data.message}</div>
