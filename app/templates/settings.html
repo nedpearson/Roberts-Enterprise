@@ -311,9 +311,9 @@
                                 {% for log in communication_logs %}
                                 <tr class="motion-stagger-row" style="--stagger-idx: {{ loop.index }};">
                                     <td class="ps-4 py-3 text-muted small">
-                                        {{ log['created_at'].strftime('%b %d, %Y') }}<br>
-                                        <span style="font-size: 0.75rem;">{{ log['created_at'].strftime('%I:%M %p')
-                                            }}</span>
+                                        {{ log['created_at'].split(' ')[0] }}<br>
+                                        <span style="font-size: 0.75rem;">{{ log['created_at'].split(' ')[1][:5] if ' '
+                                            in log['created_at'] else '' }}</span>
                                     </td>
                                     <td class="py-3">
                                         {% if log['type'] == 'Email' %}

@@ -662,5 +662,15 @@ def handle_exception(e):
         f.write(traceback.format_exc())
     return "Error captured to disk", 500
 
+@app.route('/force-seed-database-railway')
+def force_seed_db():
+    from seed_demo import seed_demo_data
+    try:
+        seed_demo_data()
+        return "SUCCESS! Production Database Wiped and Reseeded for I Do Bridal Couture! Go to /login", 200
+    except Exception as e:
+        import traceback
+        return f"FAILED: {e}\n{traceback.format_exc()}", 500
+
 if __name__ == '__main__':
     socketio.run(app, debug=True, port=5005)
