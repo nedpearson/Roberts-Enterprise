@@ -78,6 +78,8 @@ class AIOperationalOrchestrator:
         - CREATE_ORDER
         - FETCH_KPI_DATA
         - GET_PAYROLL_SUMMARY
+        - ADD_CUSTOMER
+        - LOG_PAYMENT
         
         Extract these fields in JSON formatted exactly like:
         {{
@@ -105,7 +107,16 @@ class AIOperationalOrchestrator:
                "broadcast_message": "The boutique is closing in 10 minutes", // for BROADCAST_MESSAGE
                "schedule_date": "YYYY-MM-DD", // The specific date they are inquiring about for CHECK_SCHEDULE (typically today)
                "item_keywords": "sweetheart ivory gown size 10", // for CREATE_ORDER, what did they say they want to buy?
-               "time_period": "today" // 'today', 'this week', 'this month' for analytics and payroll
+               "time_period": "today", // 'today', 'this week', 'this month' for analytics and payroll
+               "new_customer": {{
+                   "first_name": "Emma",
+                   "last_name": "Stone",
+                   "email": "emma@example.com",
+                   "phone": "555-1234",
+                   "wedding_date": "YYYY-MM-DD"
+               }}, // for ADD_CUSTOMER
+               "payment_amount": 500.00, // for LOG_PAYMENT
+               "payment_method": "Credit Card" // for LOG_PAYMENT (Cash, Credit Card, Check)
             }}
         }}
         """
@@ -662,6 +673,63 @@ class AIOperationalOrchestrator:
                     "status": "success", 
                     "message": ans_resp.choices[0].message.content,
                     "redirect_url": "/payroll/timesheets"
+                }
+
+            elif intent == 'ADD_CUSTOMER':
+                new_cust = params.get('new_customer', {})
+                fname = new_cust.get('first_name')
+                lname = new_cust.get('last_name')
+                
+                if not fname: raise ValueError("First name is required to create a customer.")
+                
+                cursor.execute('''
+                    INSERT INTO customers (company_id, location_id, first_name, last_name, email, phone, wedding_date)
+                    VALUES (%s, 0, %s, %s, %s, %s, %s) RETURNING id
+                ''', (
+                    company_id, fname, lname, 
+                    new_cust.get('email'), new_cust.get('phone'), new_cust.get('wedding_date')
+                ))
+                new_id = cursor.fetchone()['id']
+                
+                response = {
+                    "status": "success", 
+                    "message": f"Successfully created a profile for {fname} {lname or ''}. Bringing it up now.",
+                    "redirect_url": f"/customers/{new_id}"
+                }
+                
+            elif intent == 'LOG_PAYMENT':
+                amt = params.get('payment_amount')
+                meth = params.get('payment_method', 'Credit Card')
+                if not amt: raise ValueError("You must specify a payment amount.")
+                
+                if target_type == 'order':
+                    order_id = target_id
+                    cursor.execute("SELECT customer_id FROM orders WHERE id = %s AND company_id = %s", (order_id, company_id))
+                    o_row = cursor.fetchone()
+                    if not o_row: raise ValueError("Order not found.")
+                    cust_id = o_row['customer_id']
+                elif target_type == 'customer':
+                    cust_id = target_id
+                    cursor.execute("SELECT id FROM orders WHERE customer_id = %s AND company_id = %s ORDER BY created_at DESC LIMIT 1", (cust_id, company_id))
+                    o_row = cursor.fetchone()
+                    if not o_row: raise ValueError("This customer does not have any active orders to apply payment to.")
+                    order_id = o_row['id']
+                else:
+                    raise ValueError("You must specify a customer or an order to log a payment against.")
+                    
+                import hashlib
+                import time
+                imm_hash = hashlib.sha256(f"{target_id}{time.time()}{amt}{meth}".encode()).hexdigest()
+                
+                cursor.execute('''
+                    INSERT INTO payment_ledger (order_id, customer_id, type, amount, method, created_by, immutable_hash)
+                    VALUES (%s, %s, 'Payment', %s, %s, %s, %s)
+                ''', (order_id, cust_id, amt, meth, current_user_id, imm_hash))
+                
+                response = {
+                    "status": "success", 
+                    "message": f"Successfully logged the payment of ${float(amt):.2f} via {meth}.",
+                    "redirect_url": f"/orders/{order_id}"
                 }
                 
             else:

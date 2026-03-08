@@ -171,6 +171,10 @@
                             confirmationPrompt = `Shall I fetch the reporting summary for ${data.action_plan.parameters.time_period || 'that period'}?`;
                         } else if (data.action_plan.intent === 'GET_PAYROLL_SUMMARY') {
                             confirmationPrompt = `Shall I check your payroll and commission data for ${data.action_plan.parameters.time_period || 'that period'}?`;
+                        } else if (data.action_plan.intent === 'ADD_CUSTOMER') {
+                            confirmationPrompt = `I'm ready to create a new profile for ${data.action_plan.parameters.new_customer?.first_name || 'this person'}. Shall I proceed?`;
+                        } else if (data.action_plan.intent === 'LOG_PAYMENT') {
+                            confirmationPrompt = `I've prepared to log a payment of $${parseFloat(data.action_plan.parameters.payment_amount).toFixed(2)}. Shall I save it?`;
                         }
 
                         const planHtml = `
