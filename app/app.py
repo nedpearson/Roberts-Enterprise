@@ -2,9 +2,11 @@ from flask import Flask, render_template, session, redirect, url_for, request, f
 import os
 from werkzeug.security import check_password_hash
 from database import init_db
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-for-roberts-enterprise")
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Ensure database is initialized on startup
 with app.app_context():
@@ -652,4 +654,4 @@ def handle_exception(e):
     return "Error captured to disk", 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5005)
+    socketio.run(app, debug=True, port=5005)

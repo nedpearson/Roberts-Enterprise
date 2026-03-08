@@ -57,28 +57,32 @@
             .then(data => {
                 if (data.status === 'success') {
                     if (data.messages.length === 0) {
-                        container.innerHTML = '<div class="text-center text-muted small py-3">No internal team notes yet. Owner is included on all updates by default.</div>';
-                        return;
+                        container.innerHTML = '<div class="text-center text-muted small py-3 empty-state">No internal team notes yet. Owner is included on all updates by default.</div>';
+                    } else {
+                        let html = '';
+                        data.messages.forEach(m => {
+                            html += renderMessageHtml(m);
+                        });
+                        container.innerHTML = html;
+                        container.scrollTop = container.scrollHeight;
                     }
 
-                    let html = '';
-                    data.messages.forEach(m => {
-                        const dateStr = new Date(m.created_at).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                        html += `
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-baseline mb-1">
-                                    <strong><span class="text-primary">${m.first_name} ${m.last_name}</span> <span class="badge bg-secondary ms-1 p-1" style="font-size: 0.6rem;">${m.role}</span></strong>
-                                    <small class="text-muted" style="font-size: 0.7rem;">${dateStr} <i class="bi bi-clock-history ms-1"></i></small>
-                                </div>
-                                <div class="p-2 rounded bg-white text-dark small shadow-sm border">
-                                    ${m.body}
-                                    ${m.transcript_source ? '<br><small class="text-muted fst-italic mt-1 d-block"><i class="bi bi-mic me-1"></i> Transcribed via Voice Action</small>' : ''}
-                                </div>
-                            </div>
-                        `;
-                    });
-                    container.innerHTML = html;
-                    container.scrollTop = container.scrollHeight;
+                    // Setup real-time listener for this specific thread
+                    if (window.socket && window.CURRENT_COMPANY_ID) {
+                        const eventName = `new_message_${window.CURRENT_COMPANY_ID}_${entityType}_${entityId}`;
+                        window.socket.off(eventName); // Prevent duplicate bindings
+                        window.socket.on(eventName, (newMessage) => {
+                            // Remove empty state if present
+                            const empty = container.querySelector('.empty-state');
+                            if (empty) empty.remove();
+
+                            // Append new message
+                            container.insertAdjacentHTML('beforeend', renderMessageHtml(newMessage));
+                            container.scrollTop = container.scrollHeight;
+
+                            // Optional: play a subtle notification sound or animate
+                        });
+                    }
                 } else {
                     container.innerHTML = `<div class="text-danger small">${data.error || 'Failed to load notes.'}</div>`;
                 }
@@ -109,7 +113,7 @@
                 if (data.status === 'success') {
                     inputEl.value = '';
                     excludeEl.checked = false;
-                    loadInternalComm(entityType, entityId);
+                    // We don't need to manually reload thread, WebSocket will handle appending it instantly
                 } else {
                     alert("Failed to save note: " + data.message);
                 }

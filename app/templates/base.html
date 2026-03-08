@@ -611,6 +611,14 @@
         };
     </script>
 
+    <!-- Real-Time Socket.IO Client -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io(); // Connects to the same domain automatically
+        // We will make the company_id globally accessible
+        window.CURRENT_COMPANY_ID = "{{ g.company_id if g.company_id else 'null' }}";
+    </script>
+
     {% include "_voice_assistant_modal.html" %}
     {% block extra_js %}{% endblock %}
 </body>

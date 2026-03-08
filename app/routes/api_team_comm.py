@@ -33,15 +33,26 @@ def post_message(entity_type, entity_id):
         return jsonify({"error": "Message body is required."}), 400
         
     try:
-        msg_id = CommunicationService.post_internal_message(
+        msg_id, message_data = CommunicationService.post_internal_message(
             company_id=session['company_id'],
             author_id=session['user_id'],
             body=body,
             entity_type=entity_type,
             entity_id=entity_id,
             request_exclusion=request_exclusion,
-            exclusion_reason=exclusion_reason
+            exclusion_reason=exclusion_reason,
+            return_payload=True # We will update the service to return this
         )
+        
+        # Emit WebSocket event
+        from flask import current_app
+        try:
+            # We access the configured socketio instance from the app
+            socketio = current_app.extensions['socketio']
+            socketio.emit(f"new_message_{session['company_id']}_{entity_type}_{entity_id}", message_data)
+        except Exception as ws_e:
+            current_app.logger.warning(f"Failed to emit websocket event: {ws_e}")
+            
         return jsonify({"status": "success", "message_id": msg_id})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 400

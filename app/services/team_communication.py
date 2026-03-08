@@ -56,7 +56,7 @@ class CommunicationService:
 
     @staticmethod
     def post_internal_message(company_id, author_id, body, entity_type, entity_id, 
-                            transcript_source=None, request_exclusion=False, exclusion_reason=None):
+                            transcript_source=None, request_exclusion=False, exclusion_reason=None, return_payload=False):
         db = get_db()
         cursor = db.cursor()
         
@@ -111,6 +111,22 @@ class CommunicationService:
             ''', (message_id, uid, read_state))
             
         db.commit()
+        
+        if return_payload:
+            cursor.execute("SELECT first_name, last_name, role FROM users WHERE id = %s", (author_id,))
+            author_info = cursor.fetchone()
+            
+            payload = {
+                "id": message_id,
+                "first_name": author_info['first_name'],
+                "last_name": author_info['last_name'],
+                "role": author_info['role'],
+                "body": body,
+                "transcript_source": transcript_source,
+                "created_at": datetime.datetime.now().isoformat()
+            }
+            return message_id, payload
+            
         return message_id
 
     @staticmethod

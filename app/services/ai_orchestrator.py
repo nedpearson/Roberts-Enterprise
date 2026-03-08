@@ -131,14 +131,23 @@ class AIOperationalOrchestrator:
                 if not target_id:
                     raise ValueError(f"Could not resolve the target {target_type} to save this note against.")
                     
-                msg_id = CommunicationService.post_internal_message(
+                msg_id, message_data = CommunicationService.post_internal_message(
                     company_id=company_id,
                     author_id=current_user_id,
                     body=params.get('body'),
                     entity_type=target_type,
                     entity_id=target_id,
-                    transcript_source="VOICE_AI"
+                    transcript_source="VOICE_AI",
+                    return_payload=True
                 )
+                
+                from flask import current_app
+                try:
+                    socketio = current_app.extensions['socketio']
+                    socketio.emit(f"new_message_{company_id}_{target_type}_{target_id}", message_data)
+                except Exception as ws_e:
+                    current_app.logger.warning(f"Failed to emit websocket event: {ws_e}")
+                    
                 response = {"status": "success", "message": f"Successfully attached note to {target_type} #{target_id}", "msg_id": msg_id}
                 
             elif intent == 'CAPTURE_MEASUREMENTS':
