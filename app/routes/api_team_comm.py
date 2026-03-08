@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, session
-from app.services.team_communication import CommunicationService
+from services.team_communication import CommunicationService
 
 bp = Blueprint('api_team_comm', __name__, url_prefix='/api/v1/team_comm')
 

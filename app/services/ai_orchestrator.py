@@ -1,7 +1,8 @@
 import os
 import json
+import traceback
+from database import get_db
 from openai import OpenAI
-from app.database import get_db
 
 class AIOperationalOrchestrator:
     def __init__(self):
@@ -188,7 +189,7 @@ class AIOperationalOrchestrator:
         
         try:
             if intent == 'ADD_INTERNAL_TEAM_NOTE':
-                from app.services.team_communication import CommunicationService
+                from services.team_communication import CommunicationService
                 if not target_id:
                     raise ValueError(f"Could not resolve the target {target_type} to save this note against.")
                     
