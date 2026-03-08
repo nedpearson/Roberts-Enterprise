@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify, session
 from app.services.ai_orchestrator import AIOperationalOrchestrator
-from app.utils.auth import requires_role
 
 bp = Blueprint('api_voice', __name__, url_prefix='/api/voice')
 

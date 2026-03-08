@@ -6,7 +6,8 @@ bp = Blueprint('pickups', __name__, url_prefix='/pickups')
 
 @bp.route('/')
 def pickup_list():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -32,7 +33,8 @@ def pickup_list():
 
 @bp.route('/<int:id>/complete', methods=['POST'])
 def complete_pickup(id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()

@@ -5,7 +5,8 @@ bp = Blueprint('communications', __name__, url_prefix='/communications')
 
 @bp.route('/')
 def log_view():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     company_id = session.get('company_id')
     

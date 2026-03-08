@@ -5,7 +5,8 @@ bp = Blueprint('inventory', __name__, url_prefix='/inventory')
 
 @bp.route('/')
 def catalog():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -27,7 +28,8 @@ def catalog():
 
 @bp.route('/product/<int:id>/reserve', methods=['POST'])
 def reserve_product(id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     # In a full POS, this would capture dates and specific variants
     # For Phase 4, we generate a mock reservation to prove the flow
@@ -58,7 +60,7 @@ def reserve_product(id):
         else:
             flash("No variants available to reserve.", "error")
             
-    except Exception as e:
+    except Exception:
         conn.rollback()
     finally:
         pass
@@ -67,7 +69,8 @@ def reserve_product(id):
 
 @bp.route('/product/add', methods=['POST'])
 def add_product():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     name = request.form.get('name')
     ptype = request.form.get('type')

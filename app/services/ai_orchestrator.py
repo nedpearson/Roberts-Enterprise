@@ -9,7 +9,8 @@ class AIOperationalOrchestrator:
         self.client = OpenAI(api_key=self.api_key) if self.api_key else None
 
     def _resolve_context_id(self, company_id, entity_type, spoken_identifier):
-        if not spoken_identifier: return None
+        if not spoken_identifier:
+            return None
         
         db = get_db()
         cursor = db.cursor()
@@ -18,16 +19,19 @@ class AIOperationalOrchestrator:
         if entity_type == 'customer':
             cursor.execute("SELECT id FROM customers WHERE company_id=%s AND (first_name || ' ' || last_name) ILIKE %s LIMIT 1", (company_id, f"%{spoken_identifier}%"))
             row = cursor.fetchone()
-            if row: return row['id']
+            if row:
+                return row['id']
             
         elif entity_type == 'po':
             cursor.execute("SELECT id FROM purchase_orders WHERE vendor_id IN (SELECT id FROM vendors WHERE company_id=%s) AND id::text = %s LIMIT 1", (company_id, str(spoken_identifier).replace('#', '').strip()))
             row = cursor.fetchone()
-            if row: return row['id']
+            if row:
+                return row['id']
         elif entity_type == 'vendor':
             cursor.execute("SELECT id FROM vendors WHERE company_id=%s AND name ILIKE %s LIMIT 1", (company_id, f"%{spoken_identifier}%"))
             row = cursor.fetchone()
-            if row: return row['id']
+            if row:
+                return row['id']
             
         return None
 
@@ -333,7 +337,8 @@ class AIOperationalOrchestrator:
                 if target_type == 'customer':
                     cursor.execute("SELECT id FROM orders WHERE customer_id = %s AND company_id = %s ORDER BY created_at DESC LIMIT 1", (target_id, company_id))
                     ord_row = cursor.fetchone()
-                    if not ord_row: raise ValueError("Could not find a recent order for this customer.")
+                    if not ord_row:
+                        raise ValueError("Could not find a recent order for this customer.")
                     order_id_to_update = ord_row['id']
                     
                 # Actually update the status
@@ -348,7 +353,8 @@ class AIOperationalOrchestrator:
                 query_args = []
                 for term in search_terms:
                     query_parts.append("(p.name ILIKE %s OR p.brand ILIKE %s OR pv.size ILIKE %s OR pv.color ILIKE %s)")
-                    for _ in range(4): query_args.append(f"%{term}%")
+                    for _ in range(4):
+                        query_args.append(f"%{term}%")
                     
                 where_clause = " AND ".join(query_parts) if query_parts else "1=1"
                 
@@ -477,7 +483,7 @@ class AIOperationalOrchestrator:
                 )
                 final_body = ans_resp.choices[0].message.content.strip()
                 
-                subj = f"Update regarding your Bridal Appointment" if comm_type == 'Email' else 'SMS Update'
+                subj = "Update regarding your Bridal Appointment" if comm_type == 'Email' else 'SMS Update'
                 
                 cursor.execute('''
                     INSERT INTO communication_logs (company_id, customer_id, type, subject, message_body, status)
@@ -490,7 +496,8 @@ class AIOperationalOrchestrator:
                 
             elif intent == 'BROADCAST_MESSAGE':
                 msg = params.get('broadcast_message', '')
-                if not msg: raise ValueError("Empty broadcast message.")
+                if not msg:
+                    raise ValueError("Empty broadcast message.")
                 
                 cursor.execute("SELECT first_name, last_name FROM users WHERE id = %s", (current_user_id,))
                 usr = cursor.fetchone()
@@ -549,7 +556,8 @@ class AIOperationalOrchestrator:
                 query_args = []
                 for term in search_terms:
                     query_parts.append("(p.name ILIKE %s OR p.brand ILIKE %s OR pv.size ILIKE %s OR pv.color ILIKE %s)")
-                    for _ in range(4): query_args.append(f"%{term}%")
+                    for _ in range(4):
+                        query_args.append(f"%{term}%")
                     
                 where_clause = " AND ".join(query_parts) if query_parts else "1=1"
                 
@@ -680,7 +688,8 @@ class AIOperationalOrchestrator:
                 fname = new_cust.get('first_name')
                 lname = new_cust.get('last_name')
                 
-                if not fname: raise ValueError("First name is required to create a customer.")
+                if not fname:
+                    raise ValueError("First name is required to create a customer.")
                 
                 cursor.execute('''
                     INSERT INTO customers (company_id, location_id, first_name, last_name, email, phone, wedding_date)
@@ -700,19 +709,22 @@ class AIOperationalOrchestrator:
             elif intent == 'LOG_PAYMENT':
                 amt = params.get('payment_amount')
                 meth = params.get('payment_method', 'Credit Card')
-                if not amt: raise ValueError("You must specify a payment amount.")
+                if not amt:
+                    raise ValueError("You must specify a payment amount.")
                 
                 if target_type == 'order':
                     order_id = target_id
                     cursor.execute("SELECT customer_id FROM orders WHERE id = %s AND company_id = %s", (order_id, company_id))
                     o_row = cursor.fetchone()
-                    if not o_row: raise ValueError("Order not found.")
+                    if not o_row:
+                        raise ValueError("Order not found.")
                     cust_id = o_row['customer_id']
                 elif target_type == 'customer':
                     cust_id = target_id
                     cursor.execute("SELECT id FROM orders WHERE customer_id = %s AND company_id = %s ORDER BY created_at DESC LIMIT 1", (cust_id, company_id))
                     o_row = cursor.fetchone()
-                    if not o_row: raise ValueError("This customer does not have any active orders to apply payment to.")
+                    if not o_row:
+                        raise ValueError("This customer does not have any active orders to apply payment to.")
                     order_id = o_row['id']
                 else:
                     raise ValueError("You must specify a customer or an order to log a payment against.")

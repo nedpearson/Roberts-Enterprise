@@ -8,7 +8,8 @@ bp = Blueprint('settings', __name__, url_prefix='/settings')
 @bp.route('/')
 @requires_role('Owner', 'Manager')
 def index():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     company_id = session.get('company_id')
     conn = get_db()
@@ -79,7 +80,8 @@ def index():
 @bp.route('/employee/add', methods=['POST'])
 @requires_role('Owner', 'Manager')
 def add_employee():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     company_id = session.get('company_id')
     first_name = request.form.get('first_name')
@@ -106,16 +108,17 @@ def add_employee():
         ''', (company_id, first_name, last_name, email, role, hashed_password, hashed_pin))
         conn.commit()
         flash(f"Successfully added {first_name} {last_name} as a {role}.", "success")
-    except Exception as e:
+    except Exception:
         conn.rollback()
-        flash(f"Error adding employee (Email might already be in use).", "error")
+        flash("Error adding employee (Email might already be in use).", "error")
         
     return redirect(url_for('settings.index'))
 
 @bp.route('/employee/<int:emp_id>/update', methods=['POST'])
 @requires_role('Owner', 'Manager')
 def update_employee(emp_id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     company_id = session.get('company_id')
     new_role = request.form.get('role')
@@ -163,7 +166,7 @@ def update_employee(emp_id):
             -- Instead, let's delete existing and reinsert (simpler for this use case since we don't have historical foreign keys chained to regulations table itself)
         ''', (emp_id, company_id, allow_discounts, max_discount_percent, allow_refunds, 
               require_manager_approval_above, can_edit_shifts, can_view_wholesale_pricing))
-    except Exception as e:
+    except Exception:
         # Ignore and do custom delete insert manually below
         pass
         
@@ -210,7 +213,8 @@ def update_employee(emp_id):
 @bp.route('/company/update', methods=['POST'])
 @requires_role('Owner', 'Manager')
 def update_company():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     company_id = session.get('company_id')
     theme_bg = request.form.get('theme_bg')
@@ -236,7 +240,8 @@ def update_company():
 @bp.route('/location/add', methods=['POST'])
 @requires_role('Owner', 'Manager')
 def add_location():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     company_id = session.get('company_id')
     name = request.form.get('name')
@@ -263,7 +268,8 @@ def add_location():
 @bp.route('/location/<int:loc_id>/update', methods=['POST'])
 @requires_role('Owner', 'Manager')
 def update_location(loc_id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     company_id = session.get('company_id')
     name = request.form.get('name')
@@ -288,7 +294,8 @@ def update_location(loc_id):
 @bp.route('/service/add', methods=['POST'])
 @requires_role('Owner', 'Manager')
 def add_service():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     company_id = session.get('company_id')
     name = request.form.get('name')
@@ -315,7 +322,8 @@ def add_service():
 @bp.route('/service/<int:svc_id>/update', methods=['POST'])
 @requires_role('Owner', 'Manager')
 def update_service(svc_id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     company_id = session.get('company_id')
     name = request.form.get('name')
@@ -340,7 +348,8 @@ def update_service(svc_id):
 @bp.route('/gateways/update', methods=['POST'])
 @requires_role('Owner')
 def update_gateways():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     company_id = session.get('company_id')
     stripe_sec = request.form.get('stripe_secret_key', '')

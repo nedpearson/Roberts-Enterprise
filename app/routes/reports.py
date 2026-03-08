@@ -7,7 +7,8 @@ bp = Blueprint('reports', __name__, url_prefix='/reports')
 @bp.route('/')
 @requires_role('Owner', 'Manager')
 def overview():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -58,7 +59,8 @@ def drilldown_api(metric):
     Returns JSON tabular data for the requested metric, mimicking Forensic CPA's
     DrillDownDrawer component.
     """
-    if 'user_id' not in session: return jsonify({"error": "Unauthorized"}), 401
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
     
     conn = get_db()
     cursor = conn.cursor()

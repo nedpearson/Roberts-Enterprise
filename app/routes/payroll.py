@@ -8,7 +8,8 @@ bp = Blueprint('payroll', __name__, url_prefix='/payroll')
 @bp.route('/')
 @requires_role('Owner', 'Manager')
 def payroll_dashboard():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -55,7 +56,8 @@ def payroll_dashboard():
 
 @bp.route('/timesheets/<int:user_id>')
 def view_timesheets(user_id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     if session.get('role') not in ['Owner', 'Manager'] and session.get('user_id') != user_id:
         flash("Unauthorized to view other timesheets.", "error")
@@ -101,7 +103,8 @@ def approve_timesheets(user_id):
 
 @bp.route('/clock_in', methods=['POST'])
 def clock_in():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     conn = get_db()
     cursor = conn.cursor()
     
@@ -150,7 +153,8 @@ def clock_in():
 
 @bp.route('/clock_out', methods=['POST'])
 def clock_out():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     conn = get_db()
     cursor = conn.cursor()
     
@@ -330,7 +334,7 @@ def distribute_pools():
                     continue
                 try:
                     locations = json.loads(person['commission_locations'])
-                except:
+                except Exception:
                     continue
                 rate = float(person['commission_rate']) / 100.0
                 if not locations:

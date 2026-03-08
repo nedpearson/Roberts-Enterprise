@@ -6,7 +6,8 @@ bp = Blueprint('orders', __name__, url_prefix='/orders')
 
 @bp.route('/')
 def order_list():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -41,7 +42,8 @@ def order_list():
 
 @bp.route('/<int:id>')
 def order_detail(id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -104,8 +106,8 @@ def order_detail(id):
     ledger = cursor.fetchall()
     
     # Calculate balance
-    total_paid = sum(l['amount'] for l in ledger if l['type'] in ('Deposit', 'Final', 'Installment'))
-    total_refunded = sum(l['amount'] for l in ledger if l['type'] == 'Refund')
+    total_paid = sum(entry['amount'] for entry in ledger if entry['type'] in ('Deposit', 'Final', 'Installment'))
+    total_refunded = sum(entry['amount'] for entry in ledger if entry['type'] == 'Refund')
     balance_due = max(0, order['total'] - (total_paid - total_refunded))
     
     return render_template('order_detail.html', 
@@ -118,7 +120,8 @@ def order_detail(id):
 
 @bp.route('/<int:id>/payment', methods=['POST'])
 def post_payment(id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     amount = float(request.form.get('amount', 0))
     payment_type = request.form.get('payment_type', 'Deposit')
@@ -164,7 +167,8 @@ def post_payment(id):
 
 @bp.route('/add', methods=['POST'])
 def add_order():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     customer_id = request.form.get('customer_id')
     notes = request.form.get('notes')
@@ -195,7 +199,8 @@ def add_order():
 
 @bp.route('/<int:id>/checkout/stripe', methods=['POST'])
 def checkout_stripe(id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     amount = float(request.form.get('amount', 0))
     payment_type = request.form.get('payment_type', 'Deposit')
@@ -258,7 +263,8 @@ def checkout_stripe(id):
 
 @bp.route('/<int:id>/checkout/quickbooks', methods=['POST'])
 def checkout_quickbooks(id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     amount = float(request.form.get('amount', 0))
     payment_type = request.form.get('payment_type', 'Deposit')

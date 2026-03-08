@@ -5,7 +5,8 @@ bp = Blueprint('appointments', __name__, url_prefix='/appointments')
 
 @bp.route('/')
 def appointment_list():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -40,14 +41,15 @@ def appointment_list():
 
 @bp.route('/book', methods=['POST'])
 def book_appointment():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     customer_id = request.form.get('customer_id')
     service_id = request.form.get('service_id')
     start_at = request.form.get('start_at')
     end_at = request.form.get('end_at')
     assigned_staff_id = request.form.get('assigned_staff_id') or None
-    company_id = session.get('company_id')
+    session.get('company_id')
     location_id = session.get('location_id', 0)
     
     # Simple replace of 'T' to space for SQLite TIMESTAMP formatting from HTML5 input

@@ -1,5 +1,4 @@
 from app import app
-from database import get_db
 
 app.testing = True
 
@@ -18,7 +17,7 @@ with app.test_client() as client:
         if response.status_code == 500:
             print("HEADERS:", response.headers)
             print("--- HTML OUTPUT (Generic 500 means error logged to stderr) ---")
-    except Exception as e:
+    except Exception:
         import traceback
         print("EXCEPTION CAUGHT DIRECTLY:")
         traceback.print_exc()

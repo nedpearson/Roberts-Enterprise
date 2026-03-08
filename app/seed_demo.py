@@ -1,4 +1,3 @@
-import os
 import psycopg2
 from werkzeug.security import generate_password_hash
 from database import DATABASE_URL
@@ -26,7 +25,7 @@ def seed_demo_data():
     for table in tables:
         try:
             cursor.execute(f"TRUNCATE TABLE {table} CASCADE;")
-        except Exception as e:
+        except Exception:
             pass
 
     print("Inserting comprehensive demo data...")

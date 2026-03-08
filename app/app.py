@@ -13,21 +13,21 @@ with app.app_context():
     init_db()
 
 # Register Blueprints
-from routes.customers import bp as customers_bp
-from routes.appointments import bp as appointments_bp
-from routes.inventory import bp as inventory_bp
-from routes.purchasing import bp as purchasing_bp
-from routes.payroll import bp as payroll_bp
-from routes.orders import bp as orders_bp
-from routes.pickups import bp as pickups_bp
-from routes.reports import bp as reports_bp
-from routes.staff import bp as staff_bp
-from routes.transfers import bp as transfers_bp
-from routes.alterations import bp as alterations_bp
-from routes.communications import bp as communications_bp
-from routes.settings import bp as settings_bp
-from routes.api_voice import bp as api_voice_bp
-from routes.api_team_comm import bp as api_team_comm_bp
+from routes.customers import bp as customers_bp  # noqa: E402
+from routes.appointments import bp as appointments_bp  # noqa: E402
+from routes.inventory import bp as inventory_bp  # noqa: E402
+from routes.purchasing import bp as purchasing_bp  # noqa: E402
+from routes.payroll import bp as payroll_bp  # noqa: E402
+from routes.orders import bp as orders_bp  # noqa: E402
+from routes.pickups import bp as pickups_bp  # noqa: E402
+from routes.reports import bp as reports_bp  # noqa: E402
+from routes.staff import bp as staff_bp  # noqa: E402
+from routes.transfers import bp as transfers_bp  # noqa: E402
+from routes.alterations import bp as alterations_bp  # noqa: E402
+from routes.communications import bp as communications_bp  # noqa: E402
+from routes.settings import bp as settings_bp  # noqa: E402
+from routes.api_voice import bp as api_voice_bp  # noqa: E402
+from routes.api_team_comm import bp as api_team_comm_bp  # noqa: E402
 
 app.register_blueprint(customers_bp)
 app.register_blueprint(appointments_bp)
@@ -444,7 +444,7 @@ def dashboard_schedule_view():
     else: # day or default
         date_filter = "DATE(a.start_at) = CURRENT_DATE"
         
-    query = f'''
+    query = '''
         SELECT a.start_at, c.first_name || ' ' || c.last_name as customer_name, 
                s.name as service_name, u.first_name as stylist_name, a.status, c.wedding_date
         FROM appointments a
@@ -642,8 +642,8 @@ def universal_drilldown(type, id):
 
     return {"error": "Invalid drilldown type"}, 400
 
-from flask import send_from_directory
-import traceback
+from flask import send_from_directory  # noqa: E402
+import traceback  # noqa: E402
 
 @app.route('/manifest.json')
 def manifest():
@@ -652,7 +652,7 @@ def manifest():
 @app.route('/service-worker.js')
 def service_worker():
     return send_from_directory('static', 'service-worker.js', mimetype='application/javascript')
-from werkzeug.exceptions import HTTPException
+from werkzeug.exceptions import HTTPException  # noqa: E402
 
 @app.errorhandler(Exception)
 def handle_exception(e):

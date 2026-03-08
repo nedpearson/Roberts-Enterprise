@@ -8,7 +8,8 @@ bp = Blueprint('staff', __name__, url_prefix='/staff')
 @bp.route('/')
 @requires_role('Owner', 'Manager')
 def staff_list():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -33,7 +34,8 @@ def staff_list():
 @bp.route('/add', methods=['POST'])
 @requires_role('Owner', 'Manager')
 def add_employee():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
         
     first_name = request.form.get('first_name')
     last_name = request.form.get('last_name')
@@ -82,7 +84,8 @@ def add_employee():
 @bp.route('/edit/<int:user_id>', methods=['POST'])
 @requires_role('Owner', 'Manager')
 def edit_employee(user_id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
 
     first_name = request.form.get('first_name')
     last_name = request.form.get('last_name')
@@ -125,7 +128,8 @@ def edit_employee(user_id):
 
 @bp.route('/schedule')
 def schedule():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -203,7 +207,8 @@ def schedule():
 @bp.route('/schedule/add', methods=['POST'])
 @requires_role('Owner', 'Manager')
 def add_shift():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
         
     staff_id = request.form.get('staff_id')
     location_id = request.form.get('location_id')
@@ -241,7 +246,8 @@ def add_shift():
 @bp.route('/schedule/delete/<int:shift_id>', methods=['POST'])
 @requires_role('Owner', 'Manager')
 def delete_shift(shift_id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
         
     conn = get_db()
     cursor = conn.cursor()

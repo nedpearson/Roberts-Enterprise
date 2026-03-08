@@ -90,7 +90,8 @@ def update_alteration_status():
 @bp.route('/add', methods=['POST'])
 def add_ticket():
     from flask import request as req, flash
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     company_id = session.get('company_id')
     location_id = session.get('location_id', 0)

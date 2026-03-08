@@ -5,7 +5,8 @@ bp = Blueprint('customers', __name__, url_prefix='/customers')
 
 @bp.route('/')
 def customer_list():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -41,7 +42,8 @@ def customer_list():
 
 @bp.route('/<int:id>')
 def customer_detail(id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -75,7 +77,8 @@ def customer_detail(id):
 
 @bp.route('/<int:id>/measurements', methods=['POST'])
 def save_measurements(id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -103,7 +106,8 @@ def save_measurements(id):
 
 @bp.route('/api/customers/<int:id>/recommend_size')
 def recommend_size(id):
-    if 'user_id' not in session: return jsonify({"error": "Unauthorized"}), 401
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
     
     conn = get_db()
     cursor = conn.cursor()
@@ -114,7 +118,8 @@ def recommend_size(id):
         return jsonify({"error": "Unauthorized"}), 403
         
     vendor_id = request.args.get('vendor_id')
-    if not vendor_id: return jsonify({"error": "Missing vendor_id"}), 400
+    if not vendor_id:
+        return jsonify({"error": "Missing vendor_id"}), 400
     
     cursor.execute('SELECT * FROM customer_measurements WHERE customer_id = %s', (id,))
     meas = cursor.fetchone()
@@ -164,7 +169,8 @@ def recommend_size(id):
 
 @bp.route('/add', methods=['POST'])
 def add_customer():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     first_name = request.form.get('first_name')
     last_name = request.form.get('last_name')

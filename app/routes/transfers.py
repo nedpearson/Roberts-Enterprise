@@ -5,7 +5,8 @@ bp = Blueprint('transfers', __name__, url_prefix='/transfers')
 
 @bp.route('/')
 def dashboard():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -57,7 +58,8 @@ def dashboard():
 
 @bp.route('/new', methods=['POST'])
 def new_transfer():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     from_loc = request.form.get('from_location_id')
     to_loc = request.form.get('to_location_id')
@@ -118,7 +120,8 @@ def new_transfer():
 
 @bp.route('/<int:id>/receive', methods=['POST'])
 def receive_transfer(id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()

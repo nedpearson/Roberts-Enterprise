@@ -99,13 +99,15 @@ def send_arrival_notification(company_id, customer_id, product_name):
     if customer['phone']:
         sms_sent = send_sms(customer['phone'], sms_message)
         log_communication(company_id, customer_id, 'SMS', subject, sms_message, 'Sent' if sms_sent else 'Failed')
-        if sms_sent: success = True
+        if sms_sent:
+            success = True
         
     # Fire Email Pipeline
     if customer['email']:
         email_sent = send_email(customer['email'], subject, email_message)
         log_communication(company_id, customer_id, 'Email', subject, email_message, 'Sent' if email_sent else 'Failed')
-        if email_sent: success = True
+        if email_sent:
+            success = True
         
     return success
 
@@ -135,11 +137,13 @@ def send_ready_for_pickup(company_id, customer_id, item_description):
     if customer['phone']:
         sms_sent = send_sms(customer['phone'], sms_message)
         log_communication(company_id, customer_id, 'SMS', subject, sms_message, 'Sent' if sms_sent else 'Failed')
-        if sms_sent: success = True
+        if sms_sent:
+            success = True
         
     if customer['email']:
         email_sent = send_email(customer['email'], subject, email_message)
         log_communication(company_id, customer_id, 'Email', subject, email_message, 'Sent' if email_sent else 'Failed')
-        if email_sent: success = True
+        if email_sent:
+            success = True
         
     return success

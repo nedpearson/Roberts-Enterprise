@@ -6,7 +6,8 @@ bp = Blueprint('purchasing', __name__, url_prefix='/purchasing')
 
 @bp.route('/')
 def vendor_list():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -57,7 +58,8 @@ def vendor_list():
 
 @bp.route('/api/drilldown/<metric>')
 def drilldown_api(metric):
-    if 'user_id' not in session: return {"error": "Unauthorized"}, 401
+    if 'user_id' not in session:
+        return {"error": "Unauthorized"}, 401
     
     conn = get_db()
     cursor = conn.cursor()
@@ -97,7 +99,8 @@ def drilldown_api(metric):
 
 @bp.route('/vendor/<int:id>')
 def vendor_detail(id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -122,7 +125,8 @@ def vendor_detail(id):
 
 @bp.route('/po/<int:id>/receive', methods=['POST'])
 def receive_po(id):
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     conn = get_db()
     cursor = conn.cursor()
@@ -172,7 +176,8 @@ def receive_po(id):
 
 @bp.route('/vendor/add', methods=['POST'])
 def add_vendor():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     name = request.form.get('name')
     contact_name = request.form.get('contact_name')
@@ -194,7 +199,8 @@ def add_vendor():
 
 @bp.route('/po/add', methods=['POST'])
 def create_po():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     
     vendor_id = request.form.get('vendor_id')
     expected_delivery = request.form.get('expected_delivery')
