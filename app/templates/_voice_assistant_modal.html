@@ -157,6 +157,8 @@
                             confirmationPrompt = `I am ready to clock you ${action}. Shall I proceed?`;
                         } else if (data.action_plan.intent === 'CREATE_REMINDER') {
                             confirmationPrompt = `I've drafted your reminder. Shall I save it?`;
+                        } else if (data.action_plan.intent === 'NAVIGATE_PAGE') {
+                            confirmationPrompt = `I will take you there now. Shall I proceed?`;
                         }
 
                         const planHtml = `
@@ -201,6 +203,9 @@
                                 <div class="alert alert-success py-2 mb-0"><strong><i class="bi bi-robot"></i> Answer:</strong> ${data.message}</div>
                             `;
                             document.getElementById('voiceConfirmBtn').innerText = "Done";
+                        } else if (data.redirect_url) {
+                            alert("Success: " + data.message);
+                            setTimeout(() => { window.location.href = data.redirect_url; }, 1000); // Redirect seamlessly
                         } else {
                             alert("Success: " + data.message);
                             setTimeout(() => { window.location.reload(); }, 2000); // Refresh to show updates

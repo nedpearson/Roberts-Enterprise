@@ -71,11 +71,12 @@ class AIOperationalOrchestrator:
         - UPDATE_ORDER_STATUS
         - TIME_CLOCK_ACTION
         - CREATE_REMINDER
+        - NAVIGATE_PAGE
         
         Extract these fields in JSON formatted exactly like:
         {{
             "intent": "ADD_INTERNAL_TEAM_NOTE",
-            "target_entity_type": "customer", // or "po", "order", "vendor", "appointment", "product"
+            "target_entity_type": "customer", // or "po", "order", "vendor", "appointment", "product", "module"
             "spoken_target_identifier": "Jane Smith", // the name they said, or order number, or product keywords
             "parameters": {{
                "body": "The note text to save",
@@ -91,7 +92,8 @@ class AIOperationalOrchestrator:
                "new_order_status": "Fulfilled", // Draft, Active, Fulfilled, Cancelled for UPDATE_ORDER_STATUS
                "action": "in", // "in" or "out" for TIME_CLOCK_ACTION
                "trigger_datetime": "YYYY-MM-DD HH:MM:00", // calculate from current time for CREATE_REMINDER
-               "task_notes": "call Jane to confirm alterations" // description for CREATE_REMINDER
+               "task_notes": "call Jane to confirm alterations", // description for CREATE_REMINDER
+               "navigation_target": "point of sale" // if intent is NAVIGATE_PAGE, put the general area they want to go to
             }}
         }}
         """
@@ -399,6 +401,38 @@ class AIOperationalOrchestrator:
                 ''', (rem_id, str(current_user_id), payload_data))
                 
                 response = {"status": "success", "message": f"Reminder created for {trigger_dt}."}
+                
+            elif intent == 'NAVIGATE_PAGE':
+                nav_target_raw = params.get('navigation_target', '').lower()
+                redirect_url = '/'
+                
+                # Directly route to entity profile if specified
+                if target_type == 'customer' and target_id:
+                    redirect_url = f"/customers/{target_id}"
+                elif target_type == 'order' and target_id:
+                    redirect_url = f"/orders/{target_id}"
+                elif target_type == 'vendor' and target_id:
+                    redirect_url = f"/purchasing/vendors/{target_id}"
+                elif target_type == 'po' and target_id:
+                    redirect_url = f"/purchasing/po/{target_id}"
+                else:
+                    # General module routing
+                    if 'schedule' in nav_target_raw or 'calendar' in nav_target_raw or 'appointment' in nav_target_raw:
+                        redirect_url = "/appointments/"
+                    elif 'inventory' in nav_target_raw or 'stock' in nav_target_raw or 'product' in nav_target_raw:
+                        redirect_url = "/inventory/directory"
+                    elif 'customer' in nav_target_raw or 'client' in nav_target_raw or 'bride' in nav_target_raw:
+                        redirect_url = "/customers/"
+                    elif 'order' in nav_target_raw or 'point of sale' in nav_target_raw or 'pos' in nav_target_raw or 'sale' in nav_target_raw or 'checkout' in nav_target_raw:
+                        redirect_url = "/orders/"
+                    elif 'report' in nav_target_raw or 'dashboard' in nav_target_raw or 'analytics' in nav_target_raw:
+                        redirect_url = "/reports/"
+                    elif 'setting' in nav_target_raw or 'config' in nav_target_raw:
+                        redirect_url = "/settings/"
+                    elif 'staff' in nav_target_raw or 'employee' in nav_target_raw or 'payroll' in nav_target_raw or 'time' in nav_target_raw:
+                        redirect_url = "/staff/"
+                        
+                response = {"status": "success", "message": "Routing you there now.", "redirect_url": redirect_url}
                 
             else:
                 response = {"status": "ignored", "message": "Intent recognized but handler not implemented."}
