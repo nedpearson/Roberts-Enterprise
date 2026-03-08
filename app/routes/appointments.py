@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, session
+from flask import Blueprint, render_template, redirect, url_for, session, request, flash
 from database import get_db
 
 bp = Blueprint('appointments', __name__, url_prefix='/appointments')
@@ -62,6 +62,5 @@ def book_appointment():
     ''', (location_id, customer_id, service_id, assigned_staff_id, start_at, end_at))
     conn.commit()
     
-    from flask import request as req, flash
     flash("Appointment booked successfully.", "success")
-    return redirect(req.referrer or url_for('appointments.appointment_list'))
+    return redirect(request.referrer or url_for('appointments.appointment_list'))
