@@ -39,27 +39,50 @@ class AIOperationalOrchestrator:
         if not self.client:
             return {"status": "error", "message": "AI Orchestration layer is not configured (Missing OPENAI API key)."}
             
+        from datetime import datetime
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT id, name FROM services WHERE company_id = %s", (company_id,))
+        services_list = cursor.fetchall()
+        services_str = ", ".join([f"{s['name']} (ID: {s['id']})" for s in services_list])
+
+        cursor.execute("SELECT id, first_name, last_name FROM users WHERE company_id = %s", (company_id,))
+        staff_list = cursor.fetchall()
+        staff_str = ", ".join([f"{s['first_name']} {s['last_name']} (ID: {s['id']})" for s in staff_list])
+
         system_prompt = f"""
         You are a routing agent for a bridal boutique ERP.
         Determine the user's intent from their transcript.
         
+        Current Time: {now_str}
         Current Context: {current_page_context}
+        Available Services: {services_str}
+        Available Staff: {staff_str}
         
         Possible intents:
         - ADD_INTERNAL_TEAM_NOTE
         - BOOK_APPOINTMENT
+        - RESCHEDULE_APPOINTMENT
         - CAPTURE_MEASUREMENTS
         - QUERY_DATABASE
         
         Extract these fields in JSON formatted exactly like:
         {{
             "intent": "ADD_INTERNAL_TEAM_NOTE",
-            "target_entity_type": "customer", // or "po", "order", "vendor"
+            "target_entity_type": "customer", // or "po", "order", "vendor", "appointment"
             "spoken_target_identifier": "Jane Smith", // the name they said
             "parameters": {{
                "body": "The note text to save",
                "measurements": {{"bust": 36, "waist": 28, "hips": 39}}, // optional
-               "question": "What is her balance due?" // for QUERY_DATABASE
+               "question": "What is her balance due?", // for QUERY_DATABASE
+               "appointment_details": {{
+                   "service_id": 1, // extract matching service ID
+                   "staff_id": 2, // extract matching staff ID if mentioned
+                   "start_datetime": "YYYY-MM-DD HH:MM:00", // calculate from current time
+                   "duration_minutes": 60 // default 60 or guess
+               }} // for BOOK_APPOINTMENT / RESCHEDULE_APPOINTMENT
             }}
         }}
         """
@@ -167,6 +190,46 @@ class AIOperationalOrchestrator:
                 ''', (target_id, meas.get('bust', 0), meas.get('waist', 0), meas.get('hips', 0), meas.get('hollow_to_hem', 0)))
                 response = {"status": "success", "message": "Measurements updated successfully."}
                 
+            elif intent in ['BOOK_APPOINTMENT', 'RESCHEDULE_APPOINTMENT']:
+                if not target_id or target_type != 'customer':
+                    raise ValueError("You must specify a customer to book or reschedule for.")
+                    
+                apt_details = params.get('appointment_details', {})
+                service_id = apt_details.get('service_id')
+                staff_id = apt_details.get('staff_id')
+                start_dt = apt_details.get('start_datetime')
+                dur = apt_details.get('duration_minutes', 60)
+                
+                if not start_dt or not service_id:
+                    raise ValueError("Could not determine service or start time.")
+                    
+                from datetime import datetime, timedelta
+                start_obj = datetime.strptime(start_dt, "%Y-%m-%d %H:%M:%S")
+                end_obj = start_obj + timedelta(minutes=dur)
+                
+                # Fetch location from execution scope or fallback to 0
+                loc_id = 0
+                
+                if intent == 'BOOK_APPOINTMENT':
+                    cursor.execute('''
+                        INSERT INTO appointments (location_id, customer_id, service_id, assigned_staff_id, start_at, end_at)
+                        VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+                    ''', (loc_id, target_id, service_id, staff_id, start_dt, end_obj.strftime("%Y-%m-%d %H:%M:%S")))
+                    response = {"status": "success", "message": f"Appointment booked successfully for {start_dt}."}
+                else:
+                    # Find upcoming appointment to reschedule
+                    cursor.execute("SELECT id FROM appointments WHERE customer_id = %s ORDER BY start_at DESC LIMIT 1", (target_id,))
+                    apt_row = cursor.fetchone()
+                    if not apt_row:
+                        raise ValueError("No existing appointment found to reschedule.")
+                    
+                    cursor.execute('''
+                        UPDATE appointments 
+                        SET start_at = %s, end_at = %s, service_id = %s, assigned_staff_id = %s
+                        WHERE id = %s
+                    ''', (start_dt, end_obj.strftime("%Y-%m-%d %H:%M:%S"), service_id, staff_id, apt_row['id']))
+                    response = {"status": "success", "message": f"Appointment rescheduled successfully to {start_dt}."}
+
             elif intent == 'QUERY_DATABASE':
                 if not target_id:
                     raise ValueError(f"Could not resolve the target {target_type} to query.")
@@ -230,7 +293,6 @@ class AIOperationalOrchestrator:
             if audit_id:
                 cursor.execute("UPDATE ai_audit_logs SET execution_outcome = 'SUCCESS' WHERE id = %s", (audit_id,))
             db.commit()
-            
         except Exception as e:
             db.rollback()
             if audit_id:

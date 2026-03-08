@@ -144,6 +144,10 @@
                             confirmationPrompt = `I've prepared a note. Shall I save it?`;
                         } else if (data.action_plan.intent === 'CAPTURE_MEASUREMENTS') {
                             confirmationPrompt = `I've recorded the measurements. Shall I save them?`;
+                        } else if (data.action_plan.intent === 'BOOK_APPOINTMENT') {
+                            confirmationPrompt = `I've prepared this appointment booking. Shall I confirm it?`;
+                        } else if (data.action_plan.intent === 'RESCHEDULE_APPOINTMENT') {
+                            confirmationPrompt = `I've prepared to reschedule this appointment. Shall I confirm it?`;
                         }
 
                         const planHtml = `
