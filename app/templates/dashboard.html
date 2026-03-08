@@ -156,14 +156,15 @@
                             <div class="small text-muted">Log items from vendor P.O.</div>
                         </div>
                     </button>
-                    <button class="btn btn-outline-secondary text-start p-3 d-flex align-items-center"
+                    <a href="{{ url_for('payroll.view_timesheets', user_id=session['user_id']) }}"
+                        class="btn btn-outline-secondary text-start p-3 d-flex align-items-center text-decoration-none"
                         style="color: var(--text-color); border-color: var(--border-color);">
                         <i class="bi bi-clock-history fs-4 me-3 text-warning"></i>
                         <div>
                             <strong>Staff Timeclock</strong>
                             <div class="small text-muted">Clock in/out or view hours</div>
                         </div>
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

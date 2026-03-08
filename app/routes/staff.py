@@ -55,9 +55,12 @@ def add_employee():
     hourly_wage = float(request.form.get('hourly_wage', 0.0) or 0.0)
     bonus = float(request.form.get('bonus', 0.0) or 0.0)
     
+    pin = request.form.get('pin', '')
+    
     # Mock password hashing for demo
     from werkzeug.security import generate_password_hash
     password_hash = generate_password_hash(password)
+    pin_hash = generate_password_hash(pin) if pin else None
     
     conn = get_db()
     cursor = conn.cursor()
@@ -65,9 +68,9 @@ def add_employee():
     
     try:
         cursor.execute('''
-            INSERT INTO users (company_id, location_id, email, password_hash, role, first_name, last_name, commission_type, commission_rate, commission_locations, hourly_wage, bonus)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ''', (company_id, location_id, email, password_hash, role, first_name, last_name, commission_type, commission_rate, commission_locations, hourly_wage, bonus))
+            INSERT INTO users (company_id, location_id, email, password_hash, role, first_name, last_name, commission_type, commission_rate, commission_locations, hourly_wage, bonus, pin, pin_hash)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (company_id, location_id, email, password_hash, role, first_name, last_name, commission_type, commission_rate, commission_locations, hourly_wage, bonus, pin, pin_hash))
         conn.commit()
         flash(f"Successfully added {first_name} {last_name} to the team.", "success")
     except Exception as e:

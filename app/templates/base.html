@@ -284,17 +284,17 @@
                         <div class="modal-dialog modal-dialog-centered modal-sm">
                             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
                                 <div class="modal-header border-0 bg-transparent pb-0">
-                                    <h5 class="modal-title fw-bold">Enter PIN to Clock In</h5>
+                                    <h5 class="modal-title fw-bold">Enter PIN/Password to Clock In</h5>
                                     <button type="button" class="btn-close shadow-none"
                                         data-bs-dismiss="modal"></button>
                                 </div>
                                 <form action="{{ url_for('payroll.clock_in') }}" method="POST">
                                     <div class="modal-body py-4">
                                         <input type="password" name="pin"
-                                            class="form-control text-center fs-3 tracking-wider rounded-3 bg-light shadow-none border-0 py-3 font-monospace"
-                                            placeholder="••••" maxlength="4" pattern="[0-9]{4}" autofocus>
+                                            class="form-control text-center fs-5 tracking-wider rounded-3 bg-light shadow-none border-0 py-3"
+                                            placeholder="PIN or Password" autofocus>
                                         <div class="form-text text-center mt-3 text-muted" style="font-size: 0.8rem;">
-                                            Required if PIN is set in Settings.</div>
+                                            Authenticate to begin hours tracking.</div>
                                     </div>
                                     <div class="modal-footer border-0 pt-0 pb-4 justify-content-center">
                                         <button type="submit"
@@ -311,17 +311,17 @@
                         <div class="modal-dialog modal-dialog-centered modal-sm">
                             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
                                 <div class="modal-header border-0 bg-transparent pb-0">
-                                    <h5 class="modal-title fw-bold">Enter PIN to Clock Out</h5>
+                                    <h5 class="modal-title fw-bold">Enter PIN/Password to Clock Out</h5>
                                     <button type="button" class="btn-close shadow-none"
                                         data-bs-dismiss="modal"></button>
                                 </div>
                                 <form action="{{ url_for('payroll.clock_out') }}" method="POST">
                                     <div class="modal-body py-4">
                                         <input type="password" name="pin"
-                                            class="form-control text-center fs-3 tracking-wider rounded-3 bg-light shadow-none border-0 py-3 font-monospace"
-                                            placeholder="••••" maxlength="4" pattern="[0-9]{4}" autofocus>
+                                            class="form-control text-center fs-5 tracking-wider rounded-3 bg-light shadow-none border-0 py-3"
+                                            placeholder="PIN or Password" autofocus>
                                         <div class="form-text text-center mt-3 text-muted" style="font-size: 0.8rem;">
-                                            Required if PIN is set in Settings.</div>
+                                            Authenticate to end hours tracking.</div>
                                     </div>
                                     <div class="modal-footer border-0 pt-0 pb-4 justify-content-center">
                                         <button type="submit"

@@ -57,6 +57,10 @@ def payroll_dashboard():
 def view_timesheets(user_id):
     if 'user_id' not in session: return redirect(url_for('login'))
     
+    if session.get('role') not in ['Owner', 'Manager'] and session.get('user_id') != user_id:
+        flash("Unauthorized to view other timesheets.", "error")
+        return redirect(url_for('dashboard'))
+        
     conn = get_db()
     cursor = conn.cursor()
     
@@ -101,16 +105,31 @@ def clock_in():
     conn = get_db()
     cursor = conn.cursor()
     
-    # Optional PIN Verification for clock in/out security
     entered_pin = request.form.get('pin')
-    cursor.execute("SELECT pin_hash FROM users WHERE id = %s", (session['user_id'],))
+    cursor.execute("SELECT pin_hash, password_hash FROM users WHERE id = %s", (session['user_id'],))
     user_data = cursor.fetchone()
     
-    if user_data and user_data['pin_hash']:
+    if user_data:
         from werkzeug.security import check_password_hash
-        if not entered_pin or not check_password_hash(user_data['pin_hash'], entered_pin):
-            flash("Invalid or missing 4-digit PIN.", "error")
-            return redirect(request.referrer or url_for('dashboard'))
+        is_valid = False
+        
+        # Check if they entered their actual complex password
+        if entered_pin and check_password_hash(user_data['password_hash'], entered_pin):
+            is_valid = True
+            
+        # Check if they entered their 4-digit PIN
+        elif entered_pin and user_data.get('pin_hash') and check_password_hash(user_data['pin_hash'], entered_pin):
+            is_valid = True
+            
+        # Optional validation if neither matched but a PIN is heavily enforced. If no pin_hash is set, any clock in is fine?
+        # Actually, let's strictly require one of them if they provided an input, or if pin_hash exists.
+        if (user_data.get('pin_hash') or user_data.get('password_hash')):
+            if not is_valid and entered_pin:
+                flash("Invalid 4-digit PIN or Password.", "error")
+                return redirect(request.referrer or url_for('dashboard'))
+            elif not entered_pin:
+                flash("Enter your PIN or Password to clock in.", "error")
+                return redirect(request.referrer or url_for('dashboard'))
             
     # Check if already clocked in
     cursor.execute("SELECT id FROM time_entries WHERE user_id = %s AND clock_out IS NULL", (session['user_id'],))
@@ -135,16 +154,29 @@ def clock_out():
     conn = get_db()
     cursor = conn.cursor()
     
-    # Optional PIN Verification
     entered_pin = request.form.get('pin')
-    cursor.execute("SELECT pin_hash FROM users WHERE id = %s", (session['user_id'],))
+    cursor.execute("SELECT pin_hash, password_hash FROM users WHERE id = %s", (session['user_id'],))
     user_data = cursor.fetchone()
     
-    if user_data and user_data['pin_hash']:
+    if user_data:
         from werkzeug.security import check_password_hash
-        if not entered_pin or not check_password_hash(user_data['pin_hash'], entered_pin):
-            flash("Invalid or missing 4-digit PIN.", "error")
-            return redirect(request.referrer or url_for('dashboard'))
+        is_valid = False
+        
+        # Check if they entered their actual complex password
+        if entered_pin and check_password_hash(user_data['password_hash'], entered_pin):
+            is_valid = True
+            
+        # Check if they entered their 4-digit PIN
+        elif entered_pin and user_data.get('pin_hash') and check_password_hash(user_data['pin_hash'], entered_pin):
+            is_valid = True
+            
+        if (user_data.get('pin_hash') or user_data.get('password_hash')):
+            if not is_valid and entered_pin:
+                flash("Invalid 4-digit PIN or Password.", "error")
+                return redirect(request.referrer or url_for('dashboard'))
+            elif not entered_pin:
+                flash("Enter your PIN or Password to clock out.", "error")
+                return redirect(request.referrer or url_for('dashboard'))
             
     cursor.execute("SELECT id, clock_in FROM time_entries WHERE user_id = %s AND clock_out IS NULL ORDER BY clock_in DESC LIMIT 1", (session['user_id'],))
     entry = cursor.fetchone()
