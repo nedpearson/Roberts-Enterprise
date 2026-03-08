@@ -436,3 +436,9 @@ Press CTRL+C to quit
 127.0.0.1 - - [07/Mar/2026 16:59:44] "GET /payroll/ HTTP/1.1" 200 -
 127.0.0.1 - - [07/Mar/2026 16:59:44] "GET /settings HTTP/1.1" 308 -
 127.0.0.1 - - [07/Mar/2026 16:59:44] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 18:44:42] "GET /payroll/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 18:44:42] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 18:44:44] "GET /orders/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 18:44:45] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
+127.0.0.1 - - [07/Mar/2026 18:44:47] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [07/Mar/2026 18:44:47] "GET /static/css/motion-preview.css?v=6 HTTP/1.1" 304 -
