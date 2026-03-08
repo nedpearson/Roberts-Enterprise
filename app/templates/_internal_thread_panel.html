@@ -1,0 +1,121 @@
+<!-- Internal Team Communication Panel -->
+<div class="card shadow-sm border-0 mb-4 internal-thread-panel" data-entity-type="{{ entity_type }}"
+    data-entity-id="{{ entity_id }}" style="background-color: var(--card-bg);">
+    <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="mb-0" style="color: #aa8c66;"><i class="bi bi-chat-quote-fill me-2"></i> Internal Team Notes</h6>
+        <button class="btn btn-sm btn-outline-secondary border-0" onclick="VoiceAssistant.start()" title="Dictate Note">
+            <i class="bi bi-mic-fill"></i> Voice Note
+        </button>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="message-list p-3" style="max-height: 300px; overflow-y: auto; background-color: rgba(0,0,0,0.05);"
+            id="commThreadList_{{ entity_type }}_{{ entity_id }}">
+            <div class="text-center text-muted small py-3">
+                <div class="spinner-border spinner-border-sm"></div> Loading...
+            </div>
+        </div>
+    </div>
+
+    <div class="card-footer border-top bg-transparent p-3">
+        <div class="input-group">
+            <input type="text" class="form-control form-control-sm border-0 shadow-none bg-secondary bg-opacity-10"
+                id="commInput_{{ entity_type }}_{{ entity_id }}" placeholder="Type note for the team...">
+            <button class="btn btn-primary theme-btn btn-sm px-3"
+                onclick="submitInternalComm('{{ entity_type }}', '{{ entity_id }}')">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
+        <!-- Super Admin Policy Toggle -->
+        <div class="form-check mt-2" title="Owner accounts must approve this exclusion. It is audited.">
+            <input class="form-check-input flex-shrink-0" type="checkbox"
+                id="commExcludeSuperAdmin_{{ entity_type }}_{{ entity_id }}">
+            <label class="form-check-label small text-muted"
+                for="commExcludeSuperAdmin_{{ entity_type }}_{{ entity_id }}" style="font-size: 0.75rem;">
+                Request Super Admin Exclusion
+            </label>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const panels = document.querySelectorAll('.internal-thread-panel');
+        panels.forEach(panel => {
+            const eType = panel.dataset.entityType;
+            const eId = panel.dataset.entityId;
+            if (eType && eId) {
+                loadInternalComm(eType, eId);
+            }
+        });
+    });
+
+    function loadInternalComm(entityType, entityId) {
+        const container = document.getElementById(`commThreadList_${entityType}_${entityId}`);
+        fetch(`/api/v1/team_comm/${entityType}/${entityId}/messages`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    if (data.messages.length === 0) {
+                        container.innerHTML = '<div class="text-center text-muted small py-3">No internal team notes yet. Owner is included on all updates by default.</div>';
+                        return;
+                    }
+
+                    let html = '';
+                    data.messages.forEach(m => {
+                        const dateStr = new Date(m.created_at).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                        html += `
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                    <strong><span class="text-primary">${m.first_name} ${m.last_name}</span> <span class="badge bg-secondary ms-1 p-1" style="font-size: 0.6rem;">${m.role}</span></strong>
+                                    <small class="text-muted" style="font-size: 0.7rem;">${dateStr} <i class="bi bi-clock-history ms-1"></i></small>
+                                </div>
+                                <div class="p-2 rounded bg-white text-dark small shadow-sm border">
+                                    ${m.body}
+                                    ${m.transcript_source ? '<br><small class="text-muted fst-italic mt-1 d-block"><i class="bi bi-mic me-1"></i> Transcribed via Voice Action</small>' : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                    container.scrollTop = container.scrollHeight;
+                } else {
+                    container.innerHTML = `<div class="text-danger small">${data.error || 'Failed to load notes.'}</div>`;
+                }
+            }).catch(e => {
+                container.innerHTML = '<div class="text-danger small">Network error loading notes.</div>';
+            });
+    }
+
+    function submitInternalComm(entityType, entityId) {
+        const inputEl = document.getElementById(`commInput_${entityType}_${entityId}`);
+        const excludeEl = document.getElementById(`commExcludeSuperAdmin_${entityType}_${entityId}`);
+        const body = inputEl.value.trim();
+        if (!body) return;
+
+        inputEl.disabled = true;
+
+        fetch(`/api/v1/team_comm/${entityType}/${entityId}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                body: body,
+                request_exclusion: excludeEl.checked,
+                exclusion_reason: excludeEl.checked ? prompt("Reason for excluding Super Admin?") : null
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    inputEl.value = '';
+                    excludeEl.checked = false;
+                    loadInternalComm(entityType, entityId);
+                } else {
+                    alert("Failed to save note: " + data.message);
+                }
+            })
+            .finally(() => {
+                inputEl.disabled = false;
+            });
+    }
+</script>

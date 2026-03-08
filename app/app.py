@@ -24,6 +24,8 @@ from routes.transfers import bp as transfers_bp
 from routes.alterations import bp as alterations_bp
 from routes.communications import bp as communications_bp
 from routes.settings import bp as settings_bp
+from routes.api_voice import bp as api_voice_bp
+from routes.api_team_comm import bp as api_team_comm_bp
 
 app.register_blueprint(customers_bp)
 app.register_blueprint(appointments_bp)
@@ -38,6 +40,8 @@ app.register_blueprint(transfers_bp)
 app.register_blueprint(alterations_bp)
 app.register_blueprint(communications_bp)
 app.register_blueprint(settings_bp)
+app.register_blueprint(api_voice_bp)
+app.register_blueprint(api_team_comm_bp)
 
 @app.teardown_appcontext
 def close_connection(exception):

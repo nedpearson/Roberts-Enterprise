@@ -60,10 +60,10 @@
                 </dl>
 
                 <hr class=" mt-4 mb-3">
-                <h6 class="text-muted mb-2">Internal Notes</h6>
-                <div class=" p-3 rounded" style="font-size: 0.9rem; border: 1px solid #333;">
-                    {{ customer.notes or 'No notes provided.' }}
-                </div>
+                <!-- Using the new Team Communication Panel instead of static notes -->
+                {% with entity_type='customer', entity_id=customer.id %}
+                {% include "_internal_thread_panel.html" %}
+                {% endwith %}
             </div>
         </div>
     </div>

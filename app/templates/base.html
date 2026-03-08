@@ -259,6 +259,11 @@
                     {% endif %}
 
                     <div class="d-flex align-items-center ms-auto">
+                        <button type="button"
+                            class="btn btn-sm btn-outline-secondary rounded-circle me-3 border-0 motion-hover-lift-luxury"
+                            onclick="VoiceAssistant.start()" title="Voice Assistant">
+                            <i class="bi bi-mic text-primary fs-5"></i>
+                        </button>
                         <span class="text-muted small fw-medium text-uppercase me-3 text-nowrap d-none d-md-inline">Time
                             Clock:</span>
                         {% if is_clocked_in %}
@@ -606,6 +611,7 @@
         };
     </script>
 
+    {% include "_voice_assistant_modal.html" %}
     {% block extra_js %}{% endblock %}
 </body>
 

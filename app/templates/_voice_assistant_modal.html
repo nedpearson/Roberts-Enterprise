@@ -1,0 +1,184 @@
+<!-- Global Voice Assistant Modal -->
+<div class="modal fade" id="voiceAssistantModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content overflow-hidden text-center"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #1e1e1e, #181818)); border: 1px solid var(--border-color); border-radius: 1rem; color: #fff;">
+            <div class="modal-body p-4 position-relative">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                    data-bs-dismiss="modal" onclick="VoiceAssistant.cancel()"></button>
+
+                <h5 class="mb-3" style="color: #aa8c66;">AI Work Assistant</h5>
+
+                <div id="voiceListeningAnim" class="mb-4">
+                    <!-- Simple CSS mic pulse -->
+                    <div class="d-flex justify-content-center align-items-center" style="height: 80px;">
+                        <div class="spinner-grow text-danger" role="status"
+                            style="width: 3rem; height: 3rem; animation-duration: 1.5s;">
+                            <span class="visually-hidden">Listening...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="voiceTranscriptPreview" class="fst-italic text-muted small mb-3"
+                    style="min-height: 2em; letter-spacing: 0.5px;">
+                    Listening...
+                </div>
+
+                <div id="voiceActionPlan" class="d-none text-start mb-3 p-2 rounded"
+                    style="background: rgba(0,0,0,0.2); font-size: 0.85rem;">
+                    <!-- Filled by JS -->
+                </div>
+
+                <div id="voiceControls">
+                    <button class="btn btn-outline-danger btn-sm" onclick="VoiceAssistant.cancel()">Cancel</button>
+                    <button class="btn btn-primary theme-btn btn-sm" id="voiceConfirmBtn"
+                        onclick="VoiceAssistant.executePlan()" disabled>Confirm Action</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const VoiceAssistant = {
+        recognition: null,
+        transcript: '',
+        currentActionPlan: null,
+
+        init() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                console.warn("Speech extraction not supported in this browser fallback.");
+                return;
+            }
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            this.recognition = new SpeechRec();
+            this.recognition.continuous = false;
+            this.recognition.interimResults = true;
+
+            this.recognition.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscriptChunk = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscriptChunk += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                this.transcript += finalTranscriptChunk;
+                document.getElementById('voiceTranscriptPreview').innerText = this.transcript + interimTranscript;
+            };
+
+            this.recognition.onend = () => {
+                if (this.transcript.trim().length > 0 && !this.currentActionPlan) {
+                    this.processTranscript();
+                } else if (!this.currentActionPlan) {
+                    this.cancel();
+                }
+            };
+        },
+
+        start() {
+            this.transcript = '';
+            this.currentActionPlan = null;
+            document.getElementById('voiceTranscriptPreview').innerText = 'Listening...';
+            document.getElementById('voiceListeningAnim').classList.remove('d-none');
+            document.getElementById('voiceActionPlan').classList.add('d-none');
+            document.getElementById('voiceConfirmBtn').disabled = true;
+
+            new bootstrap.Modal(document.getElementById('voiceAssistantModal')).show();
+
+            if (this.recognition) {
+                try { this.recognition.start(); } catch (e) { console.error(e); }
+            } else {
+                alert("Voice commands are not supported on this browser.");
+            }
+        },
+
+        cancel() {
+            if (this.recognition) {
+                this.recognition.stop();
+            }
+            const modalEl = document.getElementById('voiceAssistantModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+        },
+
+        processTranscript() {
+            document.getElementById('voiceListeningAnim').classList.add('d-none');
+            document.getElementById('voiceTranscriptPreview').innerText = "Processing: " + this.transcript;
+
+            // Collect page context safely
+            let context = {};
+            const pathSegments = window.location.pathname.split('/');
+            if (pathSegments.includes('customers')) {
+                const id = pathSegments[pathSegments.indexOf('customers') + 1];
+                if (!isNaN(parseInt(id))) { context = { type: 'customer', id: parseInt(id) }; }
+            } else if (pathSegments.includes('orders')) {
+                const id = pathSegments[pathSegments.indexOf('orders') + 1];
+                if (!isNaN(parseInt(id))) { context = { type: 'order', id: parseInt(id) }; }
+            } else if (pathSegments.includes('purchasing')) {
+                // If on purchasing page, maybe looking at a PO
+                // Logic can expand here based on URL structure
+            }
+
+            fetch('/api/voice/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ transcript: this.transcript, page_context: context })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        this.currentActionPlan = data.action_plan;
+
+                        const planHtml = `
+                        <strong>Intent:</strong> ${data.action_plan.intent}<br>
+                        <strong>Target:</strong> ${data.action_plan.target_entity_type || 'Unknown'} #${data.action_plan.resolved_target_id || '?'}<br>
+                        <strong>Details:</strong> ${JSON.stringify(data.action_plan.parameters)}
+                    `;
+                        document.getElementById('voiceActionPlan').innerHTML = planHtml;
+                        document.getElementById('voiceActionPlan').classList.remove('d-none');
+                        document.getElementById('voiceConfirmBtn').disabled = false;
+                        document.getElementById('voiceTranscriptPreview').innerText = "Ready to execute.";
+                    } else {
+                        document.getElementById('voiceTranscriptPreview').innerText = "AI could not understand intent: " + (data.message || '');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('voiceTranscriptPreview').innerText = "Network error connecting to AI.";
+                });
+        },
+
+        executePlan() {
+            document.getElementById('voiceConfirmBtn').disabled = true;
+            document.getElementById('voiceConfirmBtn').innerText = "Executing...";
+
+            fetch('/api/voice/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action_plan: this.currentActionPlan })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert("Success: " + data.message);
+                        window.location.reload(); // Refresh to show updates
+                    } else {
+                        alert("Execution Failed: " + data.message);
+                    }
+                })
+                .finally(() => {
+                    this.cancel();
+                    document.getElementById('voiceConfirmBtn').innerText = "Confirm Action";
+                });
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        VoiceAssistant.init();
+    });
+</script>

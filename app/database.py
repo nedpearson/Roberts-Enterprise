@@ -581,6 +581,71 @@ def init_db():
         )
     ''')
 
+    # ==========================================
+    # INTERNAL TEAM COMMUNICATIONS & AI ORCHESTRATION
+    # ==========================================
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS internal_threads (
+            id SERIAL PRIMARY KEY,
+            company_id INTEGER NOT NULL,
+            customer_id INTEGER,
+            order_id INTEGER,
+            appointment_id INTEGER,
+            po_id INTEGER,
+            status TEXT DEFAULT 'Open',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(company_id) REFERENCES companies(id),
+            FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+            FOREIGN KEY(order_id) REFERENCES orders(id) ON DELETE SET NULL,
+            FOREIGN KEY(appointment_id) REFERENCES appointments(id) ON DELETE SET NULL,
+            FOREIGN KEY(po_id) REFERENCES purchase_orders(id) ON DELETE SET NULL
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS internal_messages (
+            id SERIAL PRIMARY KEY,
+            thread_id INTEGER NOT NULL,
+            author_id INTEGER NOT NULL,
+            body TEXT NOT NULL,
+            transcript_source TEXT,
+            super_admin_excluded BOOLEAN DEFAULT FALSE,
+            exclusion_reason TEXT,
+            exclusion_approved BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(thread_id) REFERENCES internal_threads(id) ON DELETE CASCADE,
+            FOREIGN KEY(author_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS internal_alerts (
+            id SERIAL PRIMARY KEY,
+            message_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            read_state BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(message_id) REFERENCES internal_messages(id) ON DELETE CASCADE,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ai_audit_logs (
+            id SERIAL PRIMARY KEY,
+            company_id INTEGER NOT NULL,
+            actor_id INTEGER,
+            raw_input TEXT,
+            parsed_intent TEXT,
+            extracted_entities_json TEXT,
+            target_object_type TEXT,
+            target_object_id INTEGER,
+            execution_outcome TEXT,
+            executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(company_id) REFERENCES companies(id)
+        )
+    ''')
+
     conn.commit()
 
 if __name__ == '__main__':
