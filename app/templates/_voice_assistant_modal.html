@@ -159,6 +159,8 @@
                             confirmationPrompt = `I've drafted your reminder. Shall I save it?`;
                         } else if (data.action_plan.intent === 'NAVIGATE_PAGE') {
                             confirmationPrompt = `I will take you there now. Shall I proceed?`;
+                        } else if (data.action_plan.intent === 'DRAFT_COMMUNICATION') {
+                            confirmationPrompt = `I've prepared the ${data.action_plan.parameters.communication_type || 'message'}. Shall I save it to draft logs?`;
                         }
 
                         const planHtml = `
@@ -239,5 +241,22 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         VoiceAssistant.init();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        // Exclude inputs and textareas to prevent interfering with typing
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+        // Hotkey: Shift + Space
+        if (e.shiftKey && e.code === 'Space') {
+            e.preventDefault();
+            const voiceModalEl = document.getElementById('voiceAssistantModal');
+            if (!voiceModalEl.classList.contains('show')) {
+                const modal = new bootstrap.Modal(voiceModalEl);
+                modal.show();
+                // Adding a slight timeout to ensure animation starts cleanly
+                setTimeout(() => { VoiceAssistant.start(); }, 300);
+            }
+        }
     });
 </script>

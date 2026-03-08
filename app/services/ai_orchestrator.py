@@ -72,6 +72,7 @@ class AIOperationalOrchestrator:
         - TIME_CLOCK_ACTION
         - CREATE_REMINDER
         - NAVIGATE_PAGE
+        - DRAFT_COMMUNICATION
         
         Extract these fields in JSON formatted exactly like:
         {{
@@ -93,7 +94,9 @@ class AIOperationalOrchestrator:
                "action": "in", // "in" or "out" for TIME_CLOCK_ACTION
                "trigger_datetime": "YYYY-MM-DD HH:MM:00", // calculate from current time for CREATE_REMINDER
                "task_notes": "call Jane to confirm alterations", // description for CREATE_REMINDER
-               "navigation_target": "point of sale" // if intent is NAVIGATE_PAGE, put the general area they want to go to
+               "navigation_target": "point of sale", // if intent is NAVIGATE_PAGE, put the general area they want to go to
+               "communication_type": "Email", // "Email" or "SMS" for DRAFT_COMMUNICATION
+               "draft_body": "tell Jane her dress arrived" // instructions for DRAFT_COMMUNICATION
             }}
         }}
         """
@@ -433,6 +436,35 @@ class AIOperationalOrchestrator:
                         redirect_url = "/staff/"
                         
                 response = {"status": "success", "message": "Routing you there now.", "redirect_url": redirect_url}
+                
+            elif intent == 'DRAFT_COMMUNICATION':
+                if not target_id or target_type != 'customer':
+                    raise ValueError("You must specify a customer to draft a communication for.")
+                    
+                comm_type = params.get('communication_type', 'Email')
+                draft_instr = params.get('draft_body', '')
+                
+                cursor.execute("SELECT first_name, last_name FROM customers WHERE id = %s AND company_id = %s", (target_id, company_id))
+                cust = cursor.fetchone()
+                if not cust:
+                    raise ValueError("Customer not found.")
+                    
+                sys_msg = f"Write a professional, warm {comm_type} from a bridal boutique to {cust['first_name']} {cust['last_name']} about: {draft_instr}. Keep it concise and formatted beautifully. Do not include markdown."
+                ans_resp = self.client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "system", "content": sys_msg}],
+                    temperature=0.7
+                )
+                final_body = ans_resp.choices[0].message.content.strip()
+                
+                subj = f"Update regarding your Bridal Appointment" if comm_type == 'Email' else 'SMS Update'
+                
+                cursor.execute('''
+                    INSERT INTO communication_logs (company_id, customer_id, type, subject, message_body, status)
+                    VALUES (%s, %s, %s, %s, %s, 'Draft')
+                ''', (company_id, target_id, comm_type, subj, final_body))
+                
+                response = {"status": "success", "message": f"I have drafted the {comm_type} for {cust['first_name']}."}
                 
             else:
                 response = {"status": "ignored", "message": "Intent recognized but handler not implemented."}
