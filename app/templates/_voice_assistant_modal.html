@@ -101,6 +101,9 @@
             if (this.recognition) {
                 this.recognition.stop();
             }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
             const modalEl = document.getElementById('voiceAssistantModal');
             const modalInstance = bootstrap.Modal.getInstance(modalEl);
             if (modalInstance) modalInstance.hide();
@@ -134,7 +137,17 @@
                     if (data.status === 'success') {
                         this.currentActionPlan = data.action_plan;
 
+                        let confirmationPrompt = "I understood your request. Ready to execute?";
+                        if (data.action_plan.intent === 'QUERY_DATABASE') {
+                            confirmationPrompt = `Shall I look up this information?`;
+                        } else if (data.action_plan.intent === 'ADD_INTERNAL_TEAM_NOTE') {
+                            confirmationPrompt = `I've prepared a note. Shall I save it?`;
+                        } else if (data.action_plan.intent === 'CAPTURE_MEASUREMENTS') {
+                            confirmationPrompt = `I've recorded the measurements. Shall I save them?`;
+                        }
+
                         const planHtml = `
+                        <div class="alert alert-info py-2 mb-2"><strong><i class="bi bi-robot"></i> AI:</strong> "${confirmationPrompt}"</div>
                         <strong>Intent:</strong> ${data.action_plan.intent}<br>
                         <strong>Target:</strong> ${data.action_plan.target_entity_type || 'Unknown'} #${data.action_plan.resolved_target_id || '?'}<br>
                         <strong>Details:</strong> ${JSON.stringify(data.action_plan.parameters)}
@@ -143,8 +156,11 @@
                         document.getElementById('voiceActionPlan').classList.remove('d-none');
                         document.getElementById('voiceConfirmBtn').disabled = false;
                         document.getElementById('voiceTranscriptPreview').innerText = "Ready to execute.";
+
+                        this.speakText(confirmationPrompt);
                     } else {
                         document.getElementById('voiceTranscriptPreview').innerText = "AI could not understand intent: " + (data.message || '');
+                        this.speakText("I'm sorry, I couldn't understand that.");
                     }
                 })
                 .catch(err => {
@@ -165,16 +181,41 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        alert("Success: " + data.message);
-                        window.location.reload(); // Refresh to show updates
+                        this.speakText(data.message);
+                        if (this.currentActionPlan.intent === 'QUERY_DATABASE') {
+                            // Show the answer instead of reloading
+                            document.getElementById('voiceActionPlan').innerHTML = `
+                                <div class="alert alert-success py-2 mb-0"><strong><i class="bi bi-robot"></i> Answer:</strong> ${data.message}</div>
+                            `;
+                            document.getElementById('voiceConfirmBtn').innerText = "Done";
+                        } else {
+                            alert("Success: " + data.message);
+                            setTimeout(() => { window.location.reload(); }, 2000); // Refresh to show updates
+                        }
                     } else {
+                        this.speakText("Sorry, execution failed.");
                         alert("Execution Failed: " + data.message);
                     }
                 })
-                .finally(() => {
-                    this.cancel();
+                .catch(err => {
+                    this.speakText("Sorry, a network error occurred.");
                     document.getElementById('voiceConfirmBtn').innerText = "Confirm Action";
+                    document.getElementById('voiceConfirmBtn').disabled = false;
                 });
+        },
+
+        speakText(text) {
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                // Try to find a good English voice
+                const voices = window.speechSynthesis.getVoices();
+                const engVoice = voices.find(v => v.lang.includes('en-') && v.name.includes('Female')) || voices.find(v => v.lang.includes('en-'));
+                if (engVoice) utterance.voice = engVoice;
+
+                window.speechSynthesis.speak(utterance);
+            }
         }
     };
 

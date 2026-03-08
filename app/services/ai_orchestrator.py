@@ -24,6 +24,10 @@ class AIOperationalOrchestrator:
             cursor.execute("SELECT id FROM purchase_orders WHERE vendor_id IN (SELECT id FROM vendors WHERE company_id=%s) AND id::text = %s LIMIT 1", (company_id, str(spoken_identifier).replace('#', '').strip()))
             row = cursor.fetchone()
             if row: return row['id']
+        elif entity_type == 'vendor':
+            cursor.execute("SELECT id FROM vendors WHERE company_id=%s AND name ILIKE %s LIMIT 1", (company_id, f"%{spoken_identifier}%"))
+            row = cursor.fetchone()
+            if row: return row['id']
             
         return None
 
@@ -45,15 +49,17 @@ class AIOperationalOrchestrator:
         - ADD_INTERNAL_TEAM_NOTE
         - BOOK_APPOINTMENT
         - CAPTURE_MEASUREMENTS
+        - QUERY_DATABASE
         
         Extract these fields in JSON formatted exactly like:
         {{
             "intent": "ADD_INTERNAL_TEAM_NOTE",
-            "target_entity_type": "customer", // or "po", "order"
+            "target_entity_type": "customer", // or "po", "order", "vendor"
             "spoken_target_identifier": "Jane Smith", // the name they said
             "parameters": {{
                "body": "The note text to save",
-               "measurements": {{"bust": 36, "waist": 28, "hips": 39}} // optional
+               "measurements": {{"bust": 36, "waist": 28, "hips": 39}}, // optional
+               "question": "What is her balance due?" // for QUERY_DATABASE
             }}
         }}
         """
@@ -151,6 +157,63 @@ class AIOperationalOrchestrator:
                     updated_at = CURRENT_TIMESTAMP
                 ''', (target_id, meas.get('bust', 0), meas.get('waist', 0), meas.get('hips', 0), meas.get('hollow_to_hem', 0)))
                 response = {"status": "success", "message": "Measurements updated successfully."}
+                
+            elif intent == 'QUERY_DATABASE':
+                if not target_id:
+                    raise ValueError(f"Could not resolve the target {target_type} to query.")
+                    
+                context_data = {}
+                if target_type == 'customer':
+                    cursor.execute("SELECT first_name, last_name, email, phone, wedding_date, notes FROM customers WHERE id = %s AND company_id = %s", (target_id, company_id))
+                    cust = dict(cursor.fetchone() or {})
+                    
+                    cursor.execute("""
+                        SELECT subtotal, tax, total, status 
+                        FROM orders 
+                        WHERE customer_id = %s AND company_id = %s
+                    """, (target_id, company_id))
+                    orders = cursor.fetchall()
+                    
+                    cursor.execute("""
+                        SELECT sum(amount) as total_paid
+                        FROM payment_ledger 
+                        WHERE customer_id = %s
+                    """, (target_id,))
+                    paid_row = cursor.fetchone()
+                    total_paid = float(paid_row['total_paid'] or 0) if paid_row else 0.0
+                    
+                    total_billed = sum(float(o['total'] or 0) for o in orders)
+                    
+                    context_data = {
+                        "customer_profile": cust,
+                        "orders": [dict(o) for o in orders],
+                        "financial_summary": {
+                            "total_billed": total_billed,
+                            "total_paid": total_paid,
+                            "balance_due": total_billed - total_paid
+                        }
+                    }
+                elif target_type == 'vendor':
+                    cursor.execute("SELECT name, contact_name, lead_time_weeks, notes FROM vendors WHERE id = %s AND company_id = %s", (target_id, company_id))
+                    context_data["vendor"] = dict(cursor.fetchone() or {})
+                elif target_type == 'po':
+                    cursor.execute("SELECT status, expected_delivery, total_cost, notes FROM purchase_orders WHERE id = %s AND vendor_id IN (SELECT id FROM vendors WHERE company_id = %s)", (target_id, company_id))
+                    context_data["purchase_order"] = dict(cursor.fetchone() or {})
+                
+                if not context_data:
+                    context_data = {"error": "No meaningful data found for this entity."}
+                    
+                sys_msg = "You are a bridal boutique assistant. Use the JSON data provided to answer the user's question concisely in 1-2 sentences. Do not use markdown."
+                ans_resp = self.client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": sys_msg},
+                        {"role": "user", "content": f"Question: {params.get('question')}\nData: {json.dumps(context_data, default=str)}"}
+                    ],
+                    temperature=0.0
+                )
+                answer = ans_resp.choices[0].message.content
+                response = {"status": "success", "message": answer}
                 
             else:
                 response = {"status": "ignored", "message": "Intent recognized but handler not implemented."}
