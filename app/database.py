@@ -1,8 +1,17 @@
 import psycopg2
 import psycopg2.extras
+import psycopg2.extensions
 import os
 from flask import g
 from dotenv import load_dotenv
+
+def _cast_date_to_string(value, cursor):
+    if value is None: return None
+    return str(value)
+    
+psycopg2.extensions.register_type(
+    psycopg2.extensions.new_type((1082, 1083, 1114, 1184), "STRINGCAST", _cast_date_to_string)
+)
 
 env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(env_path)
