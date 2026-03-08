@@ -276,7 +276,6 @@ def demo_login():
         session['name'] = f"{demo_user['first_name']} {demo_user['last_name']} (Demo)"
         session['is_demo'] = True
         
-        flash("Entered Demo Mode. You are currently viewing simulated data.", "success")
         return redirect(url_for('dashboard'))
     else:
         flash("Demo account not configured.", "error")
