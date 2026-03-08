@@ -20,8 +20,8 @@ ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=app/app.py
 ENV PYTHONPATH=/app
 
-# Expose dynamic port for Railway
-EXPOSE ${PORT:-5005}
+# Expose port
+EXPOSE 8080
 
 # Start the application using Gunicorn (allowing environment variables to evaluate)
-CMD gunicorn --bind 0.0.0.0:${PORT:-5005} --workers 3 --threads 2 --timeout 120 --chdir app app:app
+CMD gunicorn --bind 0.0.0.0:8080 --workers 3 --threads 2 --timeout 120 --chdir app app:app
