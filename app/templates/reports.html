@@ -35,8 +35,9 @@
 
 <div class="row g-4 mb-4">
     <!-- Active Orders Drilldown -->
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0 h-100" style="background: var(--kpi-bg, linear-gradient(145deg, #1e1e1e, #181818));">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #1e1e1e, #181818));">
             <div class="card-body">
                 <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Active Orders
                 </h6>
@@ -50,8 +51,9 @@
     </div>
 
     <!-- Revenue Collected Drilldown -->
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0 h-100" style="background: var(--kpi-bg, linear-gradient(145deg, #1e1e1e, #181818));">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #1e1e1e, #181818));">
             <div class="card-body">
                 <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Revenue
                     Collected</h6>
@@ -66,8 +68,9 @@
     </div>
 
     <!-- Accounts Receivable Drilldown -->
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0 h-100" style="background: var(--kpi-bg, linear-gradient(145deg, #1e1e1e, #181818));">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #1e1e1e, #181818));">
             <div class="card-body">
                 <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Accounts
                     Receivable</h6>
@@ -77,6 +80,22 @@
                     ${{ "{:,.2f}".format(total_ar) }}
                 </h3>
                 <small class="text-muted mt-2 d-block">Total outstanding balances due.</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice AI Analytics Drilldown -->
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100"
+            style="background: var(--kpi-bg, linear-gradient(145deg, #1e1e1e, #181818));">
+            <div class="card-body">
+                <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;"><i
+                        class="bi bi-mic-fill me-1"></i> Voice AI Usage</h6>
+                <h3 class="mb-0 global-drilldown text-info" data-drilldown-url="/reports/api/drilldown/ai_actions"
+                    data-title="Voice AI Audit Log" style="color: #00bcd4 !important;">
+                    {{ total_ai_actions or 0 }} Intents
+                </h3>
+                <small class="text-muted mt-2 d-block">Track staff command success rate.</small>
             </div>
         </div>
     </div>

@@ -38,10 +38,18 @@ def overview():
     total_paid = order_totals['total_paid'] if order_totals and order_totals['total_paid'] else 0.0
     total_ar = max(0, total_sales - total_paid)
     
+    cursor.execute('''
+        SELECT COUNT(*) as cnt 
+        FROM ai_audit_logs 
+        WHERE company_id = %s
+    ''', (company_id,))
+    total_ai_actions = cursor.fetchone()['cnt']
+    
     return render_template('reports.html', 
                           active_orders=active_orders,
                           total_collected=total_collected,
-                          total_ar=total_ar)
+                          total_ar=total_ar,
+                          total_ai_actions=total_ai_actions)
 
 @bp.route('/api/drilldown/<metric>')
 @requires_role('Owner', 'Manager')
@@ -116,6 +124,26 @@ def drilldown_api(metric):
                 'Customer': f"{row['first_name']} {row['last_name']}",
                 'Created': row['created_at'].split(' ')[0],
                 'Status': row['status']
+            })
+            
+    elif metric == 'ai_actions':
+        columns = ['ID', 'Staff', 'Intent', 'Target Type', 'Target ID', 'Outcome', 'Time']
+        cursor.execute('''
+            SELECT a.id, u.first_name, u.last_name, a.parsed_intent, a.target_object_type, a.target_object_id, a.execution_outcome, a.created_at
+            FROM ai_audit_logs a
+            LEFT JOIN users u ON a.actor_id = u.id
+            WHERE a.company_id = %s
+            ORDER BY a.created_at DESC
+        ''', (company_id,))
+        for row in cursor.fetchall():
+            data.append({
+                'ID': f"#{row['id']}",
+                'Staff': f"{row['first_name'] or ''} {row['last_name'] or ''}".strip(),
+                'Intent': row['parsed_intent'],
+                'Target Type': row['target_object_type'] or 'N/A',
+                'Target ID': f"#{row['target_object_id']}" if row['target_object_id'] else 'N/A',
+                'Outcome': row['execution_outcome'],
+                'Time': str(row['created_at']).split('.')[0]
             })
             
     return jsonify({
