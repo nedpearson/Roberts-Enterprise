@@ -221,8 +221,8 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form.get('email', '')
+        password = request.form.get('password', '')
         remember = request.form.get('remember') == 'on'
         
         from database import get_db
@@ -233,7 +233,7 @@ def login():
         user = cursor.fetchone()
         
         if user:
-            is_valid_password = check_password_hash(user['password_hash'], password)
+            is_valid_password = check_password_hash(user['password_hash'], password) if user.get('password_hash') else False
             is_valid_pin = False
             # If they entered a 4-digit pin in the password field, check the pin hash
             if user.get('pin_hash') and password.isdigit() and len(password) == 4:
