@@ -30,11 +30,25 @@
 <body
     class="{% if request.args.get('motion') == 'true' or request.cookies.get('motion_preview') == 'true' %}motion-preview-enabled{% endif %}">
 
+    <!-- Mobile Top Navigation (Visible only on small screens) -->
+    {% if session.get('user_id') %}
+    <div class="d-md-none d-flex align-items-center justify-content-between p-3 position-sticky top-0 shadow-sm z-3"
+        style="background-color: var(--sidebar-bg); border-bottom: 1px solid var(--border-color);">
+        <h5 class="m-0 fw-bold" style="color: var(--theme-color); font-family: 'Halant', serif;">
+            {{ session.get('name') }}
+        </h5>
+        <button class="btn btn-outline-secondary btn-sm shadow-none" type="button" data-bs-toggle="collapse"
+            data-bs-target="#sidebarMenu" aria-expanded="false" aria-controls="sidebarMenu">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+    </div>
+    {% endif %}
+
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar Navigation -->
             {% if session.get('user_id') %}
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
                 <div class="position-sticky pt-4">
 
                     <!-- Dynamic Company Branding -->
@@ -212,8 +226,8 @@
 
                 {% if session.get('user_id') %}
                 <!-- TOP HORIZONTAL ACTION BAR: TIME CLOCK -->
-                <div class="d-flex justify-content-end align-items-center p-3 mb-4 shadow-sm"
-                    style="background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1020; margin-left: -15px; margin-right: -15px;">
+                <div class="d-flex flex-wrap flex-md-nowrap justify-content-end align-items-center p-3 mb-4 shadow-sm"
+                    style="background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1020; margin-left: -.75rem; margin-right: -.75rem;">
 
                     {% if session.get('is_demo') %}
                     <div class="me-auto d-flex align-items-center me-3">
