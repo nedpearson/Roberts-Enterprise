@@ -165,6 +165,8 @@
                             confirmationPrompt = `Shall I retrieve your schedule?`;
                         } else if (data.action_plan.intent === 'BROADCAST_MESSAGE') {
                             confirmationPrompt = `I am ready to broadcast this system-wide. Shall I send it?`;
+                        } else if (data.action_plan.intent === 'CREATE_ORDER') {
+                            confirmationPrompt = `I'll create an order for this now. Shall I proceed?`;
                         }
 
                         const planHtml = `

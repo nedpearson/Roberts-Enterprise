@@ -75,6 +75,7 @@ class AIOperationalOrchestrator:
         - DRAFT_COMMUNICATION
         - CHECK_SCHEDULE
         - BROADCAST_MESSAGE
+        - CREATE_ORDER
         
         Extract these fields in JSON formatted exactly like:
         {{
@@ -100,7 +101,8 @@ class AIOperationalOrchestrator:
                "communication_type": "Email", // "Email" or "SMS" for DRAFT_COMMUNICATION
                "draft_body": "tell Jane her dress arrived", // instructions for DRAFT_COMMUNICATION
                "broadcast_message": "The boutique is closing in 10 minutes", // for BROADCAST_MESSAGE
-               "schedule_date": "YYYY-MM-DD" // The specific date they are inquiring about for CHECK_SCHEDULE (typically today)
+               "schedule_date": "YYYY-MM-DD", // The specific date they are inquiring about for CHECK_SCHEDULE (typically today)
+               "item_keywords": "sweetheart ivory gown size 10" // for CREATE_ORDER, what did they say they want to buy?
             }}
         }}
         """
@@ -518,6 +520,66 @@ class AIOperationalOrchestrator:
                         temperature=0.0
                     )
                     response = {"status": "success", "message": ans_resp.choices[0].message.content}
+                
+            elif intent == 'CREATE_ORDER':
+                if not target_id or target_type != 'customer':
+                    raise ValueError("You must specify a customer to create an order for.")
+                    
+                keywords = params.get('item_keywords', '')
+                if not keywords:
+                    raise ValueError("I need to know what product they want to buy.")
+                
+                # Intelligent product matching based on keywords
+                search_terms = keywords.split()
+                query_parts = []
+                query_args = []
+                for term in search_terms:
+                    query_parts.append("(p.name ILIKE %s OR p.brand ILIKE %s OR pv.size ILIKE %s OR pv.color ILIKE %s)")
+                    for _ in range(4): query_args.append(f"%{term}%")
+                    
+                where_clause = " AND ".join(query_parts) if query_parts else "1=1"
+                
+                cursor.execute(f"""
+                    SELECT pv.id as variant_id, p.price, p.name, pv.size, pv.color
+                    FROM product_variants pv
+                    JOIN products p ON pv.product_id = p.id
+                    JOIN vendors v ON p.vendor_id = v.id
+                    WHERE v.company_id = %s AND {where_clause}
+                    LIMIT 1
+                """, [company_id] + query_args)
+                
+                prod = cursor.fetchone()
+                if not prod:
+                    raise ValueError("Could not find a product matching that description in the inventory.")
+                
+                # Fetch customer wedding date for snapshotting
+                cursor.execute("SELECT wedding_date FROM customers WHERE id = %s", (target_id,))
+                cust = cursor.fetchone()
+                wed_dt = cust['wedding_date'] if cust else None
+                
+                subtotal = float(prod['price'])
+                tax = subtotal * 0.08  # Default 8% tax assumption
+                total = subtotal + tax
+                
+                # 1. Create Order Master Record
+                cursor.execute('''
+                    INSERT INTO orders (company_id, location_id, customer_id, status, subtotal, tax, total, wedding_date_snapshot, sold_by_id)
+                    VALUES (%s, 0, %s, 'Draft', %s, %s, %s, %s, %s) RETURNING id
+                ''', (company_id, target_id, subtotal, tax, total, wed_dt, current_user_id))
+                
+                new_ord_id = cursor.fetchone()['id']
+                
+                # 2. Attach Line Item
+                cursor.execute('''
+                    INSERT INTO order_items (order_id, product_variant_id, quantity, unit_price, sale_type)
+                    VALUES (%s, %s, 1, %s, 'Off-the-Rack')
+                ''', (new_ord_id, prod['variant_id'], prod['price']))
+                
+                response = {
+                    "status": "success", 
+                    "message": f"Successfully created a Draft Order for {prod['name']}. Bringing it up now.",
+                    "redirect_url": f"/orders/{new_ord_id}"
+                }
                 
             else:
                 response = {"status": "ignored", "message": "Intent recognized but handler not implemented."}
