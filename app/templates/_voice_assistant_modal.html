@@ -148,6 +148,10 @@
                             confirmationPrompt = `I've prepared this appointment booking. Shall I confirm it?`;
                         } else if (data.action_plan.intent === 'RESCHEDULE_APPOINTMENT') {
                             confirmationPrompt = `I've prepared to reschedule this appointment. Shall I confirm it?`;
+                        } else if (data.action_plan.intent === 'INVENTORY_LOOKUP') {
+                            confirmationPrompt = `Shall I look up this inventory item?`;
+                        } else if (data.action_plan.intent === 'UPDATE_ORDER_STATUS') {
+                            confirmationPrompt = `I'm ready to update the order status. Shall I proceed?`;
                         }
 
                         const planHtml = `
@@ -186,7 +190,7 @@
                 .then(data => {
                     if (data.status === 'success') {
                         this.speakText(data.message);
-                        if (this.currentActionPlan.intent === 'QUERY_DATABASE') {
+                        if (this.currentActionPlan.intent === 'QUERY_DATABASE' || this.currentActionPlan.intent === 'INVENTORY_LOOKUP') {
                             // Show the answer instead of reloading
                             document.getElementById('voiceActionPlan').innerHTML = `
                                 <div class="alert alert-success py-2 mb-0"><strong><i class="bi bi-robot"></i> Answer:</strong> ${data.message}</div>

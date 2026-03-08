@@ -67,12 +67,14 @@ class AIOperationalOrchestrator:
         - RESCHEDULE_APPOINTMENT
         - CAPTURE_MEASUREMENTS
         - QUERY_DATABASE
+        - INVENTORY_LOOKUP
+        - UPDATE_ORDER_STATUS
         
         Extract these fields in JSON formatted exactly like:
         {{
             "intent": "ADD_INTERNAL_TEAM_NOTE",
-            "target_entity_type": "customer", // or "po", "order", "vendor", "appointment"
-            "spoken_target_identifier": "Jane Smith", // the name they said
+            "target_entity_type": "customer", // or "po", "order", "vendor", "appointment", "product"
+            "spoken_target_identifier": "Jane Smith", // the name they said, or order number, or product keywords
             "parameters": {{
                "body": "The note text to save",
                "measurements": {{"bust": 36, "waist": 28, "hips": 39}}, // optional
@@ -82,7 +84,9 @@ class AIOperationalOrchestrator:
                    "staff_id": 2, // extract matching staff ID if mentioned
                    "start_datetime": "YYYY-MM-DD HH:MM:00", // calculate from current time
                    "duration_minutes": 60 // default 60 or guess
-               }} // for BOOK_APPOINTMENT / RESCHEDULE_APPOINTMENT
+               }}, // for BOOK_APPOINTMENT / RESCHEDULE_APPOINTMENT
+               "inventory_query": "size 10 ivory veils", // string of search keywords for INVENTORY_LOOKUP
+               "new_order_status": "Fulfilled" // Draft, Active, Fulfilled, Cancelled for UPDATE_ORDER_STATUS
             }}
         }}
         """
@@ -286,6 +290,63 @@ class AIOperationalOrchestrator:
                 )
                 answer = ans_resp.choices[0].message.content
                 response = {"status": "success", "message": answer}
+                
+            elif intent == 'UPDATE_ORDER_STATUS':
+                new_status = params.get('new_order_status')
+                if not new_status or new_status not in ['Draft', 'Active', 'Fulfilled', 'Cancelled']:
+                    raise ValueError(f"Invalid or missing order status: {new_status}")
+                    
+                # The target_id might represent the order number
+                order_id_to_update = target_id
+                
+                # If target_id resolves to a customer because they said "Jane's order", infer their active order
+                if target_type == 'customer':
+                    cursor.execute("SELECT id FROM orders WHERE customer_id = %s AND company_id = %s ORDER BY created_at DESC LIMIT 1", (target_id, company_id))
+                    ord_row = cursor.fetchone()
+                    if not ord_row: raise ValueError("Could not find a recent order for this customer.")
+                    order_id_to_update = ord_row['id']
+                    
+                # Actually update the status
+                cursor.execute("UPDATE orders SET status = %s WHERE id = %s AND company_id = %s", (new_status, order_id_to_update, company_id))
+                response = {"status": "success", "message": f"Successfully marked Order #{order_id_to_update} as {new_status}."}
+                
+            elif intent == 'INVENTORY_LOOKUP':
+                search_query = params.get('inventory_query', '').replace('%', '')
+                search_terms = search_query.split()
+                
+                query_parts = []
+                query_args = []
+                for term in search_terms:
+                    query_parts.append("(p.name ILIKE %s OR p.brand ILIKE %s OR pv.size ILIKE %s OR pv.color ILIKE %s)")
+                    for _ in range(4): query_args.append(f"%{term}%")
+                    
+                where_clause = " AND ".join(query_parts) if query_parts else "1=1"
+                
+                cursor.execute(f"""
+                    SELECT p.brand, p.name, pv.size, pv.color, pv.on_hand_qty, p.price
+                    FROM product_variants pv
+                    JOIN products p ON pv.product_id = p.id
+                    JOIN vendors v ON p.vendor_id = v.id
+                    WHERE v.company_id = %s AND {where_clause}
+                    LIMIT 5
+                """, [company_id] + query_args)
+                
+                inv_results = cursor.fetchall()
+                if not inv_results:
+                    response = {"status": "success", "message": "I could not find any stock matching that description."}
+                else:
+                    context_data = {"inventory_hits": [dict(r) for r in inv_results]}
+                    sys_msg = "You are a bridal boutique assistant. Summarize the inventory lookup results given in JSON into 1-2 natural spoken sentences. Do not use markdown."
+                    ans_resp = self.client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[
+                            {"role": "system", "content": sys_msg},
+                            {"role": "user", "content": f"Query: {search_query}\nData: {json.dumps(context_data, default=str)}"}
+                        ],
+                        temperature=0.0
+                    )
+                    response = {"status": "success", "message": ans_resp.choices[0].message.content}
+                
                 
             else:
                 response = {"status": "ignored", "message": "Intent recognized but handler not implemented."}
