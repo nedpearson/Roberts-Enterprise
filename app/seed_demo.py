@@ -34,7 +34,7 @@ def seed_demo_data():
     # 1. Company
     cursor.execute("""
         INSERT INTO companies (name, domain, logo_url, primary_color, theme_bg, active, stripe_secret_key, stripe_publishable_key, qb_client_id, qb_client_secret, qb_access_token, qb_refresh_token, qb_realm_id)
-        VALUES ('I Do Bridal Couture', 'idobridalcouture.com', 'https://idobridalcouture.com/logo.png', '#aa8c66', 'light', TRUE, 'sk_test_123', 'pk_test_123', 'qb_client_123', 'qb_secret_123', 'qb_access_123', 'qb_refresh_123', 'realm_123')
+        VALUES ('I Do Bridal Couture', 'idobridalcouture.com', '/static/img/ido_logo.png', '#aa8c66', 'custom_idc', TRUE, 'sk_test_123', 'pk_test_123', 'qb_client_123', 'qb_secret_123', 'qb_access_123', 'qb_refresh_123', 'realm_123')
         RETURNING id
     """)
     company_id = cursor.fetchone()[0]
@@ -72,7 +72,7 @@ def seed_demo_data():
     # 3.5 Proper & Co
     cursor.execute("""
         INSERT INTO companies (name, domain, logo_url, primary_color, theme_bg, active, stripe_secret_key, stripe_publishable_key, qb_client_id, qb_client_secret, qb_access_token, qb_refresh_token, qb_realm_id)
-        VALUES ('Proper & Co', 'properandco.com', 'https://proper.com/logo.png', '#aa8c66', 'custom_proper', TRUE, 'sk_test_123', 'pk_test_123', 'qb_client_123', 'qb_secret_123', 'qb_access_123', 'qb_refresh_123', 'realm_123')
+        VALUES ('Proper & Co', 'properandco.com', '/static/img/proper_logo.png', '#aa8c66', 'custom_proper', TRUE, 'sk_test_123', 'pk_test_123', 'qb_client_123', 'qb_secret_123', 'qb_access_123', 'qb_refresh_123', 'realm_123')
         RETURNING id
     """)
     proper_company_id = cursor.fetchone()[0]
