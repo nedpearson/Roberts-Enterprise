@@ -261,6 +261,16 @@
                     {% endif %}
 
                     <div class="d-flex align-items-center ms-auto">
+                        <a href="{{ url_for('communications.log_view') }}"
+                            class="btn btn-sm btn-outline-secondary rounded-circle me-3 border-0 position-relative motion-hover-lift-luxury"
+                            title="Inbox & Alerts">
+                            <i class="bi bi-bell text-secondary fs-5"></i>
+                            <span id="globalAlertBadge"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+                                style="font-size: 0.65rem;">
+                                0
+                            </span>
+                        </a>
                         <button type="button"
                             class="btn btn-sm btn-outline-secondary rounded-circle me-3 border-0 motion-hover-lift-luxury"
                             onclick="VoiceAssistant.start()" title="Voice Assistant">
@@ -629,6 +639,29 @@
                     console.log('ServiceWorker registration failed: ', err);
                 });
             });
+        }
+
+        // Alert Badge Polling Engine
+        function updateGlobalAlertBadge() {
+            fetch('/api/team_comm/alerts/count')
+                .then(res => res.json())
+                .then(data => {
+                    const badge = document.getElementById('globalAlertBadge');
+                    if (badge) {
+                        if (data.count > 0) {
+                            badge.innerText = data.count > 99 ? '99+' : data.count;
+                            badge.classList.remove('d-none');
+                        } else {
+                            badge.classList.add('d-none');
+                        }
+                    }
+                }).catch(e => console.error("Alert poll failed:", e));
+        }
+
+        // Run once immediately, then every 30 seconds
+        if (document.getElementById('globalAlertBadge')) {
+            updateGlobalAlertBadge();
+            setInterval(updateGlobalAlertBadge, 30000);
         }
     </script>
 
