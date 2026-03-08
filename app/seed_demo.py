@@ -34,7 +34,7 @@ def seed_demo_data():
     # 1. Company
     cursor.execute("""
         INSERT INTO companies (name, domain, logo_url, primary_color, theme_bg, active, stripe_secret_key, stripe_publishable_key, qb_client_id, qb_client_secret, qb_access_token, qb_refresh_token, qb_realm_id)
-        VALUES ('Roberts Bridal Enterprise', 'robertsbridal.com', 'https://robertsbridal.com/logo.png', '#aa8c66', 'light', TRUE, 'sk_test_123', 'pk_test_123', 'qb_client_123', 'qb_secret_123', 'qb_access_123', 'qb_refresh_123', 'realm_123')
+        VALUES ('I Do Bridal Couture', 'idobridalcouture.com', 'https://idobridalcouture.com/logo.png', '#aa8c66', 'light', TRUE, 'sk_test_123', 'pk_test_123', 'qb_client_123', 'qb_secret_123', 'qb_access_123', 'qb_refresh_123', 'realm_123')
         RETURNING id
     """)
     company_id = cursor.fetchone()[0]
@@ -50,11 +50,11 @@ def seed_demo_data():
     loc1_id, loc2_id = [r[0] for r in cursor.fetchmany(2)]
 
     # 3. Users
-    pw_hash = generate_password_hash("demo")
+    pw_hash = generate_password_hash("1979Ramsey30!")
     cursor.execute("""
         INSERT INTO users (company_id, location_id, email, password_hash, role, first_name, last_name, commission_type, commission_rate, hourly_wage, bonus)
         VALUES 
-        (%s, %s, 'demo@example.com', %s, 'Owner', 'Jane', 'Roberts', 'NONE', 0.0, 0.0, 5000.0),
+        (%s, %s, 'ramsey@idobridalcouture.com', %s, 'Owner', 'Ramsey', 'Roberts', 'NONE', 0.0, 0.0, 5000.0),
         (%s, %s, 'manager@example.com', %s, 'Manager', 'Sarah', 'Smith', 'FLAT', 50.0, 25.0, 500.0),
         (%s, %s, 'stylist1@example.com', %s, 'Stylist', 'Emily', 'Chen', 'PERCENTAGE', 5.0, 18.0, 100.0),
         (%s, %s, 'stylist2@example.com', %s, 'Stylist', 'Jessica', 'Davis', 'PERCENTAGE', 5.0, 18.0, 100.0),
