@@ -1000,5 +1000,6 @@ class DrilldownEngine:
         except Exception as e:
             import traceback
             trace = traceback.format_exc()
+            self.conn.rollback()
             print(f"Drilldown Engine Error: {e}\n{trace}")
             return {"error": str(e)}

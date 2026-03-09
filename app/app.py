@@ -12,6 +12,15 @@ socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False, async_m
 with app.app_context():
     init_db()
 
+from flask import g
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        if exception:
+            db.rollback()
+        db.close()
+
 # Register Blueprints
 from routes.customers import bp as customers_bp  # noqa: E402
 from routes.appointments import bp as appointments_bp  # noqa: E402
