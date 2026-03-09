@@ -6,7 +6,7 @@ from flask_socketio import SocketIO
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-for-roberts-enterprise")
-socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
+socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False, async_mode="threading")
 
 # Ensure database is initialized on startup
 with app.app_context():
@@ -663,10 +663,16 @@ def handle_exception(e):
     return "Error captured to disk", 500
 
 @app.route('/force-seed-database-railway')
-def force_seed_db():
-    # TEMPORARY FIX: Disabled to prevent endless healthcheck/reboot loop triggering seed.
-    # The database was successfully seeded.
-    return "SUCCESS! Production Database Wiped and Reseeded for I Do Bridal Couture! Go to /login", 200
+def force_seed_database_railway():
+    try:
+        import seed_demo
+        import threading
+        # Run seeding in background so the request doesn't timeout
+        thread = threading.Thread(target=seed_demo.seed_demo_data)
+        thread.start()
+        return jsonify({"message": "Database wipe and comprehensive demo seed initiated in the background! Please wait 10-15 seconds for it to complete."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, port=5005)

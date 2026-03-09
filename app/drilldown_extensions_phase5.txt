@@ -11,7 +11,7 @@
                            v.email as "Email", count(p.id) as "Products Supplied"
                     FROM vendors v
                     LEFT JOIN products p ON p.vendor_id = v.id
-                    WHERE v.company_id = ? AND v.active = 1
+                    WHERE v.company_id = %s AND v.active = 1
                     GROUP BY v.id ORDER BY v.name ASC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -22,9 +22,9 @@
                 'title': 'Products by Vendor',
                 'query': '''
                     SELECT p.id as "_pid", p.sku as "Base SKU", p.name as "Product",
-                           p.type as "Category", "$" || printf("%.2f", p.cost) as "Unit Cost"
+                           p.type as "Category", TO_CHAR(p.cost, 'FM,999,990.00') as "Unit Cost"
                     FROM products p
-                    WHERE p.vendor_id = ? AND p.active = 1
+                    WHERE p.vendor_id = %s AND p.active = 1
                 ''',
                 'params': lambda ctx: [ctx.get('id')],
                 'columns': ["Base SKU", "Product", "Category", "Unit Cost"],
@@ -36,7 +36,7 @@
                     SELECT pv.id as "_pvid", pv.sku_variant as "SKU", pv.size as "Size", 
                            pv.color as "Color", pv.on_hand_qty as "In Stock"
                     FROM product_variants pv
-                    WHERE pv.product_id = ?
+                    WHERE pv.product_id = %s
                 ''',
                 'params': lambda ctx: [ctx.get('id')],
                 'columns': ["SKU", "Size", "Color", "In Stock"],
@@ -49,10 +49,10 @@
                 'query': '''
                     SELECT po.id as "_poid", '#' || po.id as "PO #", v.name as "Vendor",
                            po.expected_delivery as "Expected", po.status as "Status",
-                           "$" || printf("%.2f", po.total_cost) as "Total Cost"
+                           TO_CHAR(po.total_cost, 'FM,999,990.00') as "Total Cost"
                     FROM purchase_orders po
                     JOIN vendors v ON po.vendor_id = v.id
-                    WHERE v.company_id = ? AND po.status IN ('Submitted', 'Partially_Received')
+                    WHERE v.company_id = %s AND po.status IN ('Submitted', 'Partially_Received')
                     ORDER BY po.total_cost DESC
                 ''',
                 'params': lambda ctx: [ctx.get('company_id')],
@@ -63,9 +63,9 @@
                 'title': 'Vendor Purchase Orders',
                 'query': '''
                     SELECT po.id as "_poid", '#' || po.id as "PO #", po.order_date as "Date",
-                           po.status as "Status", "$" || printf("%.2f", po.total_cost) as "Total"
+                           po.status as "Status", TO_CHAR(po.total_cost, 'FM,999,990.00') as "Total"
                     FROM purchase_orders po
-                    WHERE po.vendor_id = ?
+                    WHERE po.vendor_id = %s
                     ORDER BY po.order_date DESC
                 ''',
                 'params': lambda ctx: [ctx.get('id')],
