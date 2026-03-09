@@ -998,5 +998,7 @@ class DrilldownEngine:
                 "drill_links": config.get('drill_links', {})
             }
         except Exception as e:
-            print(f"Drilldown Engine Error: {e}")
+            import traceback
+            trace = traceback.format_exc()
+            print(f"Drilldown Engine Error: {e}\n{trace}")
             return {"error": str(e)}

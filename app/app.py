@@ -122,11 +122,11 @@ def inject_company_context():
     primary = company['primary_color'] if company and company['primary_color'] else '#aa8c66'
     
     if theme_bg_type == 'custom_proper':
-        t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#000000', '#ffffff', '#ffffff'
-        t_col, s_txt, s_hvr, b_col = '#2b3035', '#f8f9fa', '#222222', '#eaeaea'
+        t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#6d6d6d', '#ffffff', '#ffffff'
+        t_col, s_txt, s_hvr, b_col = '#2b3035', '#ffffff', '#3a3a3a', '#eaeaea'
         k_bg, muted = '#f8f9fa', '#6c757d'
         inp_bg, inp_br, inp_border = '#f1f3f5', '2rem', 'none'
-        btn_bg, btn_hvr, btn_txt = '#000000', '#333333', '#ffffff'
+        btn_bg, btn_hvr, btn_txt = '#6d6d6d', '#3a3a3a', '#ffffff'
     elif theme_bg_type == 'custom_idc':
         t_bg, s_bg, c_bg, ch_bg = '#ffffff', '#6d6d6d', '#ffffff', '#ffffff'
         t_col, s_txt, s_hvr, b_col = '#2b3035', '#ffffff', '#3a3a3a', '#eaeaea'
