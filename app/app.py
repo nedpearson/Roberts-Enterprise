@@ -4,7 +4,9 @@ from werkzeug.security import check_password_hash
 from database import init_db
 from flask_socketio import SocketIO
 
+from werkzeug.middleware.proxy_fix import ProxyFix
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-for-roberts-enterprise")
 socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False, async_mode="threading")
 

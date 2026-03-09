@@ -1,4 +1,10 @@
 
+def safe_split(val, delim, idx, default=None):
+    if not val: return default
+    parts = str(val).split(delim)
+    if idx < len(parts): return parts[idx]
+    return default
+
 class DrilldownEngine:
     """
     Centralized engine for the Global Drilldown Architecture.
@@ -241,8 +247,8 @@ class DrilldownEngine:
                 ''',
                 'params': lambda ctx: [
                     ctx.get('id'), 
-                    (str(ctx.get('id','')) + '||').split('|')[0], 
-                    (str(ctx.get('id','')) + '||').split('|')[1], 
+                    safe_split(ctx.get('id'), '|', 0), 
+                    safe_split(ctx.get('id'), '|', 1), 
                     ctx.get('company_id')
                 ],
                 'columns': ["Service", "Appointments"],
@@ -262,9 +268,9 @@ class DrilldownEngine:
                     ORDER BY a.start_at ASC
                 ''',
                 'params': lambda ctx: [
-                    (str(ctx.get('id','')) + '|||').split('|')[0], 
-                    (str(ctx.get('id','')) + '|||').split('|')[1], 
-                    (str(ctx.get('id','')) + '|||').split('|')[2], 
+                    safe_split(ctx.get('id'), '|', 0), 
+                    safe_split(ctx.get('id'), '|', 1), 
+                    safe_split(ctx.get('id'), '|', 2), 
                     ctx.get('company_id')
                 ],
                 'columns': ["Time", "Customer", "Status"],
@@ -364,8 +370,8 @@ class DrilldownEngine:
                     ORDER BY o.created_at DESC
                 ''',
                 'params': lambda ctx: [
-                    (str(ctx.get('id','')) + '||').split('|')[0], 
-                    (str(ctx.get('id','')) + '||').split('|')[1], 
+                    safe_split(ctx.get('id'), '|', 0), 
+                    safe_split(ctx.get('id'), '|', 1), 
                     ctx.get('company_id')
                 ],
                 'columns': ["Customer", "Total", "Status"],
@@ -416,8 +422,8 @@ class DrilldownEngine:
                       AND pl.type = 'Deposit' AND o.company_id = %s
                 ''',
                 'params': lambda ctx: [
-                    (str(ctx.get('id','')) + '||').split('|')[0], 
-                    (str(ctx.get('id','')) + '||').split('|')[1], 
+                    safe_split(ctx.get('id'), '|', 0), 
+                    safe_split(ctx.get('id'), '|', 1), 
                     ctx.get('company_id')
                 ],
                 'columns': ["Bride", "Amount", "Method"],
