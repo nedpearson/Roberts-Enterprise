@@ -664,6 +664,7 @@ def handle_exception(e):
 
 @app.route('/force-seed-database-railway')
 def force_seed_database_railway():
+    from flask import jsonify
     try:
         import seed_demo
         import threading
@@ -676,3 +677,4 @@ def force_seed_database_railway():
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, port=5005)
+
