@@ -211,7 +211,7 @@ def inject_company_context():
         box-shadow: none !important;
     }}
     .btn-outline-light {{ color: var(--text-color) !important; border-color: var(--border-color) !important; border-radius: {inp_br} !important; }}
-    .btn-outline-light:hover {{ background-color: var(--sidebar-hover-bg) !important; color: var(--text-color) !important; }}
+    .btn-outline-light:hover, .btn-outline-light:focus, .btn-outline-light:active {{ background-color: var(--sidebar-hover-bg) !important; color: var(--sidebar-text) !important; border-color: var(--sidebar-hover-bg) !important; }}
     </style>
     """
 
